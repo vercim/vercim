@@ -24,7 +24,7 @@ export async function fetchRepos(username: string): Promise<GitHubRepo[]> {
   try {
     const res = await fetch(
       `https://api.github.com/users/${username}/repos?sort=updated&per_page=100&type=owner`,
-      { headers: githubHeaders(), cache: 'force-cache' }
+      { headers: githubHeaders(), next: { revalidate: 21600 } }
     );
     if (!res.ok) return [];
     const data: GitHubRepo[] = await res.json();
@@ -76,7 +76,7 @@ export async function fetchLatestReleaseUrl(
   try {
     const res = await fetch(
       `https://api.github.com/repos/${username}/${repo}/releases/latest`,
-      { headers: githubHeaders(), cache: 'force-cache' }
+      { headers: githubHeaders(), next: { revalidate: 21600 } }
     );
     if (!res.ok) return null;
     const data = await res.json();

@@ -1,3 +1,5 @@
+export const revalidate = 21600; // 6 hours
+
 import { HeroSection } from '@/components/HeroSection';
 import { ProjectsSection } from '@/components/ProjectsSection';
 import { VideoSection } from '@/components/VideoSection';

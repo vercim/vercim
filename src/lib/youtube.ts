@@ -40,7 +40,7 @@ export async function enrichWithStats(
     try {
       const res = await fetch(
         `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${ids}&key=${apiKey}`,
-        { next: { revalidate: 3600 } }
+        { next: { revalidate: 21600 } }
       );
       if (!res.ok) continue;
       const data = await res.json();
@@ -63,7 +63,7 @@ export async function fetchChannelVideos(
   try {
     const res = await fetch(
       `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`,
-      { cache: 'force-cache' }
+      { next: { revalidate: 21600 } }
     );
     if (!res.ok) return [];
     return parseRSS(await res.text(), channelLabel);

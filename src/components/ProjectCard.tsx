@@ -73,7 +73,7 @@ export function ProjectCard({ project }: Props) {
               title="Open project"
               aria-label="Open project"
             >
-              <ArrowUpRight size={16} />
+              <ArrowUpRight size={16}/>
             </a>
           )}
         </div>

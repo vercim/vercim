@@ -42,7 +42,7 @@ export const socialLinks: SocialEntry[] = [
     id: 'twitter',
     label: 'Twitter',
     handle: '',
-    href: 'https://x.com/kinoteatre',
+    href: 'https://x.com/kinoteax',
     icon: SiX,
   },
   {

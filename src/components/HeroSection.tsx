@@ -36,6 +36,7 @@ export function HeroSection() {
           )}
         </div>
 
+        <p className={styles.role}>vercim / kino / kinotea</p>
         <p className={styles.role}>my socials here 👇</p>
 
         <nav className={styles.links} aria-label="Social links">
@@ -87,7 +88,7 @@ export function HeroSection() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <span>My marketplace</span>
+            <span>My own store</span>
             <ArrowUpRight size={14} />
           </a>
         )}
