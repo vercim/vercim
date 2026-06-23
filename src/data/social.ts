@@ -1,4 +1,4 @@
-import { SiTelegram, SiYoutube, SiDiscord, SiRoblox, SiX } from 'react-icons/si';
+import { SiTelegram, SiYoutube, SiDiscord, SiRoblox, SiX, SiGithub, SiModrinth } from 'react-icons/si';
 import { HiOutlineEnvelope } from 'react-icons/hi2';
 import type { IconType } from 'react-icons';
 
@@ -58,5 +58,19 @@ export const socialLinks: SocialEntry[] = [
     handle: 'contact@verc.im',
     href: '',
     icon: HiOutlineEnvelope,
+  },
+  {
+    id: 'github',
+    label: 'GitHub',
+    handle: '',
+    href: 'https://github.com/vercim',
+    icon: SiGithub,
+  },
+  {
+    id: 'modrinth',
+    label: 'Modrinth',
+    handle: '',
+    href: 'https://modrinth.com/user/vercim',
+    icon: SiModrinth,
   },
 ];
