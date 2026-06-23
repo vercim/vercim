@@ -3,6 +3,8 @@ export interface YouTubeVideoItem {
   title: string;
   published: string;
   channelLabel?: string;
+  viewCount?: number;
+  likeCount?: number;
 }
 
 function decodeEntities(s: string): string {
@@ -25,6 +27,33 @@ function parseRSS(xml: string, channelLabel?: string): YouTubeVideoItem[] {
       return { videoId, title: decodeEntities(rawTitle), published, channelLabel };
     })
     .filter((v) => v.videoId !== '');
+}
+
+export async function enrichWithStats(
+  videos: YouTubeVideoItem[],
+  apiKey: string
+): Promise<YouTubeVideoItem[]> {
+  const statsMap = new Map<string, { viewCount: number; likeCount: number }>();
+
+  for (let i = 0; i < videos.length; i += 50) {
+    const ids = videos.slice(i, i + 50).map((v) => v.videoId).join(',');
+    try {
+      const res = await fetch(
+        `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${ids}&key=${apiKey}`,
+        { next: { revalidate: 3600 } }
+      );
+      if (!res.ok) continue;
+      const data = await res.json();
+      for (const item of data.items ?? []) {
+        statsMap.set(item.id, {
+          viewCount: parseInt(item.statistics.viewCount ?? '0', 10),
+          likeCount: parseInt(item.statistics.likeCount ?? '0', 10),
+        });
+      }
+    } catch { }
+  }
+
+  return videos.map((v) => ({ ...v, ...statsMap.get(v.videoId) }));
 }
 
 export async function fetchChannelVideos(

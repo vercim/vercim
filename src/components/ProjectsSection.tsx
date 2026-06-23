@@ -2,14 +2,17 @@ import { config } from '@/data/config';
 import { youtubeOverrides } from '@/data/projects';
 import { fetchRepos, fetchLatestReleaseUrl, fetchPinnedRepoNames } from '@/lib/github';
 import type { RepoCard } from '@/types/project';
+import { Layers } from 'lucide-react';
 import { ProjectCard } from './ProjectCard';
 import styles from './ProjectsSection.module.css';
 
 export async function ProjectsSection() {
-  const [repos, pinnedNames] = await Promise.all([
+  const [repos, pinnedFromApi] = await Promise.all([
     fetchRepos(config.githubUsername),
     fetchPinnedRepoNames(config.githubUsername),
   ]);
+
+  const pinnedNames = pinnedFromApi.length > 0 ? pinnedFromApi : config.pinnedRepos;
 
   const pinnedSet = new Set(pinnedNames);
 
@@ -48,8 +51,9 @@ export async function ProjectsSection() {
   return (
     <section className={styles.section}>
       <div className={styles.header}>
+        <Layers size={16} color="#444" />
         <span className={styles.title}>projects</span>
-        <span className={styles.count}>{cards.length}</span>
+        <span className={styles.count}>{cards.length} total</span>
       </div>
       <div className={styles.list}>
         <div className={styles.inner}>

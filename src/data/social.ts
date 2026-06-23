@@ -55,7 +55,7 @@ export const socialLinks: SocialEntry[] = [
   {
     id: 'email',
     label: 'Email',
-    handle: 'skutovlev@gmail.com',
+    handle: 'contact@verc.im',
     href: '',
     icon: HiOutlineEnvelope,
   },
