@@ -20,43 +20,43 @@ export const socialLinks: SocialEntry[] = [
   {
     id: 'telegram',
     label: 'Telegram',
-    handle: '@YOUR_USERNAME',            // TODO: replace
-    href: 'https://t.me/YOUR_USERNAME',  // TODO: replace
+    handle: 'kntex',
+    href: '',
     icon: SiTelegram,
   },
   {
     id: 'discord',
     label: 'Discord',
-    handle: 'YOUR_USERNAME',
-    href: 'https://discord.com/users/YOUR_USER_ID', // TODO: replace with numeric ID
+    handle: 'kino.tea',
+    href: '',
     icon: SiDiscord,
   },
   {
     id: 'youtube',
     label: 'YouTube',
-    handle: '@YOUR_CHANNEL',
-    href: 'https://youtube.com/@YOUR_CHANNEL',      // TODO: replace
+    handle: '',
+    href: 'https://youtube.com/@knoteax',
     icon: SiYoutube,
   },
   {
     id: 'twitter',
-    label: 'X',
-    handle: '@YOUR_USERNAME',
-    href: 'https://x.com/YOUR_USERNAME',            // TODO: replace
+    label: 'Twitter',
+    handle: '',
+    href: 'https://x.com/kinoteatre',
     icon: SiX,
   },
   {
     id: 'roblox',
     label: 'Roblox',
-    handle: 'YOUR_USERNAME',
-    href: 'https://www.roblox.com/users/YOUR_USER_ID/profile', // TODO: replace with numeric ID
+    handle: '',
+    href: 'https://www.roblox.com/users/2254875642',
     icon: SiRoblox,
   },
   {
     id: 'email',
     label: 'Email',
     handle: 'skutovlev@gmail.com',
-    href: 'mailto:skutovlev@gmail.com',
+    href: '',
     icon: HiOutlineEnvelope,
   },
 ];

@@ -3,6 +3,7 @@ export interface GitHubRepo {
   name: string;
   description: string | null;
   html_url: string;
+  homepage: string | null;
   topics: string[];
   language: string | null;
   stargazers_count: number;
@@ -40,20 +41,29 @@ export async function fetchPinnedRepoNames(username: string): Promise<string[]> 
   const token = process.env.GITHUB_TOKEN;
   if (!token) return [];
 
-  const query = `{ user(login: "${username}") { pinnedItems(first: 6, types: REPOSITORY) { nodes { ... on Repository { name } } } } }`;
+  const query = `{ repositoryOwner(login: "${username}") { ... on User { pinnedItems(first: 6, types: REPOSITORY) { nodes { ... on Repository { name } } } } ... on Organization { pinnedItems(first: 6, types: REPOSITORY) { nodes { ... on Repository { name } } } } } }`;
 
   try {
     const res = await fetch('https://api.github.com/graphql', {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ query }),
-      cache: 'force-cache',
     });
-    if (!res.ok) return [];
+    if (!res.ok) {
+      console.error('[github] pinnedItems HTTP error:', res.status, await res.text());
+      return [];
+    }
     const json = await res.json();
+    if (json.errors) {
+      console.error('[github] pinnedItems GraphQL errors:', JSON.stringify(json.errors));
+      return [];
+    }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (json.data?.user?.pinnedItems?.nodes ?? []).map((n: any) => n.name as string);
-  } catch {
+    const names = (json.data?.repositoryOwner?.pinnedItems?.nodes ?? []).map((n: any) => n.name as string);
+    console.log('[github] pinnedItems resolved:', names);
+    return names;
+  } catch (e) {
+    console.error('[github] pinnedItems exception:', e);
     return [];
   }
 }

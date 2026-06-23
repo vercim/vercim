@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { HiOutlineGlobeAlt, HiCheck, HiArrowUpRight } from 'react-icons/hi2';
+import { Globe, Check, ArrowUpRight } from 'lucide-react';
 import { socialLinks } from '@/data/social';
 import { config } from '@/data/config';
 import styles from './HeroSection.module.css';
@@ -9,8 +9,7 @@ import styles from './HeroSection.module.css';
 export function HeroSection() {
   const [copied, setCopied] = useState<string | null>(null);
 
-  const handleCopy = async (id: string, href: string) => {
-    const text = href.startsWith('mailto:') ? href.replace('mailto:', '') : href;
+  const copyToClipboard = async (id: string, text: string) => {
     try {
       await navigator.clipboard.writeText(text);
     } catch {
@@ -31,30 +30,52 @@ export function HeroSection() {
         <div className={styles.gifBlock}>
           {config.gifUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={config.gifUrl} alt="" className={styles.gif} />
+            <img src={config.gifUrl} alt="" className={styles.gif} draggable={false} />
           ) : (
             <div className={styles.gifPlaceholder}>gif</div>
           )}
         </div>
 
-        <p className={styles.role}>developer</p>
+        <p className={styles.role}>my socials here 👇</p>
 
         <nav className={styles.links} aria-label="Social links">
-          {socialLinks.map(({ id, icon: Icon, label, href }) => {
+          {socialLinks.map(({ id, icon: Icon, label, handle, href }) => {
             const isCopied = copied === id;
-            const DisplayIcon = Icon ?? HiOutlineGlobeAlt;
+            const isLink = !!href;
+
+            if (isLink) {
+              return (
+                <a
+                  key={id}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.chip}
+                  title={`Open ${label}`}
+                  aria-label={`Open ${label}`}
+                >
+                  {Icon ? <Icon size={14} /> : <Globe size={14} />}
+                  <span>{label}</span>
+                </a>
+              );
+            }
+
             return (
-              <a
+              <button
                 key={id}
-                href={href}
-                onClick={(e) => { e.preventDefault(); handleCopy(id, href); }}
+                type="button"
+                onClick={() => copyToClipboard(id, handle)}
                 className={`${styles.chip}${isCopied ? ` ${styles.chipCopied}` : ''}`}
-                title={`Copy ${label} link`}
-                aria-label={`Copy ${label} link`}
+                title={`Copy ${handle}`}
+                aria-label={`Copy ${label} — ${handle}`}
               >
-                {isCopied ? <HiCheck size={12} /> : <DisplayIcon size={12} />}
+                {isCopied
+                  ? <Check size={14} />
+                  : Icon
+                    ? <Icon size={14} />
+                    : <Globe size={14} />}
                 <span>{isCopied ? 'copied' : label}</span>
-              </a>
+              </button>
             );
           })}
         </nav>
@@ -66,8 +87,8 @@ export function HeroSection() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <span>Marketplace</span>
-            <HiArrowUpRight size={14} />
+            <span>My marketplace</span>
+            <ArrowUpRight size={14} />
           </a>
         )}
       </div>

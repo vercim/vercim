@@ -3,7 +3,7 @@
 import type { RepoCard } from '@/types/project';
 import { YouTubeEmbed } from './YouTubeEmbed';
 import { SiGithub } from 'react-icons/si';
-import { HiOutlineArrowDownTray } from 'react-icons/hi2';
+import { Download, ArrowUpRight } from 'lucide-react';
 import styles from './ProjectCard.module.css';
 
 interface Props {
@@ -52,7 +52,19 @@ export function ProjectCard({ project }: Props) {
               title="Download"
               aria-label="Download"
             >
-              <HiOutlineArrowDownTray size={16} />
+              <Download size={16} />
+            </a>
+          )}
+          {project.projectUrl && (
+            <a
+              href={project.projectUrl}
+              className={styles.button}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Open project"
+              aria-label="Open project"
+            >
+              <ArrowUpRight size={16} />
             </a>
           )}
         </div>

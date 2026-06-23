@@ -9,5 +9,18 @@ export const config = {
 
   // URL for the Marketplace button in the hero section.
   // Leave empty to hide the button.
-  marketplaceUrl: '', // TODO: replace with your store URL
+  marketplaceUrl: 'https://assets.verc.im',
+
+  // YouTube channels shown in the Videos section.
+  // To find your channel ID: YouTube Studio → Settings → Channel → Basic info → Channel ID
+  // The id field must be the channel ID (starts with UC…), not the @handle.
+  // Leave empty to hide the Videos section entirely.
+  youtubeChannels: [
+    { id: 'UC_KGWY3XGgxHqiHJ9kkn9ow', label: 'knoteax' },
+  ] as Array<{ id: string; label?: string }>,
+
+  // Videos shown on first load.
+  videosInitial: 3,
+  // How many more videos each "load more" click adds.
+  videosLoadMore: 6,
 };

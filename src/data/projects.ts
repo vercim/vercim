@@ -2,5 +2,5 @@
 // key   = exact repo name (case-sensitive, must match GitHub repo name)
 // value = YouTube video ID (the part after ?v= in the URL)
 export const youtubeOverrides: Record<string, string> = {
-  // 'my-project': 'dQw4w9WgXcQ',
+  'handycam': '73bml5wp2TQ',
 };

@@ -57,17 +57,19 @@
 }
 
 .chip {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.3rem 0.65rem;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
   border: 1px solid #1e1e1e;
+  background: transparent;
   color: #555;
-  font-size: 0.73rem;
-  letter-spacing: 0.03em;
+  font-size: 0.8rem;
+  font-family: inherit;
+  letter-spacing: 0.04em;
   text-decoration: none;
   cursor: pointer;
-  transition: color 0.12s, border-color 0.12s, background 0.12s;
+  transition: color 0.12s, border-color 0.12s;
   user-select: none;
 }
 
@@ -82,23 +84,22 @@
 }
 
 .marketplace {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
-  width: 100%;
-  max-width: 380px;
-  padding: 0.55rem 0.9rem;
-  border: 1px solid #2a2a2a;
-  color: #666;
+  gap: 0.4rem;
+  background: none;
+  border: none;
+  padding: 0;
+  color: #444;
   font-size: 0.8rem;
+  font-family: inherit;
   letter-spacing: 0.06em;
   text-decoration: none;
   text-transform: uppercase;
-  transition: color 0.15s, border-color 0.15s;
+  cursor: pointer;
+  transition: color 0.15s;
 }
 
 .marketplace:hover {
-  color: #fff;
-  border-color: #555;
+  color: #ccc;
 }

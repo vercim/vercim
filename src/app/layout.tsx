@@ -8,8 +8,8 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'versim',
-  description: 'developer',
+  title: 'Vercim / me',
+  description: 'My profile page with links to my social media and other platforms',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

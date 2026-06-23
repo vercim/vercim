@@ -28,6 +28,7 @@ export async function ProjectsSection() {
         name: repo.name,
         description: repo.description,
         sourceUrl: repo.html_url,
+        projectUrl: repo.homepage || null,
         tags,
         language: repo.language,
         releaseUrl,
