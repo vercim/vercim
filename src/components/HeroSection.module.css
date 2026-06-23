@@ -1,0 +1,104 @@
+.section {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid #111;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  text-align: center;
+}
+
+.gifBlock {
+  width: 200px;
+  height: 200px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.gif {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.gifPlaceholder {
+  width: 100%;
+  height: 100%;
+  border: 1px dashed #222;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: #2a2a2a;
+  letter-spacing: 0.08em;
+}
+
+.role {
+  font-size: 0.8125rem;
+  color: #444;
+  margin: 0;
+  letter-spacing: 0.05em;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  justify-content: center;
+  max-width: 380px;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.65rem;
+  border: 1px solid #1e1e1e;
+  color: #555;
+  font-size: 0.73rem;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.12s, border-color 0.12s, background 0.12s;
+  user-select: none;
+}
+
+.chip:hover {
+  color: #ccc;
+  border-color: #333;
+}
+
+.chipCopied {
+  color: #fff !important;
+  border-color: #444 !important;
+}
+
+.marketplace {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 380px;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid #2a2a2a;
+  color: #666;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.marketplace:hover {
+  color: #fff;
+  border-color: #555;
+}
