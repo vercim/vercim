@@ -8,4 +8,5 @@ export interface RepoCard {
   releaseUrl: string | null;
   youtubeId?: string;
   pinned: boolean;
+  stars: number;
 }

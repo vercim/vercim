@@ -4,6 +4,7 @@ import type { RepoCard } from '@/types/project';
 import { YouTubeEmbed } from './YouTubeEmbed';
 import { SiGithub } from 'react-icons/si';
 import { Download, ArrowUpRight } from 'lucide-react';
+import { FaStar } from 'react-icons/fa';
 import styles from './ProjectCard.module.css';
 
 interface Props {
@@ -15,9 +16,17 @@ export function ProjectCard({ project }: Props) {
     <article className={styles.card}>
       <div className={styles.row}>
         <div className={styles.info}>
-          <h2 className={`${styles.name}${project.pinned ? ` ${styles.namePinned}` : ''}`}>
-            {project.name}
-          </h2>
+          <div className={styles.nameRow}>
+            <h2 className={`${styles.name}${project.pinned ? ` ${styles.namePinned}` : ''}`}>
+              {project.name}
+            </h2>
+            {project.stars > 0 && (
+              <span className={styles.stars}>
+                <FaStar size={9} />
+                {project.stars}
+              </span>
+            )}
+          </div>
           {project.tags.length > 0 && (
             <div className={styles.tags}>
               {project.tags.map((tag) => (

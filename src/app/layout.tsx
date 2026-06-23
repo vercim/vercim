@@ -8,7 +8,7 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Vercim / me',
+  title: 'Vercim',
   description: 'My profile page with links to my social media and other platforms',
 };
 

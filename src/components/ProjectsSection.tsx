@@ -37,6 +37,7 @@ export async function ProjectsSection() {
         releaseUrl,
         youtubeId: youtubeOverrides[repo.name],
         pinned: pinnedSet.has(repo.name),
+        stars: repo.stargazers_count,
       };
     })
   );
