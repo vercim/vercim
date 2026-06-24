@@ -3,7 +3,7 @@
 import type { RepoCard } from '@/types/project';
 import { YouTubeEmbed } from './YouTubeEmbed';
 import { SiGithub } from 'react-icons/si';
-import { Download, ArrowUpRight } from 'lucide-react';
+import { Download } from 'lucide-react';
 import { FaStar } from 'react-icons/fa';
 import { useInView } from '@/hooks/useInView';
 import { useMotionEnabled } from '@/hooks/useMotionEnabled';
@@ -53,15 +53,23 @@ export function ProjectCard({ project }: Props) {
             <SiGithub size={18} />
           </a>
           {project.releaseUrl && (
-            <a href={project.releaseUrl} className="flex items-center justify-center w-11 h-11 border border-line-soft text-subtle transition-colors hover:text-fg hover:border-line-bright [-webkit-tap-highlight-color:transparent]"
+            <a href={project.releaseUrl} className="group/dlbtn flex items-center justify-center w-11 h-11 border border-line-soft text-subtle transition-colors hover:text-fg hover:border-line-bright [-webkit-tap-highlight-color:transparent]"
               target="_blank" rel="noopener noreferrer" title="Download" aria-label="Download">
-              <Download size={18} />
+              <Download size={18} className="group-hover/dlbtn:animate-[download-nudge_0.35s_ease_both]" />
             </a>
           )}
           {project.projectUrl && (
-            <a href={project.projectUrl} className="flex items-center justify-center w-11 h-11 border border-line-soft text-subtle transition-colors hover:text-fg hover:border-line-bright [-webkit-tap-highlight-color:transparent]"
+            <a href={project.projectUrl} className="group/arrowbtn flex items-center justify-center w-11 h-11 border border-line-soft text-subtle transition-colors hover:text-fg hover:border-line-bright [-webkit-tap-highlight-color:transparent]"
               target="_blank" rel="noopener noreferrer" title="Open project" aria-label="Open project">
-              <ArrowUpRight size={18} />
+              <svg
+                width="18" height="18" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" strokeWidth="2"
+                strokeLinecap="round" strokeLinejoin="round"
+                className="group-hover/arrowbtn:animate-[arrow-nudge_0.35s_ease_both]"
+              >
+                <line x1="7" y1="17" x2="17" y2="7"/>
+                <polyline points="7 7 17 7 17 17"/>
+              </svg>
             </a>
           )}
         </div>

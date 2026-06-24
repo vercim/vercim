@@ -40,7 +40,7 @@ export async function ProjectsSection() {
   const cards = [...pinnedCards, ...restCards];
 
   return (
-    <section id="projects" className="min-h-screen flex flex-col items-center">
+    <section id="projects" className="min-h-screen flex flex-col items-center border-b border-divider">
       <div className="w-full max-w-[680px] flex items-center gap-[0.625rem] px-4 pt-8 pb-6">
         <Layers size={16} className="text-faint" />
         <span className="text-[0.8125rem] font-semibold text-faint tracking-[0.04em] uppercase">projects</span>

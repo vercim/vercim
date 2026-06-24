@@ -98,7 +98,7 @@ export function HeroSection() {
                 className={`${chipClass}${isCopied ? ' !text-fg !border-line-bright' : ''}`}
                 style={animStyle}
                 title={`Copy ${handle}`} aria-label={`Copy ${label} — ${handle}`}>
-                {isCopied ? <Check size={16} /> : Icon ? <Icon size={16} /> : <Globe size={16} />}
+                {isCopied ? <Check size={16} className="animate-[check-pop_0.3s_ease_both]" /> : Icon ? <Icon size={16} /> : <Globe size={16} />}
                 <TextMorph disabled={!motionEnabled}>{isCopied ? 'copied' : label}</TextMorph>
               </button>
             );

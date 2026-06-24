@@ -23,12 +23,14 @@ function VideoCard({ v, colDelay, isNew }: VideoCardProps) {
   const { ref, inView } = useInView();
   const { enabled: motionEnabled } = useMotionEnabled();
   const [triggered, setTriggered] = useState(false);
+  const [imgReady, setImgReady] = useState(false);
 
   useEffect(() => {
-    if (isNew) setTriggered(true);
-  }, [isNew]);
+    if (isNew && imgReady) setTriggered(true);
+  }, [isNew, imgReady]);
 
-  const shouldAnimate = inView || triggered;
+  // New cards wait for thumbnail load; existing cards use inView scroll trigger
+  const shouldAnimate = isNew ? triggered : (inView || triggered);
   const delay = `${colDelay}ms`;
 
   return (
@@ -43,7 +45,9 @@ function VideoCard({ v, colDelay, isNew }: VideoCardProps) {
           ? shouldAnimate
             ? { animation: `slide-right-fade 0.4s ease ${delay} both` }
             : { opacity: 0 }
-          : {}
+          : isNew && !imgReady
+            ? { opacity: 0 }
+            : {}
       }
     >
       <div className="relative w-full aspect-video overflow-hidden bg-surface border border-divider">
@@ -53,6 +57,7 @@ function VideoCard({ v, colDelay, isNew }: VideoCardProps) {
           fill
           sizes="(max-width: 400px) 100vw, (max-width: 640px) 50vw, 33vw"
           className="object-cover transition-[opacity,filter] duration-150 group-hover:opacity-80 group-hover:blur-[3px]"
+          onLoad={() => setImgReady(true)}
         />
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none">
           <div className="w-9 h-9 flex items-center justify-center text-white bg-black/50">

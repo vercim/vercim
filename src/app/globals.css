@@ -8,39 +8,39 @@
   --c-surface:      #0a0a0a;
   --c-raised:       #111;
   --c-fg:           #fff;
-  --c-muted:        #888;
-  --c-subtle:       #666;
-  --c-faint:        #444;
-  --c-ghost:        #333;
-  --c-accent:       #c9960a;
-  --c-accent-dim:   #a07800;
+  --c-muted:        #9a9a9a;
+  --c-subtle:       #787878;
+  --c-faint:        #585858;
+  --c-ghost:        #3a3a3a;
+  --c-accent:       #d4a012;
+  --c-accent-dim:   #a87e00;
   --c-line:         #1a1a1a;
   --c-line-soft:    #1e1e1e;
   --c-line-badge:   #222;
-  --c-line-hover:   #2a2a2a;
-  --c-line-bright:  #444;
+  --c-line-hover:   #181818;
+  --c-line-bright:  #585858;
   --c-divider:      #111;
-  --c-sep:          #333;
+  --c-sep:          #3a3a3a;
 }
 
 .light {
   --c-bg:           #fff;
-  --c-surface:      #f7f7f7;
-  --c-raised:       #eeeeee;
+  --c-surface:      #f5f5f5;
+  --c-raised:       #e8e8e8;
   --c-fg:           #000;
-  --c-muted:        #111;
-  --c-subtle:       #222;
-  --c-faint:        #444;
-  --c-ghost:        #666;
-  --c-accent:       #a07800;
-  --c-accent-dim:   #a07800;
-  --c-line:         #e0e0e0;
-  --c-line-soft:    #ddd;
-  --c-line-badge:   #d0d0d0;
-  --c-line-hover:   #ccc;
-  --c-line-bright:  #aaa;
-  --c-divider:      #eaeaea;
-  --c-sep:          #ccc;
+  --c-muted:        #0d0d0d;
+  --c-subtle:       #1a1a1a;
+  --c-faint:        #333;
+  --c-ghost:        #555;
+  --c-accent:       #8a6700;
+  --c-accent-dim:   #8a6700;
+  --c-line:         #c8c8c8;
+  --c-line-soft:    #c0c0c0;
+  --c-line-badge:   #b4b4b4;
+  --c-line-hover:   #d4d4d4;
+  --c-line-bright:  #888;
+  --c-divider:      #d8d8d8;
+  --c-sep:          #aaaaaa;
 }
 
 /* ─── Tailwind color utilities → tokens ─────────────────── */
@@ -79,6 +79,24 @@
 @keyframes slide-right-fade {
   from { opacity: 0; transform: translateX(14px); }
   to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes arrow-nudge {
+  0%   { transform: translate(0, 0); }
+  45%  { transform: translate(3px, -3px); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes download-nudge {
+  0%   { transform: translateY(0); }
+  45%  { transform: translateY(3px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes check-pop {
+  0%   { transform: scale(0.4) rotate(-15deg); }
+  60%  { transform: scale(1.25) rotate(5deg); }
+  100% { transform: scale(1) rotate(0deg); }
 }
 
 /* ─── Base ───────────────────────────────────────────────── */
