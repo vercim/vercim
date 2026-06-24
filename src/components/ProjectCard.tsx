@@ -5,14 +5,21 @@ import { YouTubeEmbed } from './YouTubeEmbed';
 import { SiGithub } from 'react-icons/si';
 import { Download, ArrowUpRight } from 'lucide-react';
 import { FaStar } from 'react-icons/fa';
+import { useInView } from '@/hooks/useInView';
+import { useMotionEnabled } from '@/hooks/useMotionEnabled';
 
 interface Props {
   project: RepoCard;
 }
 
 export function ProjectCard({ project }: Props) {
+  const { ref, inView } = useInView();
+  const { enabled: motionEnabled } = useMotionEnabled();
   return (
-    <article className="w-full px-5 py-[1.125rem] border border-line bg-surface transition-colors hover:border-line-hover">
+    <article
+      ref={ref as React.RefObject<HTMLElement>}
+      style={motionEnabled ? (inView ? { animation: 'slide-up-fade 0.4s ease both' } : { opacity: 0 }) : {}}
+      className="w-full px-5 py-[1.125rem] border border-line bg-surface transition-colors hover:border-line-hover">
       <div className="flex gap-4 items-start">
         <div className="flex-1 min-w-0 flex flex-col gap-[0.4rem]">
           <div className="flex items-center gap-2">

@@ -3,6 +3,7 @@ import { JetBrains_Mono } from 'next/font/google';
 import { ThemeProvider } from 'next-themes';
 import { GifProvider } from '@/hooks/useGifEnabled';
 import { MotionProvider } from '@/hooks/useMotionEnabled';
+import { SidebarProvider } from '@/hooks/useSidebarEnabled';
 import './globals.css';
 
 const mono = JetBrains_Mono({
@@ -24,12 +25,17 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{if(localStorage.getItem('motion_enabled')==='false')document.documentElement.classList.add('no-motion')}catch(e){}})()` }} />
+      </head>
       <body className={mono.className}>
         <ThemeProvider attribute="class" defaultTheme="dark" themes={['dark', 'light']}>
           <MotionProvider>
-            <GifProvider>
-              {children}
-            </GifProvider>
+            <SidebarProvider>
+              <GifProvider>
+                {children}
+              </GifProvider>
+            </SidebarProvider>
           </MotionProvider>
         </ThemeProvider>
       </body>

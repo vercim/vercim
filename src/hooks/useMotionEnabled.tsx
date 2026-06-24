@@ -1,6 +1,8 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useLayoutEffect, ReactNode } from 'react';
+
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 const LS_KEY = 'motion_enabled';
 const NO_MOTION_CLASS = 'no-motion';
@@ -15,11 +17,13 @@ const MotionContext = createContext<MotionContextValue>({ enabled: true, toggle:
 export function MotionProvider({ children }: { children: ReactNode }) {
   const [enabled, setEnabled] = useState(true);
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     const stored = localStorage.getItem(LS_KEY);
     const initial = stored !== null ? stored === 'true' : true;
-    setEnabled(initial);
-    if (!initial) document.documentElement.classList.add(NO_MOTION_CLASS);
+    if (!initial) {
+      setEnabled(false);
+      document.documentElement.classList.add(NO_MOTION_CLASS);
+    }
   }, []);
 
   const toggle = () => {

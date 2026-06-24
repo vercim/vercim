@@ -53,7 +53,7 @@ export function HeroSection() {
   };
 
   return (
-    <section className="min-h-screen flex items-center justify-center border-b border-divider px-4 py-8">
+    <section id="home" className="min-h-screen flex items-center justify-center border-b border-divider px-4 py-8">
       <div className="flex flex-col items-center gap-5 text-center">
         <div className="relative w-[250px] h-[250px] overflow-hidden shrink-0 max-[480px]:w-40 max-[480px]:h-40">
           {gifUrl && (
@@ -72,15 +72,19 @@ export function HeroSection() {
         <p className="text-[0.8125rem] text-subtle tracking-[0.05em]">my socials here 👇</p>
 
         <nav className="flex flex-wrap gap-[0.45rem] justify-center max-w-[380px] max-[480px]:max-w-full" aria-label="Social links">
-          {socialLinks.map(({ id, icon: Icon, label, handle, href }) => {
+          {socialLinks.map(({ id, icon: Icon, label, handle, href }, index) => {
             const isCopied = copied === id;
             const isLink = !!href;
+            const delay = `${index * 60}ms`;
+            const animStyle = motionEnabled
+              ? { opacity: 0, animation: `slide-up-fade 0.45s ease ${delay} both` }
+              : {};
             const chipClass = `inline-flex items-center gap-2 px-4 py-[0.625rem] min-h-[44px] border border-line-soft bg-transparent text-muted text-[0.8rem] font-bold tracking-[0.04em] no-underline cursor-pointer transition-colors select-none [-webkit-tap-highlight-color:transparent] hover:text-fg hover:border-line-hover overflow-hidden`;
 
             if (isLink) {
               return (
                 <a key={id} href={href} target="_blank" rel="noopener noreferrer"
-                  className={chipClass} title={`Open ${label}`} aria-label={`Open ${label}`}>
+                  className={chipClass} style={animStyle} title={`Open ${label}`} aria-label={`Open ${label}`}>
                   {Icon ? <Icon size={16} /> : <Globe size={16} />}
                   <span>{label}</span>
                 </a>
@@ -91,6 +95,7 @@ export function HeroSection() {
               <button key={id} type="button"
                 onClick={() => copyToClipboard(id, handle)}
                 className={`${chipClass}${isCopied ? ' !text-fg !border-line-bright' : ''}`}
+                style={animStyle}
                 title={`Copy ${handle}`} aria-label={`Copy ${label} — ${handle}`}>
                 {isCopied ? <Check size={16} /> : Icon ? <Icon size={16} /> : <Globe size={16} />}
                 <TextMorph disabled={!motionEnabled}>{isCopied ? 'copied' : label}</TextMorph>

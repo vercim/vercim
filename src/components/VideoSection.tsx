@@ -18,7 +18,7 @@ export async function VideoSection() {
   const videos = apiKey ? await enrichWithStats(sorted, apiKey) : sorted;
 
   return (
-    <section className="min-h-[80vh] flex flex-col items-center">
+    <section id="videos" className="min-h-[80vh] flex flex-col items-center">
       <div className="w-full max-w-[680px] flex items-center gap-[0.625rem] px-4 pt-8 pb-6">
         <SquarePlay size={16} className="text-faint" />
         <span className="text-[0.8125rem] font-semibold text-faint tracking-[0.04em] uppercase">videos</span>
