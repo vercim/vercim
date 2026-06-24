@@ -1,5 +1,5 @@
 import { SiTelegram, SiYoutube, SiDiscord, SiRoblox, SiX, SiGithub, SiModrinth } from 'react-icons/si';
-import { HiOutlineEnvelope } from 'react-icons/hi2';
+import { HiEnvelope } from 'react-icons/hi2';
 import type { IconType } from 'react-icons';
 
 export interface SocialEntry {
@@ -57,7 +57,7 @@ export const socialLinks: SocialEntry[] = [
     label: 'Email',
     handle: 'contact@verc.im',
     href: '',
-    icon: HiOutlineEnvelope,
+    icon: HiEnvelope,
   },
   {
     id: 'github',

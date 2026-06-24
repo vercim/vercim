@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
+import { Eye, ThumbsUp } from 'lucide-react';
 import type { YouTubeVideoItem } from '@/lib/youtube';
-import styles from './VideoGrid.module.css';
 
 function formatCount(n: number): string {
   if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
@@ -22,46 +23,48 @@ export function VideoGrid({ videos, initialCount, loadMoreCount }: Props) {
   const hasMore = count < videos.length;
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.grid}>
+    <div className="flex flex-col gap-6">
+      <div className="grid grid-cols-3 gap-4 max-[640px]:grid-cols-2 max-[400px]:grid-cols-1">
         {visible.map((v) => (
           <a
             key={v.videoId}
             href={`https://www.youtube.com/watch?v=${v.videoId}`}
             target="_blank"
             rel="noopener noreferrer"
-            className={styles.card}
+            className="group flex flex-col gap-2 no-underline text-inherit min-w-0"
           >
-            <div className={styles.thumb}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+            <div className="relative w-full aspect-video overflow-hidden bg-surface border border-divider">
+              <Image
                 src={`https://i.ytimg.com/vi/${v.videoId}/mqdefault.jpg`}
                 alt=""
-                className={styles.img}
+                fill
+                className="object-cover transition-[opacity,filter] duration-150 group-hover:opacity-80 group-hover:blur-[3px]"
               />
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none">
+                <div className="w-9 h-9 flex items-center justify-center text-white bg-black/50">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="7" y1="17" x2="17" y2="7"/>
+                    <polyline points="7 7 17 7 17 17"/>
+                  </svg>
+                </div>
+              </div>
             </div>
-            <p className={styles.title}>{v.title}</p>
-            <div className={styles.meta}>
+            <p className="text-[0.8rem] text-muted leading-[1.45] m-0 truncate transition-colors group-hover:text-fg">{v.title}</p>
+            <div className="flex flex-row items-center justify-between gap-2 min-w-0">
               {v.channelLabel && (
-                <span className={styles.channel}>{v.channelLabel}</span>
+                <span className="text-[13px] text-faint tracking-[0.02em]">{v.channelLabel}</span>
               )}
               {(v.viewCount !== undefined || v.likeCount !== undefined) && (
-                <div className={styles.stats}>
+                <div className="flex gap-3">
                   {v.viewCount !== undefined && (
-                    <span className={styles.stat}>
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                        <circle cx="12" cy="12" r="3"/>
-                      </svg>
+                    <span className="flex items-center gap-[0.25rem] text-[0.75rem] text-ghost tracking-[0.02em] transition-colors group-hover:text-subtle">
+                      <Eye size={15} strokeWidth={1} style={{ fill: 'currentColor', stroke: 'var(--c-bg)' }} />
                       {formatCount(v.viewCount)}
                     </span>
                   )}
                   {v.likeCount !== undefined && (
-                    <span className={styles.stat}>
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/>
-                        <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
-                      </svg>
+                    <span className="flex items-center gap-[0.25rem] text-[0.75rem] text-ghost tracking-[0.02em] transition-colors group-hover:text-subtle">
+                      <ThumbsUp size={15} strokeWidth={1} style={{ fill: 'currentColor', stroke: 'var(--c-bg)' }} />
                       {formatCount(v.likeCount)}
                     </span>
                   )}
@@ -74,10 +77,12 @@ export function VideoGrid({ videos, initialCount, loadMoreCount }: Props) {
 
       {hasMore && (
         <button
-          className={styles.more}
+          className="group block w-full max-w-[680px] mx-auto px-4 py-[0.6rem] bg-transparent border border-line-soft text-subtle text-[0.75rem] uppercase tracking-[0.05em] cursor-pointer transition-colors hover:text-fg hover:border-line-bright"
           onClick={() => setCount((c) => c + loadMoreCount)}
         >
-          load more
+          <span className="relative after:absolute after:left-0 after:bottom-[-1px] after:w-full after:h-px after:bg-current after:scale-x-0 after:origin-left after:transition-transform group-hover:after:scale-x-100">
+            load more
+          </span>
         </button>
       )}
     </div>

@@ -1,46 +1,123 @@
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ─── Raw theme tokens ──────────────────────────────────── */
+:root, .dark {
+  --c-bg:           #000;
+  --c-surface:      #0a0a0a;
+  --c-raised:       #111;
+  --c-fg:           #fff;
+  --c-muted:        #888;
+  --c-subtle:       #666;
+  --c-faint:        #444;
+  --c-ghost:        #333;
+  --c-accent:       #c9960a;
+  --c-accent-dim:   #a07800;
+  --c-line:         #1a1a1a;
+  --c-line-soft:    #1e1e1e;
+  --c-line-badge:   #222;
+  --c-line-hover:   #2a2a2a;
+  --c-line-bright:  #444;
+  --c-divider:      #111;
+  --c-sep:          #333;
 }
 
-html {
-  scroll-behavior: smooth;
-  text-size-adjust: 100%;
-  -webkit-text-size-adjust: 100%;
+.light {
+  --c-bg:           #fff;
+  --c-surface:      #f7f7f7;
+  --c-raised:       #eeeeee;
+  --c-fg:           #000;
+  --c-muted:        #111;
+  --c-subtle:       #222;
+  --c-faint:        #444;
+  --c-ghost:        #666;
+  --c-accent:       #a07800;
+  --c-accent-dim:   #a07800;
+  --c-line:         #e0e0e0;
+  --c-line-soft:    #ddd;
+  --c-line-badge:   #d0d0d0;
+  --c-line-hover:   #ccc;
+  --c-line-bright:  #aaa;
+  --c-divider:      #eaeaea;
+  --c-sep:          #ccc;
 }
 
-body {
-  background: #000;
-  color: #fff;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
+/* ─── Tailwind color utilities → tokens ─────────────────── */
+@theme inline {
+  --color-bg:           var(--c-bg);
+  --color-surface:      var(--c-surface);
+  --color-raised:       var(--c-raised);
+  --color-fg:           var(--c-fg);
+  --color-muted:        var(--c-muted);
+  --color-subtle:       var(--c-subtle);
+  --color-faint:        var(--c-faint);
+  --color-ghost:        var(--c-ghost);
+  --color-accent:       var(--c-accent);
+  --color-accent-dim:   var(--c-accent-dim);
+  --color-line:         var(--c-line);
+  --color-line-soft:    var(--c-line-soft);
+  --color-line-badge:   var(--c-line-badge);
+  --color-line-hover:   var(--c-line-hover);
+  --color-line-bright:  var(--c-line-bright);
+  --color-divider:      var(--c-divider);
+  --color-sep:          var(--c-sep);
+
+  --animate-fade-in: fade-in 0.6s ease both;
 }
 
-::-webkit-scrollbar {
-  width: 3px;
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
-}
+/* ─── Base ───────────────────────────────────────────────── */
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 
-::-webkit-scrollbar-thumb {
-  background: #222;
-}
+  html {
+    scroll-behavior: smooth;
+    text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+  }
 
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #222 transparent;
-}
+  body {
+    background: var(--c-bg);
+    color: var(--c-fg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--c-line-hover); }
+  * { scrollbar-width: thin; scrollbar-color: var(--c-line-hover) transparent; }
 
-button {
-  font-family: inherit;
-  cursor: pointer;
+  a { color: inherit; text-decoration: none; }
+
+  button {
+    font-family: inherit;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: inherit;
+    appearance: none;
+  }
+
+  html.no-motion *,
+  html.no-motion *::before,
+  html.no-motion *::after {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
+  }
 }

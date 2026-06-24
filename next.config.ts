@@ -1,9 +1,11 @@
 import type { NextConfig } from 'next';
 
 const config: NextConfig = {
-  trailingSlash: true,
   images: {
-    unoptimized: true,
+    remotePatterns: [
+      { protocol: 'https', hostname: '**.giphy.com' },
+      { protocol: 'https', hostname: 'i.ytimg.com' },
+    ],
   },
 };
 

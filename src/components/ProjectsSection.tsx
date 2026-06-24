@@ -4,7 +4,6 @@ import { fetchRepos, fetchLatestReleaseUrl, fetchPinnedRepoNames } from '@/lib/g
 import type { RepoCard } from '@/types/project';
 import { Layers } from 'lucide-react';
 import { ProjectCard } from './ProjectCard';
-import styles from './ProjectsSection.module.css';
 
 export async function ProjectsSection() {
   const [repos, pinnedFromApi] = await Promise.all([
@@ -13,20 +12,12 @@ export async function ProjectsSection() {
   ]);
 
   const pinnedNames = pinnedFromApi.length > 0 ? pinnedFromApi : config.pinnedRepos;
-
   const pinnedSet = new Set(pinnedNames);
 
   const unsorted: RepoCard[] = await Promise.all(
     repos.map(async (repo) => {
       const releaseUrl = await fetchLatestReleaseUrl(config.githubUsername, repo.name);
-
-      const tags =
-        repo.topics.length > 0
-          ? repo.topics
-          : repo.language
-          ? [repo.language.toLowerCase()]
-          : [];
-
+      const tags = repo.topics.length > 0 ? repo.topics : repo.language ? [repo.language.toLowerCase()] : [];
       return {
         name: repo.name,
         description: repo.description,
@@ -42,7 +33,6 @@ export async function ProjectsSection() {
     })
   );
 
-  // Pinned repos first, preserving GitHub pin order; rest sorted by update date
   const pinnedCards = pinnedNames
     .map((name) => unsorted.find((c) => c.name === name))
     .filter((c): c is RepoCard => c !== undefined);
@@ -50,20 +40,18 @@ export async function ProjectsSection() {
   const cards = [...pinnedCards, ...restCards];
 
   return (
-    <section className={styles.section}>
-      <div className={styles.header}>
-        <Layers size={16} color="#444" />
-        <span className={styles.title}>projects</span>
-        <span className={styles.count}>{cards.length} total</span>
+    <section className="min-h-screen flex flex-col items-center">
+      <div className="w-full max-w-[680px] flex items-center gap-[0.625rem] px-4 pt-8 pb-6">
+        <Layers size={16} className="text-faint" />
+        <span className="text-[0.8125rem] font-semibold text-faint tracking-[0.04em] uppercase">projects</span>
+        <span className="text-[0.6875rem] font-medium text-ghost border border-line-soft px-[0.45rem] py-[0.1rem]">{cards.length} total</span>
       </div>
-      <div className={styles.list}>
-        <div className={styles.inner}>
-          {cards.length === 0 ? (
-            <p className={styles.empty}>no repositories found</p>
-          ) : (
-            cards.map((card) => <ProjectCard key={card.name} project={card} />)
-          )}
-        </div>
+      <div className="w-full max-w-[680px] px-4 pb-8 flex flex-col gap-[0.625rem]">
+        {cards.length === 0 ? (
+          <p className="text-[0.8125rem] text-ghost py-8">no repositories found</p>
+        ) : (
+          cards.map((card) => <ProjectCard key={card.name} project={card} />)
+        )}
       </div>
     </section>
   );
