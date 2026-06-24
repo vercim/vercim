@@ -67,7 +67,7 @@ export async function fetchChannelVideos(
     );
     if (!res.ok) return [];
     const xml = await res.text();
-    const label = channelLabel ?? xml.match(/<author>\s*<name>(.*?)<\/name>/s)?.[1]?.trim();
+    const label = channelLabel ?? xml.match(/<author>[\s\S]*?<name>(.*?)<\/name>/)?.[1]?.trim();
     return parseRSS(xml, label);
   } catch {
     return [];
