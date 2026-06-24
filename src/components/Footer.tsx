@@ -15,10 +15,10 @@ export function Footer() {
   const isDark = theme !== 'light';
 
   return (
-    <footer className="flex justify-between items-center h-14 px-6 border-t border-divider text-[0.8rem] text-faint tracking-[0.04em]">
+    <footer className="flex flex-col gap-3 py-4 px-6 border-t border-divider text-[0.8rem] text-faint tracking-[0.04em] sm:flex-row sm:justify-between sm:items-center sm:h-14 sm:gap-0 sm:py-0">
       <p>directed by vercim</p>
 
-      <div className="flex items-center gap-1.5">
+      <div className="flex flex-col items-start gap-0.5 sm:flex-row sm:items-center sm:gap-1.5">
         <button
           type="button"
           onClick={toggleGif}
@@ -26,7 +26,7 @@ export function Footer() {
         >
           <TextMorph disabled={!motionEnabled}>{gifEnabled ? 'GIFs enabled' : 'GIFs disabled'}</TextMorph>
         </button>
-        <span className="text-sep font-black select-none">/</span>
+        <span className="hidden sm:inline text-sep font-black select-none">/</span>
         <button
           type="button"
           onClick={toggleMotion}
@@ -34,7 +34,7 @@ export function Footer() {
         >
           <TextMorph disabled={!motionEnabled}>{motionEnabled ? 'Motion enabled' : 'Motion disabled'}</TextMorph>
         </button>
-        <span className="text-sep font-black select-none">/</span>
+        <span className="hidden sm:inline text-sep font-black select-none">/</span>
         <button
           type="button"
           onClick={toggleSidebar}
@@ -42,7 +42,7 @@ export function Footer() {
         >
           <TextMorph disabled={!motionEnabled}>{sidebarEnabled ? 'Sidebar enabled' : 'Sidebar disabled'}</TextMorph>
         </button>
-        <span className="text-sep font-black select-none">/</span>
+        <span className="hidden sm:inline text-sep font-black select-none">/</span>
         <button
           type="button"
           onClick={() => setTheme(isDark ? 'light' : 'dark')}

@@ -51,6 +51,7 @@ function VideoCard({ v, colDelay, isNew }: VideoCardProps) {
           src={`https://i.ytimg.com/vi/${v.videoId}/mqdefault.jpg`}
           alt=""
           fill
+          sizes="(max-width: 400px) 100vw, (max-width: 640px) 50vw, 33vw"
           className="object-cover transition-[opacity,filter] duration-150 group-hover:opacity-80 group-hover:blur-[3px]"
         />
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none">

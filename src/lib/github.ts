@@ -1,3 +1,5 @@
+import { unstable_cache } from 'next/cache';
+
 export interface GitHubRepo {
   id: number;
   name: string;
@@ -37,36 +39,41 @@ export async function fetchRepos(username: string): Promise<GitHubRepo[]> {
 
 // Returns the names of the user's pinned repositories (up to 6).
 // Requires GITHUB_TOKEN — returns [] when running unauthenticated (local dev).
-export async function fetchPinnedRepoNames(username: string): Promise<string[]> {
-  const token = process.env.GITHUB_TOKEN;
-  if (!token) return [];
+// POST requests bypass Next.js fetch cache, so we wrap with unstable_cache.
+export const fetchPinnedRepoNames = unstable_cache(
+  async (username: string): Promise<string[]> => {
+    const token = process.env.GITHUB_TOKEN;
+    if (!token) return [];
 
-  const query = `{ repositoryOwner(login: "${username}") { ... on User { pinnedItems(first: 6, types: REPOSITORY) { nodes { ... on Repository { name } } } } ... on Organization { pinnedItems(first: 6, types: REPOSITORY) { nodes { ... on Repository { name } } } } } }`;
+    const query = `{ repositoryOwner(login: "${username}") { ... on User { pinnedItems(first: 6, types: REPOSITORY) { nodes { ... on Repository { name } } } } ... on Organization { pinnedItems(first: 6, types: REPOSITORY) { nodes { ... on Repository { name } } } } } }`;
 
-  try {
-    const res = await fetch('https://api.github.com/graphql', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query }),
-    });
-    if (!res.ok) {
-      console.error('[github] pinnedItems HTTP error:', res.status, await res.text());
+    try {
+      const res = await fetch('https://api.github.com/graphql', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query }),
+      });
+      if (!res.ok) {
+        console.error('[github] pinnedItems HTTP error:', res.status, await res.text());
+        return [];
+      }
+      const json = await res.json();
+      if (json.errors) {
+        console.error('[github] pinnedItems GraphQL errors:', JSON.stringify(json.errors));
+        return [];
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const names = (json.data?.repositoryOwner?.pinnedItems?.nodes ?? []).map((n: any) => n.name as string);
+      console.log('[github] pinnedItems resolved:', names);
+      return names;
+    } catch (e) {
+      console.error('[github] pinnedItems exception:', e);
       return [];
     }
-    const json = await res.json();
-    if (json.errors) {
-      console.error('[github] pinnedItems GraphQL errors:', JSON.stringify(json.errors));
-      return [];
-    }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const names = (json.data?.repositoryOwner?.pinnedItems?.nodes ?? []).map((n: any) => n.name as string);
-    console.log('[github] pinnedItems resolved:', names);
-    return names;
-  } catch (e) {
-    console.error('[github] pinnedItems exception:', e);
-    return [];
-  }
-}
+  },
+  ['github-pinned-repos'],
+  { revalidate: 21600 }
+);
 
 // Returns the URL of the latest release page, or null if none exist.
 export async function fetchLatestReleaseUrl(

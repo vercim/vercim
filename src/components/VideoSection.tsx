@@ -15,7 +15,11 @@ export async function VideoSection() {
     .sort((a, b) => new Date(b.published).getTime() - new Date(a.published).getTime());
 
   const apiKey = process.env.YOUTUBE_API_KEY;
-  const videos = apiKey ? await enrichWithStats(sorted, apiKey) : sorted;
+  const enrichLimit = config.videosInitial + config.videosLoadMore * 2;
+  const toEnrich = sorted.slice(0, enrichLimit);
+  const rest = sorted.slice(enrichLimit);
+  const enriched = apiKey ? await enrichWithStats(toEnrich, apiKey) : toEnrich;
+  const videos = [...enriched, ...rest];
 
   return (
     <section id="videos" className="min-h-[80vh] flex flex-col items-center">

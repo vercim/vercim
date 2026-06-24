@@ -47,7 +47,7 @@ export function ProjectCard({ project }: Props) {
           )}
         </div>
 
-        <div className="flex flex-row gap-[0.375rem] shrink-0 pt-[0.125rem]">
+        <div className="flex flex-col sm:flex-row gap-[0.375rem] shrink-0 pt-[0.125rem]">
           <a href={project.sourceUrl} className="flex items-center justify-center w-11 h-11 border border-line-soft text-subtle transition-colors hover:text-fg hover:border-line-bright [-webkit-tap-highlight-color:transparent]"
             target="_blank" rel="noopener noreferrer" title="Source" aria-label="Source">
             <SiGithub size={18} />

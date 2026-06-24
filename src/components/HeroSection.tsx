@@ -62,6 +62,7 @@ export function HeroSection() {
               alt="Just a fun gif"
               fill
               unoptimized
+              priority
               className="object-cover object-center animate-fade-in"
               draggable={false}
             />
@@ -71,7 +72,7 @@ export function HeroSection() {
         <p className="text-[0.8125rem] text-subtle tracking-[0.05em]">vercim / kino / kinotea</p>
         <p className="text-[0.8125rem] text-subtle tracking-[0.05em]">my socials here 👇</p>
 
-        <nav className="flex flex-wrap gap-[0.45rem] justify-center max-w-[380px] max-[480px]:max-w-full" aria-label="Social links">
+        <nav className="grid grid-cols-2 gap-[0.45rem] w-full max-w-[380px] sm:flex sm:flex-wrap sm:justify-center" aria-label="Social links">
           {socialLinks.map(({ id, icon: Icon, label, handle, href }, index) => {
             const isCopied = copied === id;
             const isLink = !!href;
@@ -79,7 +80,7 @@ export function HeroSection() {
             const animStyle = motionEnabled
               ? { opacity: 0, animation: `slide-up-fade 0.45s ease ${delay} both` }
               : {};
-            const chipClass = `inline-flex items-center gap-2 px-4 py-[0.625rem] min-h-[44px] border border-line-soft bg-transparent text-muted text-[0.8rem] font-bold tracking-[0.04em] no-underline cursor-pointer transition-colors select-none [-webkit-tap-highlight-color:transparent] hover:text-fg hover:border-line-hover overflow-hidden`;
+            const chipClass = `inline-flex items-center justify-center gap-2 px-4 py-[0.625rem] min-h-[44px] border border-line-soft bg-transparent text-muted text-[0.8rem] font-bold tracking-[0.04em] no-underline cursor-pointer transition-colors select-none [-webkit-tap-highlight-color:transparent] hover:text-fg hover:border-line-hover overflow-hidden`;
 
             if (isLink) {
               return (
