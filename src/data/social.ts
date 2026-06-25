@@ -35,7 +35,7 @@ export const socialLinks: SocialEntry[] = [
     id: 'youtube',
     label: 'YouTube',
     handle: '',
-    href: 'https://youtube.com/@kinoteax2',
+    href: 'https://youtube.com/@kiteax2',
     icon: SiYoutube,
   },
   {
