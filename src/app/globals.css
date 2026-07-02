@@ -17,7 +17,7 @@
   --c-line:         #1a1a1a;
   --c-line-soft:    #1e1e1e;
   --c-line-badge:   #222;
-  --c-line-hover:   #181818;
+  --c-line-hover:   #121212;
   --c-line-bright:  #585858;
   --c-divider:      #111;
   --c-sep:          #3a3a3a;
@@ -37,7 +37,7 @@
   --c-line:         #c8c8c8;
   --c-line-soft:    #c0c0c0;
   --c-line-badge:   #b4b4b4;
-  --c-line-hover:   #d4d4d4;
+  --c-line-hover:   #e5e5e5;
   --c-line-bright:  #888;
   --c-divider:      #d8d8d8;
   --c-sep:          #aaaaaa;
@@ -119,7 +119,6 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
-    transition: background 0.2s ease, color 0.2s ease;
   }
 
   ::-webkit-scrollbar { width: 3px; }
@@ -147,5 +146,28 @@
     transition-duration: 0s !important;
     transition-delay: 0s !important;
     scroll-behavior: auto !important;
+  }
+}
+
+@layer components {
+  .font-accent-mono {
+    font-family: var(--font-jetbrains-mono), monospace;
+  }
+
+  .type-body {
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .type-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .type-section-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
   }
 }

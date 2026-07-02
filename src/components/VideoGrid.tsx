@@ -68,21 +68,21 @@ function VideoCard({ v, colDelay, isNew }: VideoCardProps) {
           </div>
         </div>
       </div>
-      <p className="text-[0.8rem] text-muted leading-[1.45] m-0 truncate transition-colors group-hover:text-fg">{v.title}</p>
+      <p className="type-body text-muted m-0 truncate transition-colors group-hover:text-fg">{v.title}</p>
       <div className="flex flex-row items-center justify-between gap-2 min-w-0">
         {v.channelLabel && (
-          <span className="text-[13px] text-faint tracking-[0.02em]">{v.channelLabel}</span>
+          <span className="type-body text-faint">{v.channelLabel}</span>
         )}
         {(v.viewCount !== undefined || v.likeCount !== undefined) && (
           <div className="flex gap-3">
             {v.viewCount !== undefined && (
-              <span className="flex items-center gap-[0.25rem] text-[0.75rem] text-ghost tracking-[0.02em] transition-colors group-hover:text-subtle">
+              <span className="flex items-center gap-[0.25rem] type-body text-ghost transition-colors group-hover:text-subtle">
                 <Eye size={15} strokeWidth={1} style={{ fill: 'currentColor', stroke: 'var(--c-bg)' }} />
                 {formatCount(v.viewCount)}
               </span>
             )}
             {v.likeCount !== undefined && (
-              <span className="flex items-center gap-[0.25rem] text-[0.75rem] text-ghost tracking-[0.02em] transition-colors group-hover:text-subtle">
+              <span className="flex items-center gap-[0.25rem] type-body text-ghost transition-colors group-hover:text-subtle">
                 <ThumbsUp size={15} strokeWidth={1} style={{ fill: 'currentColor', stroke: 'var(--c-bg)' }} />
                 {formatCount(v.likeCount)}
               </span>
@@ -129,7 +129,7 @@ export function VideoGrid({ videos, initialCount, loadMoreCount }: Props) {
 
       {hasMore && (
         <button
-          className="group block w-full max-w-[680px] mx-auto px-4 py-[0.6rem] bg-transparent border border-line-soft text-subtle text-[0.75rem] uppercase tracking-[0.05em] cursor-pointer transition-colors hover:text-fg hover:border-line-bright"
+          className="group block w-full max-w-[680px] mx-auto px-4 py-[0.6rem] bg-transparent border border-line-soft text-subtle type-label font-accent-mono cursor-pointer transition-colors hover:text-fg hover:border-line-bright"
           onClick={handleLoadMore}
         >
           <span className="relative after:absolute after:left-0 after:bottom-[-1px] after:w-full after:h-px after:bg-current after:scale-x-0 after:origin-left after:transition-transform group-hover:after:scale-x-100">
@@ -140,5 +140,3 @@ export function VideoGrid({ videos, initialCount, loadMoreCount }: Props) {
     </div>
   );
 }
-
-

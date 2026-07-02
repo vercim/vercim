@@ -1,41 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import NextImage from 'next/image';
 import { Globe, Check, ArrowUpRight } from 'lucide-react';
 import { TextMorph } from 'torph/react';
 import { socialLinks } from '@/data/social';
 import { config } from '@/data/config';
-import { useGifEnabled } from '@/hooks/useGifEnabled';
 import { useMotionEnabled } from '@/hooks/useMotionEnabled';
 
 export function HeroSection() {
   const [copied, setCopied] = useState<string | null>(null);
-  const [gifUrl, setGifUrl] = useState<string>('');
-  const { enabled } = useGifEnabled();
   const { enabled: motionEnabled } = useMotionEnabled();
-
-  useEffect(() => {
-    const { gifUrls } = config;
-    if (!gifUrls.length) return;
-
-    if (!enabled) {
-      setGifUrl(gifUrls[0]);
-      return;
-    }
-
-    const KEY = 'hero_next_gif';
-    const stored = sessionStorage.getItem(KEY);
-    const current = stored && gifUrls.includes(stored) ? stored : gifUrls[0];
-    setGifUrl(current);
-
-    const pool = gifUrls.filter((u) => u !== current);
-    const next = (pool.length ? pool : gifUrls)[Math.floor(Math.random() * (pool.length || gifUrls.length))];
-    sessionStorage.setItem(KEY, next);
-
-    const img = new Image();
-    img.src = next;
-  }, [enabled]);
+  const gifUrl = config.gifUrl;
 
   const copyToClipboard = async (id: string, text: string) => {
     try {
@@ -63,14 +39,14 @@ export function HeroSection() {
               fill
               unoptimized
               priority
-              className="object-cover object-center animate-fade-in"
+              className="object-cover object-center"
               draggable={false}
             />
           )}
         </div>
 
-        <p className="text-[0.8125rem] text-subtle tracking-[0.05em]">vercim / kino / kinotea</p>
-        <p className="text-[0.8125rem] text-subtle tracking-[0.05em]">my socials here 👇</p>
+        <p className="type-body text-subtle">vercim / kino / kinotea</p>
+        <p className="type-body text-subtle">my socials here 👇</p>
 
         <nav className="grid grid-cols-2 gap-[0.45rem] w-full max-w-[380px] sm:flex sm:flex-wrap sm:justify-center" aria-label="Social links">
           {socialLinks.map(({ id, icon: Icon, label, handle, href }, index) => {
@@ -80,7 +56,7 @@ export function HeroSection() {
             const animStyle = motionEnabled
               ? { opacity: 0, animation: `slide-up-fade 0.45s ease ${delay} both` }
               : {};
-            const chipClass = `inline-flex items-center justify-center gap-2 px-4 py-[0.625rem] min-h-[44px] border border-line-soft bg-transparent text-muted text-[0.8rem] font-bold tracking-[0.04em] no-underline cursor-pointer transition-colors select-none [-webkit-tap-highlight-color:transparent] hover:text-fg hover:border-line-hover overflow-hidden`;
+            const chipClass = `inline-flex items-center justify-center gap-2 px-4 py-[0.625rem] min-h-[44px] border border-line-soft bg-transparent text-muted type-body no-underline cursor-pointer transition-colors select-none [-webkit-tap-highlight-color:transparent] hover:text-fg hover:border-line-hover overflow-hidden`;
 
             if (isLink) {
               return (
@@ -108,7 +84,7 @@ export function HeroSection() {
         {config.marketplaceUrl && (
           <a
             href={config.marketplaceUrl}
-            className="group inline-flex items-center gap-[0.4rem] bg-none border-none px-0 py-2 min-h-[44px] text-subtle text-[0.8rem] tracking-[0.06em] uppercase no-underline cursor-pointer transition-colors hover:text-fg [-webkit-tap-highlight-color:transparent]"
+            className="group inline-flex items-center gap-[0.4rem] bg-none border-none px-0 py-2 min-h-[44px] text-subtle type-label font-accent-mono no-underline cursor-pointer transition-colors hover:text-fg [-webkit-tap-highlight-color:transparent]"
             target="_blank" rel="noopener noreferrer"
           >
             <span className="relative after:absolute after:left-0 after:bottom-[-1px] after:w-full after:h-px after:bg-current after:scale-x-0 after:origin-left after:transition-transform group-hover:after:scale-x-100">

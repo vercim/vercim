@@ -43,12 +43,12 @@ export async function ProjectsSection() {
     <section id="projects" className="min-h-screen flex flex-col items-center border-b border-divider">
       <div className="w-full max-w-[680px] flex items-center gap-[0.625rem] px-4 pt-8 pb-6">
         <Layers size={16} className="text-faint" />
-        <span className="text-[0.8125rem] font-semibold text-faint tracking-[0.04em] uppercase">projects</span>
-        <span className="text-[0.6875rem] font-medium text-ghost border border-line-soft px-[0.45rem] py-[0.1rem]">{cards.length} total</span>
+        <span className="type-section-title font-accent-mono text-faint">projects</span>
+        <span className="type-body text-ghost px-[0.45rem] py-[0.1rem]">{cards.length} total</span>
       </div>
       <div className="w-full max-w-[680px] px-4 pb-8 flex flex-col gap-[0.625rem]">
         {cards.length === 0 ? (
-          <p className="text-[0.8125rem] text-ghost py-8">no repositories found</p>
+          <p className="type-body text-ghost py-8">no repositories found</p>
         ) : (
           cards.map((card) => <ProjectCard key={card.name} project={card} />)
         )}

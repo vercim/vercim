@@ -23,11 +23,11 @@ export function ProjectCard({ project }: Props) {
       <div className="flex gap-4 items-start">
         <div className="flex-1 min-w-0 flex flex-col gap-[0.4rem]">
           <div className="flex items-center gap-2">
-            <h2 className={`text-[0.9375rem] font-semibold m-0 tracking-[-0.01em] ${project.pinned ? 'text-accent' : 'text-fg'}`}>
+            <h2 className={`type-body m-0 ${project.pinned ? 'text-accent' : 'text-fg'}`}>
               {project.name}
             </h2>
             {project.stars > 0 && (
-              <span className="inline-flex items-center gap-[0.25rem] text-[0.6875rem] text-accent-dim bg-raised border border-line-badge rounded-full px-[0.65em] py-[0.2em] tracking-[0.01em]">
+              <span className="inline-flex items-center gap-[0.25rem] type-body text-accent-dim bg-raised border border-line-badge rounded-full px-[0.65em] py-[0.2em]">
                 <FaStar size={9} />
                 {project.stars}
               </span>
@@ -36,14 +36,14 @@ export function ProjectCard({ project }: Props) {
           {project.tags.length > 0 && (
             <div className="flex flex-wrap gap-[0.375rem]">
               {project.tags.map((tag) => (
-                <span key={tag} className="text-[0.6875rem] text-muted bg-raised border border-line-badge rounded-full px-[0.65em] py-[0.2em] tracking-[0.01em]">
+                <span key={tag} className="type-body font-accent-mono text-muted bg-raised border border-line-badge rounded-full px-[0.65em] py-[0.2em]">
                   #{tag}
                 </span>
               ))}
             </div>
           )}
           {project.description && (
-            <p className="text-[0.8125rem] text-subtle m-0 leading-[1.55]">{project.description}</p>
+            <p className="type-body text-subtle m-0">{project.description}</p>
           )}
         </div>
 
