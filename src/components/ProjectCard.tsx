@@ -36,7 +36,7 @@ export function ProjectCard({ project }: Props) {
           {project.tags.length > 0 && (
             <div className="flex flex-wrap gap-[0.375rem]">
               {project.tags.map((tag) => (
-                <span key={tag} className="type-body font-accent-mono text-muted bg-raised border border-line-badge rounded-full px-[0.65em] py-[0.2em]">
+                <span key={tag} className="type-body text-xs font-accent-mono text-muted bg-raised border border-line-badge rounded-full px-[0.65em] py-[0.2em]">
                   #{tag}
                 </span>
               ))}
