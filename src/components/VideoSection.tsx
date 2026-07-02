@@ -26,7 +26,7 @@ export async function VideoSection() {
       <div className="w-full max-w-[680px] flex items-center gap-[0.625rem] px-4 pt-8 pb-6">
         <SquarePlay size={16} className="text-faint" />
         <span className="type-section-title font-accent-mono text-faint">videos</span>
-        <span className="type-body text-ghost px-[0.45rem] py-[0.1rem]">{videos.length} total</span>
+        <span className="type-body text-ghost px-[0.45rem] py-[0.1rem]">/ {videos.length} total</span>
       </div>
       <div className="w-full max-w-[680px] px-4 pb-8">
         {videos.length === 0 ? (
