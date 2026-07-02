@@ -1,15 +1,11 @@
 import type { Metadata, Viewport } from 'next';
-import { Geist } from 'next/font/google';
 import { JetBrains_Mono } from 'next/font/google';
 import { ThemeProvider } from 'next-themes';
 import { MotionProvider } from '@/hooks/useMotionEnabled';
 import { SidebarProvider } from '@/hooks/useSidebarEnabled';
 import './globals.css';
 
-const geist = Geist({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-});
+// Geist font removed — JetBrains Mono will be the sole site font.
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
@@ -36,7 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   try{if(localStorage.getItem('motion_enabled')==='false')document.documentElement.classList.add('no-motion')}catch(e){}
 })()` }} />
       </head>
-      <body className={`${geist.className} ${jetbrainsMono.variable}`}>
+      <body className={`${jetbrainsMono.variable}`}>
         <ThemeProvider attribute="class" defaultTheme="dark" themes={['dark', 'light']}>
           <MotionProvider>
             <SidebarProvider>
