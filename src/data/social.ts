@@ -1,4 +1,4 @@
-import { SiTelegram, SiYoutube, SiDiscord, SiRoblox, SiX, SiGithub, SiModrinth } from 'react-icons/si';
+import { SiTelegram, SiYoutube, SiDiscord, SiRoblox, SiGithub, SiModrinth } from 'react-icons/si';
 import { HiEnvelope } from 'react-icons/hi2';
 import type { IconType } from 'react-icons';
 
@@ -37,13 +37,6 @@ export const socialLinks: SocialEntry[] = [
     handle: '',
     href: 'https://youtube.com/@kiteax2',
     icon: SiYoutube,
-  },
-  {
-    id: 'twitter',
-    label: 'Twitter',
-    handle: '',
-    href: 'https://x.com/kinoteax',
-    icon: SiX,
   },
   {
     id: 'roblox',
