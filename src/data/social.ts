@@ -1,4 +1,4 @@
-import { SiTelegram, SiYoutube, SiDiscord, SiRoblox, SiGithub, SiModrinth } from 'react-icons/si';
+import { SiYoutube, SiDiscord, SiRoblox, SiGithub, SiModrinth } from 'react-icons/si';
 import { HiEnvelope } from 'react-icons/hi2';
 import type { IconType } from 'react-icons';
 
@@ -17,13 +17,6 @@ export interface SocialEntry {
 //   • Order here = order on the page
 //
 export const socialLinks: SocialEntry[] = [
-  {
-    id: 'telegram',
-    label: 'Telegram',
-    handle: 'kntex',
-    href: '',
-    icon: SiTelegram,
-  },
   {
     id: 'discord',
     label: 'Discord',
