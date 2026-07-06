@@ -27,7 +27,7 @@ export function ProjectCard({ project }: Props) {
               {project.name}
             </h2>
             {project.stars > 0 && (
-              <span className="inline-flex items-center gap-[0.25rem] type-body text-accent-dim bg-raised border border-line-badge rounded-full px-[0.65em] py-[0.2em]">
+              <span className="inline-flex items-center gap-[0.25rem] text-xs text-accent-dim bg-raised border border-line-badge rounded-full px-[0.65em] py-[0.2em]">
                 <FaStar size={9} />
                 {project.stars}
               </span>

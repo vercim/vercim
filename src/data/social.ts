@@ -1,4 +1,4 @@
-import { SiYoutube, SiDiscord, SiRoblox, SiGithub, SiModrinth } from 'react-icons/si';
+import { SiYoutube, SiDiscord, SiRoblox, SiGithub, SiModrinth, SiX } from 'react-icons/si';
 import { HiEnvelope } from 'react-icons/hi2';
 import type { IconType } from 'react-icons';
 
@@ -32,18 +32,18 @@ export const socialLinks: SocialEntry[] = [
     icon: SiYoutube,
   },
   {
+    id: 'twitter',
+    label: 'Twitter',
+    handle: '@kinteax',
+    href: 'https://x.com/kinteax',
+    icon: SiX,
+  },
+  {
     id: 'roblox',
     label: 'Roblox',
     handle: '',
     href: 'https://www.roblox.com/users/2254875642',
     icon: SiRoblox,
-  },
-  {
-    id: 'email',
-    label: 'Email',
-    handle: 'contact@verc.im',
-    href: '',
-    icon: HiEnvelope,
   },
   {
     id: 'github',
@@ -58,5 +58,12 @@ export const socialLinks: SocialEntry[] = [
     handle: '',
     href: 'https://modrinth.com/user/vercim',
     icon: SiModrinth,
+  },
+  {
+    id: 'email',
+    label: 'Email',
+    handle: 'contact@verc.im',
+    href: '',
+    icon: HiEnvelope,
   },
 ];
