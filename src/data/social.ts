@@ -20,7 +20,7 @@ export const socialLinks: SocialEntry[] = [
   {
     id: 'discord',
     label: 'Discord',
-    handle: 'kino.tea',
+    handle: 'teathh',
     href: '',
     icon: SiDiscord,
   },
