@@ -32,13 +32,6 @@ export const socialLinks: SocialEntry[] = [
     icon: SiYoutube,
   },
   {
-    id: 'twitter',
-    label: 'Twitter',
-    handle: '@kinteax',
-    href: 'https://x.com/kinteax',
-    icon: SiX,
-  },
-  {
     id: 'roblox',
     label: 'Roblox',
     handle: '',
