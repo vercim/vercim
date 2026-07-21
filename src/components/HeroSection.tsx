@@ -45,7 +45,7 @@ export function HeroSection() {
           )}
         </div>
 
-        <p className="type-body text-subtle">vercim / kino / kinotea</p>
+        <p className="type-body text-subtle">vercim / teathh / kinotea</p>
         <p className="type-body text-subtle">my socials here 👇</p>
 
         <nav className="grid grid-cols-2 gap-[0.45rem] w-full max-w-[380px] sm:flex sm:flex-wrap sm:justify-center" aria-label="Social links">
