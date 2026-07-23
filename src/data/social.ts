@@ -49,7 +49,7 @@ export const socialLinks: SocialEntry[] = [
     id: 'modrinth',
     label: 'Modrinth',
     handle: '',
-    href: 'https://modrinth.com/user/vercim',
+    href: 'https://modrinth.com/user/teathh',
     icon: SiModrinth,
   },
   {
