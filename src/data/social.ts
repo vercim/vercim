@@ -1,4 +1,4 @@
-import { SiYoutube, SiDiscord, SiRoblox, SiGithub, SiModrinth, SiX } from 'react-icons/si';
+import { SiYoutube, SiDiscord, SiRoblox, SiGithub, SiModrinth, SiCurseforge } from 'react-icons/si';
 import { HiEnvelope } from 'react-icons/hi2';
 import type { IconType } from 'react-icons';
 
@@ -49,7 +49,14 @@ export const socialLinks: SocialEntry[] = [
     id: 'modrinth',
     label: 'Modrinth',
     handle: '',
-    href: 'https://modrinth.com/user/teathh',
+    href: 'https://modrinth.com/user/vercim',
+    icon: SiModrinth,
+  },
+    {
+    id: 'curseforge',
+    label: 'CurseForge',
+    handle: '',
+    href: 'https://www.curseforge.com/members/vercim/projects',
     icon: SiModrinth,
   },
   {
