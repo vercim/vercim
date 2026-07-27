@@ -50,7 +50,7 @@ export const socialLinks: SocialEntry[] = [
     label: 'CurseForge',
     handle: '',
     href: 'https://www.curseforge.com/members/vercim/projects',
-    icon: SiModrinth,
+    icon: SiCurseforge,
   },
   {
     id: 'email',
