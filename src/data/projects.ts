@@ -3,4 +3,5 @@
 // value = YouTube video ID (the part after ?v= in the URL)
 export const youtubeOverrides: Record<string, string> = {
   'handycam': 'GiYjw-Xmth8',
+  'ticks': 'neUkTFJBby8',
 };
