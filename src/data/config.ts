@@ -9,7 +9,7 @@ export const config = {
   // Pinned repositories shown highlighted at the top of the projects list.
   // Order here is preserved. When GITHUB_TOKEN is available, this list is ignored
   // and pins are fetched from GitHub instead.
-  pinnedRepos: ['handycam'] as string[],
+  pinnedRepos: ['handycam', 'ticks'] as string[],
 
   // URL for the Marketplace button in the hero section.
   // Leave empty to hide the button.
