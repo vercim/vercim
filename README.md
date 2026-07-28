@@ -1,1 +1,2 @@
-[![Handycam](https://modfolio.creeperkatze.dev/modrinth/project/handycam?showVersions=false&showBorder=false&animations=false&color=ffffff&backgroundColor=0d1117)](https://modrinth.com/mod/handycam)[![Handycam](https://modfolio.creeperkatze.dev/modrinth/project/handycam?showVersions=false&showBorder=false&animations=false&color=ffffff&backgroundColor=0d1117)](https://modrinth.com/mod/handycam)
+[![Handycam](https://modfolio.creeperkatze.dev/modrinth/project/handycam?color=ffffff)](https://modrinth.com/mod/handycam)
+[![Ticks](https://modfolio.creeperkatze.dev/modrinth/project/ticks?color=80bfff)](https://modrinth.com/mod/ticks)
