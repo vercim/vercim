@@ -1,5 +1,3 @@
-[![Handycam](https://modfolio.creeperkatze.dev/modrinth/project/handycam?maxVersions=1&relativeTime=false&showBorder=false&animations=false&color=ffffff)](https://modrinth.com/mod/handycam)
-[![Handycam](https://modfolio.creeperkatze.dev/modrinth/project/handycam?maxVersions=1&relativeTime=false&showBorder=false&animations=false&color=ffffff)](https://modrinth.com/mod/handycam)
 ```
           |  \ \ | |/ /
           |  |\ `' ' /
