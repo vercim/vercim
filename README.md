@@ -1,25 +1,3 @@
-```
+[![Handycam](https://modfolio.creeperkatze.dev/modrinth/project/handycam?showVersions=false&showBorder=false&animations=false&color=ffffff&backgroundColor=0d1117)](https://modrinth.com/mod/handycam)
 
-          |  \ \ | |/ /
-          |  |\ `' ' /
-          |  ;'aorta \      / , pulmonary
-          | ;    _,   |    / / ,  arteries
- superior | |   (  `-.;_,-' '-' ,
-vena cava | `,   `-._       _,-'_
-          |,-`.    `.)    ,<_,-'_, pulmonary
-         ,'    `.   /   ,'  `;-' _,  veins
-        ;        `./   /`,    \-'
-        | right   /   |  ;\   |\
-        | atrium ;_,._|_,  `, ' \
-        |        \    \ `       `,
-        `      __ `    \   left  ;,
-         \   ,'  `      \,  ventricle
-          \_(            ;,      ;;
-          |  \           `;,     ;;
- inferior |  |`.          `;;,   ;'
-vena cava |  |  `-.        ;;;;,;'
-          |  |    |`-.._  ,;;;;;'
-          |  |    |   | ``';;;'  
-                  aorta
-
-```
+[![Ticks](https://modfolio.creeperkatze.dev/modrinth/project/ticks?showVersions=false&showBorder=false&animations=false&color=80bfff&backgroundColor=0d1117)](https://modrinth.com/mod/ticks)
