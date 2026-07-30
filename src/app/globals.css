@@ -1,9 +1,7 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
-
-/* ─── Raw theme tokens ──────────────────────────────────── */
-:root, .dark {
+/* ─── Color tokens ──────────────────────────────────────── */
+:root {
   /* Font scaling: change --font-scale to 1.25 for +25% site-wide typography scale */
   --font-scale: 1;
   --c-bg:           #000;
@@ -23,26 +21,6 @@
   --c-line-bright:  #585858;
   --c-divider:      #111;
   --c-sep:          #3a3a3a;
-}
-
-.light {
-  --c-bg:           #fff;
-  --c-surface:      #f5f5f5;
-  --c-raised:       #e8e8e8;
-  --c-fg:           #000;
-  --c-muted:        #0d0d0d;
-  --c-subtle:       #1a1a1a;
-  --c-faint:        #333;
-  --c-ghost:        #555;
-  --c-accent:       #8a6700;
-  --c-accent-dim:   #8a6700;
-  --c-line:         #c8c8c8;
-  --c-line-soft:    #c0c0c0;
-  --c-line-badge:   #b4b4b4;
-  --c-line-hover:   #e5e5e5;
-  --c-line-bright:  #888;
-  --c-divider:      #d8d8d8;
-  --c-sep:          #aaaaaa;
 }
 
 /* ─── Tailwind color utilities → tokens ─────────────────── */
@@ -266,10 +244,11 @@
   .social-preview-dock__panel {
     position: relative;
     overflow: hidden;
-    border: 1px solid var(--c-line-soft);
+    border: 1px solid #2a2a2a;
     border-radius: 1rem;
-    background: color-mix(in srgb, var(--c-surface) 94%, transparent);
+    background: #101010;
     color: var(--c-fg);
+    font-family: Arial, Helvetica, sans-serif;
     backdrop-filter: blur(18px);
     will-change: transform, width, height, opacity;
   }
@@ -281,39 +260,227 @@
   }
 
   .social-preview-card {
+    width: min(19rem, calc(100vw - 1.5rem));
     max-width: calc(100vw - 1.5rem);
+  }
+
+  .social-preview-card--github {
+    width: min(26.25rem, calc(100vw - 1.5rem));
     padding: 1rem;
   }
 
-  .social-preview-card__accent {
-    width: 100%;
-    height: 0.28rem;
-    margin-bottom: 1rem;
-    border-radius: 999px;
-    background: linear-gradient(90deg, var(--social-accent), color-mix(in srgb, var(--social-accent) 28%, transparent));
-    box-shadow: 0 0 24px color-mix(in srgb, var(--social-accent) 34%, transparent);
+  .social-preview-card--discord {
+    width: min(16.5rem, calc(100vw - 1.5rem));
   }
 
-  .social-preview-card__eyebrow {
-    margin-bottom: 0.45rem;
-    color: var(--social-accent);
-    font-size: 0.64rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+  .social-preview-card--youtube {
+    width: min(21rem, calc(100vw - 1.5rem));
   }
 
-  .social-preview-card__title {
+  .social-preview-card--downloads {
+    width: min(20rem, calc(100vw - 1.5rem));
+    padding: 1rem;
+  }
+
+  .social-preview-card__banner {
+    height: 4.25rem;
+    background:
+      radial-gradient(circle at 78% 12%, rgb(255 255 255 / 0.48), transparent 35%),
+      radial-gradient(circle at 5% 85%, color-mix(in srgb, var(--social-accent) 58%, #ffffff), transparent 45%),
+      linear-gradient(135deg, var(--social-accent), color-mix(in srgb, var(--social-accent) 62%, #ffffff));
+  }
+
+  .social-preview-card__profile-body {
+    position: relative;
+    min-height: 5.75rem;
+    padding: 1.95rem 1rem 0.9rem;
+  }
+
+  .social-preview-card__avatar {
+    position: absolute;
+    top: -1.6rem;
+    left: 1rem;
+    display: grid;
+    width: 3.2rem;
+    height: 3.2rem;
+    place-items: center;
+    border: 4px solid #101010;
+    border-radius: 50%;
+    color: #ffffff;
+    background: var(--social-accent);
+  }
+
+  .social-preview-card__avatar svg {
+    width: 1.4rem;
+    height: 1.4rem;
+  }
+
+  .social-preview-card__identity {
+    min-width: 0;
+  }
+
+  .social-preview-card__profile-content {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .social-preview-card__name {
+    overflow: hidden;
     font-size: 1rem;
     font-weight: 700;
-    letter-spacing: -0.03em;
+    line-height: 1.25;
+    letter-spacing: -0.025em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
-  .social-preview-card__description {
-    margin-top: 0.55rem;
-    color: var(--c-muted);
-    font-size: 0.72rem;
-    line-height: 1.55;
+  .social-preview-card__handle,
+  .social-preview-card__github-caption {
+    margin-top: 0.2rem;
+    color: #a8a8a8;
+    font-size: 0.78rem;
+    line-height: 1.4;
+  }
+
+  .social-preview-card__details {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.35rem;
+    color: #b5b5b5;
+    font-size: 0.75rem;
+    line-height: 1.35;
+  }
+
+  .social-preview-card__details span + span::before {
+    margin-right: 0.35rem;
+    content: "·";
+  }
+
+  .social-preview-card__details--aside {
+    align-items: flex-end;
+    flex: none;
+    flex-direction: column;
+    gap: 0.15rem;
+    margin-top: 0;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .social-preview-card__details--aside span + span::before {
+    content: none;
+  }
+
+  .social-preview-card__badges {
+    display: flex;
+    gap: 0.3rem;
+  }
+
+  .social-preview-card__badges span {
+    display: grid;
+    width: 1.35rem;
+    height: 1.35rem;
+    place-items: center;
+    border: 1px solid #303030;
+    border-radius: 50%;
+    color: #c8ceff;
+    background: #191b27;
+  }
+
+  .social-preview-card__badges span:nth-child(2) {
+    color: #f2b85b;
+    background: #251e14;
+  }
+
+  .social-preview-card__badges span:nth-child(3) {
+    color: #6ee7b7;
+    background: #13221d;
+  }
+
+  .social-preview-card__badges svg {
+    width: 0.8rem;
+    height: 0.8rem;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.5;
+  }
+
+  .social-preview-card__github-heading {
+    margin-bottom: 0.85rem;
+  }
+
+  .social-preview-card__heatmap {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-columns: repeat(52, minmax(0, 1fr));
+    grid-template-rows: repeat(7, 5px);
+    gap: 2px;
+    width: 100%;
+  }
+
+  .social-preview-card__heatmap span {
+    border-radius: 1px;
+    background: #222222;
+  }
+
+  .social-preview-card__heatmap span[data-level="1"] {
+    background: color-mix(in srgb, var(--social-accent) 28%, #222222);
+  }
+
+  .social-preview-card__heatmap span[data-level="2"] {
+    background: color-mix(in srgb, var(--social-accent) 48%, #222222);
+  }
+
+  .social-preview-card__heatmap span[data-level="3"] {
+    background: color-mix(in srgb, var(--social-accent) 72%, #222222);
+  }
+
+  .social-preview-card__heatmap span[data-level="4"] {
+    background: var(--social-accent);
+  }
+
+  .social-preview-card__download-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+
+  .social-preview-card__download-total {
+    margin-top: 0.2rem;
+    color: #b5b5b5;
+    font-size: 0.78rem;
+    line-height: 1.4;
+  }
+
+  .social-preview-card__download-chart {
+    display: block;
+    width: 100%;
+    height: 4rem;
+    margin-top: 0.8rem;
+    overflow: visible;
+  }
+
+  .social-preview-card__chart-grid {
+    fill: none;
+    stroke: #282828;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .social-preview-card__chart-area {
+    fill: color-mix(in srgb, var(--social-accent) 18%, transparent);
+  }
+
+  .social-preview-card__chart-line {
+    fill: none;
+    stroke: var(--social-accent);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
   }
 
   .social-preview-dock__rail {
@@ -325,23 +492,59 @@
   }
 
   .social-preview-dock__email {
-    min-height: 2.65rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     margin-left: 0.2rem;
-    border: 1px solid var(--c-line-soft);
+    padding: 0.65rem 0.85rem;
     border-radius: 999px;
-    padding: 0.55rem 0.85rem;
-    color: var(--c-muted);
-    font-size: 0.68rem;
+    color: #000000;
+    background-color: #ffffff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.85rem;
     font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.03em;
     white-space: nowrap;
-    transition: border-color 160ms ease, color 160ms ease;
+    transition: background-color 160ms ease, transform 100ms ease;
   }
 
   .social-preview-dock__email:hover,
   .social-preview-dock__email:focus-visible {
-    border-color: var(--c-line-bright);
-    color: var(--c-fg);
-    outline: none;
+    color: #000000;
+    background-color: #f1f1f1;
+  }
+
+  .social-preview-dock__email:focus-visible {
+    outline: 2px solid var(--c-fg);
+    outline-offset: 3px;
+  }
+
+  .social-preview-dock__email:active {
+    transform: scale(0.95);
+  }
+
+  .social-preview-dock__email-label {
+    opacity: 1;
+    filter: blur(0);
+    transition: opacity 500ms ease, filter 500ms ease;
+  }
+
+  .social-preview-dock__email-label--copied {
+    position: absolute;
+    opacity: 0;
+    filter: blur(2px);
+  }
+
+  .social-preview-dock__email[data-copied] .social-preview-dock__email-label:not(.social-preview-dock__email-label--copied) {
+    opacity: 0;
+    filter: blur(2px);
+  }
+
+  .social-preview-dock__email[data-copied] .social-preview-dock__email-label--copied {
+    opacity: 1;
+    filter: blur(0);
   }
 
   .social-preview-dock__trigger {
@@ -352,7 +555,7 @@
     border: 0;
     color: var(--c-subtle);
     outline: none;
-    transition: color 160ms ease, border-color 160ms ease, background-color 160ms ease, transform 160ms ease;
+    transition: color 160ms ease;
     -webkit-tap-highlight-color: transparent;
   }
 
@@ -365,7 +568,6 @@
   .social-preview-dock__trigger:focus-visible,
   .social-preview-dock__trigger[data-active] {
     color: var(--c-fg);
-    transform: translateY(-3px);
   }
 
   @media (max-width: 520px) {

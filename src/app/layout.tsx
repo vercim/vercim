@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from 'next';
 import { JetBrains_Mono } from 'next/font/google';
-import { ThemeProvider } from 'next-themes';
 import { MotionProvider } from '@/hooks/useMotionEnabled';
 import './globals.css';
 
@@ -30,11 +29,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 })()` }} />
       </head>
       <body className={`${jetbrainsMono.variable}`}>
-        <ThemeProvider attribute="class" defaultTheme="dark" themes={['dark', 'light']}>
-          <MotionProvider>
-            {children}
-          </MotionProvider>
-        </ThemeProvider>
+        <MotionProvider>
+          {children}
+        </MotionProvider>
       </body>
     </html>
   );

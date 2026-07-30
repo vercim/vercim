@@ -6,39 +6,49 @@ import { SocialPreviewDock, type SocialPreviewItem } from '@/components/ui/socia
 
 const SOCIAL_PREVIEWS: Record<string, Omit<SocialPreviewItem, 'id' | 'label' | 'href' | 'icon'>> = {
   discord: {
-    eyebrow: 'Community preview',
-    title: 'Discord space',
-    description: 'Placeholder for a community status, invite details and current activity.',
     accent: '#5865f2',
-    width: 310,
+    preview: {
+      kind: 'discord',
+      name: 'Vercim',
+      handle: '@teathh',
+      badges: ['Early supporter', 'Creator', 'Active developer'],
+    },
   },
   youtube: {
-    eyebrow: 'Channel preview',
-    title: 'YouTube channel',
-    description: 'Placeholder for recent uploads, channel notes and featured video information.',
     accent: '#ff3b30',
-    width: 326,
+    preview: {
+      kind: 'youtube',
+      name: 'teatthh',
+      handle: '@teatthh',
+      subscribers: '12.4K',
+      views: '2.8M',
+    },
   },
   github: {
-    eyebrow: 'Developer preview',
-    title: 'GitHub profile',
-    description: 'Placeholder for contribution activity, highlighted repositories and current work.',
-    accent: '#8b5cf6',
-    width: 340,
+    accent: '#22c55e',
+    preview: {
+      kind: 'github',
+      username: 'vercim',
+      contributions: '2,227',
+    },
   },
   modrinth: {
-    eyebrow: 'Creator preview',
-    title: 'Modrinth profile',
-    description: 'Placeholder for published mods, download totals and the latest project update.',
     accent: '#1bd96a',
-    width: 318,
+    preview: {
+      kind: 'downloads',
+      platform: 'Modrinth',
+      downloads: '284K',
+      series: [18, 24, 22, 31, 29, 38, 46, 43, 58, 64, 61, 78],
+    },
   },
   curseforge: {
-    eyebrow: 'Creator preview',
-    title: 'CurseForge profile',
-    description: 'Placeholder for project releases, supported versions and community activity.',
     accent: '#f16436',
-    width: 334,
+    preview: {
+      kind: 'downloads',
+      platform: 'CurseForge',
+      downloads: '1.3M',
+      series: [31, 28, 42, 48, 45, 61, 58, 72, 86, 81, 94, 108],
+    },
   },
 };
 

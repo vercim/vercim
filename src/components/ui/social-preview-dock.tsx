@@ -3,16 +3,39 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import * as React from 'react';
 
+export type SocialPreview =
+  | {
+      kind: 'discord';
+      name: string;
+      handle: string;
+      badges: string[];
+    }
+  | {
+      kind: 'youtube';
+      name: string;
+      handle: string;
+      subscribers: string;
+      views: string;
+    }
+  | {
+      kind: 'github';
+      username: string;
+      contributions: string;
+    }
+  | {
+      kind: 'downloads';
+      platform: 'Modrinth' | 'CurseForge';
+      downloads: string;
+      series: number[];
+    };
+
 export interface SocialPreviewItem {
   id: string;
   label: string;
   href?: string;
   icon: React.ReactNode;
-  eyebrow: string;
-  title: string;
-  description: string;
   accent: string;
-  width?: number;
+  preview: SocialPreview;
 }
 
 interface SocialPreviewDockProps {
@@ -26,6 +49,16 @@ const FADE = { duration: 0.16, ease: [0.22, 1, 0.36, 1] as const };
 const MOVE = { type: 'spring' as const, stiffness: 620, damping: 46, mass: 0.8 };
 const RESIZE = { type: 'spring' as const, stiffness: 700, damping: 54, mass: 0.8 };
 const useIsoLayoutEffect = typeof window === 'undefined' ? React.useEffect : React.useLayoutEffect;
+const CONTRIBUTION_LEVELS = Array.from({ length: 364 }, (_, index) => {
+  const column = Math.floor(index / 7);
+  const value = (index * 17 + column * 13 + Math.floor(column / 5) * 7) % 29;
+
+  if (value < 10) return 0;
+  if (value < 17) return 1;
+  if (value < 23) return 2;
+  if (value < 27) return 3;
+  return 4;
+});
 
 function offsetLeftWithin(element: HTMLElement, ancestor: HTMLElement) {
   let offset = 0;
@@ -39,18 +72,167 @@ function offsetLeftWithin(element: HTMLElement, ancestor: HTMLElement) {
   return offset;
 }
 
+function ProfileCard({
+  icon,
+  name,
+  handle,
+  details,
+  detailsPosition = 'below',
+}: {
+  icon: React.ReactNode;
+  name: string;
+  handle: string;
+  details?: React.ReactNode;
+  detailsPosition?: 'below' | 'aside';
+}) {
+  return (
+    <>
+      <div className="social-preview-card__banner" aria-hidden="true" />
+      <div className="social-preview-card__profile-body">
+        <div className="social-preview-card__avatar" aria-hidden="true">
+          {icon}
+        </div>
+        <div className="social-preview-card__profile-content">
+          <div className="social-preview-card__identity">
+            <p className="social-preview-card__name">{name}</p>
+            <p className="social-preview-card__handle">{handle}</p>
+            {details && detailsPosition === 'below' ? (
+              <div className="social-preview-card__details">{details}</div>
+            ) : null}
+          </div>
+          {details && detailsPosition === 'aside' ? (
+            <div className="social-preview-card__details social-preview-card__details--aside">
+              {details}
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </>
+  );
+}
+
+function DiscordBadges({ labels }: { labels: string[] }) {
+  const icons = [
+    <path key="sparkle" d="M8 2l1.4 4.6L14 8l-4.6 1.4L8 14l-1.4-4.6L2 8l4.6-1.4L8 2Z" />,
+    <path key="gem" d="m8 2 4.5 3.5L8 14 3.5 5.5 8 2Zm-4.5 3.5h9M8 2v12" />,
+    <path key="bolt" d="M9.5 1.5 3.8 8.4h3.6L6.5 14.5l5.7-7H8.6l.9-6Z" />,
+  ];
+
+  return (
+    <div className="social-preview-card__badges" aria-label="Discord badges">
+      {labels.map((label, index) => (
+        <span key={label} title={label}>
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" aria-hidden="true">
+            {icons[index % icons.length]}
+          </svg>
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function DownloadChart({
+  platform,
+  downloads,
+  series,
+}: {
+  platform: string;
+  downloads: string;
+  series: number[];
+}) {
+  const width = 288;
+  const height = 56;
+  const max = Math.max(...series, 1);
+  const points = series.map((value, index) => {
+    const x = (index / Math.max(series.length - 1, 1)) * width;
+    const y = height - (value / max) * (height - 6) - 3;
+    return [x, y] as const;
+  });
+  const line = points.map(([x, y], index) => `${index === 0 ? 'M' : 'L'} ${x} ${y}`).join(' ');
+  const area = `${line} L ${width} ${height} L 0 ${height} Z`;
+
+  return (
+    <>
+      <div className="social-preview-card__download-heading">
+        <div>
+          <p className="social-preview-card__name">{platform}</p>
+          <p className="social-preview-card__download-total">{downloads} downloads</p>
+        </div>
+      </div>
+      <svg
+        className="social-preview-card__download-chart"
+        viewBox={`0 0 ${width} ${height}`}
+        role="img"
+        aria-label={`${platform} download activity`}
+        preserveAspectRatio="none"
+      >
+        <path className="social-preview-card__chart-grid" d={`M 0 ${height / 2} H ${width}`} />
+        <path className="social-preview-card__chart-area" d={area} />
+        <path className="social-preview-card__chart-line" d={line} />
+      </svg>
+    </>
+  );
+}
+
 function PreviewCard({ item }: { item: SocialPreviewItem }) {
+  const { preview } = item;
+
   return (
     <div
-      className="social-preview-card"
-      style={{ '--social-accent': item.accent, width: item.width ?? 300 } as React.CSSProperties}
+      className={`social-preview-card social-preview-card--${preview.kind}`}
+      style={{ '--social-accent': item.accent } as React.CSSProperties}
     >
-      <div className="social-preview-card__accent" aria-hidden="true" />
-      <div className="social-preview-card__content">
-        <p className="social-preview-card__eyebrow">{item.eyebrow}</p>
-        <p className="social-preview-card__title">{item.title}</p>
-        <p className="social-preview-card__description">{item.description}</p>
-      </div>
+      {preview.kind === 'discord' ? (
+        <ProfileCard
+          icon={item.icon}
+          name={preview.name}
+          handle={preview.handle}
+          details={<DiscordBadges labels={preview.badges} />}
+        />
+      ) : null}
+
+      {preview.kind === 'youtube' ? (
+        <ProfileCard
+          icon={item.icon}
+          name={preview.name}
+          handle={preview.handle}
+          detailsPosition="aside"
+          details={
+            <>
+              <span>{preview.subscribers} subscribers</span>
+              <span>{preview.views} views</span>
+            </>
+          }
+        />
+      ) : null}
+
+      {preview.kind === 'github' ? (
+        <>
+          <div className="social-preview-card__github-heading">
+            <p className="social-preview-card__name">{preview.username}</p>
+            <p className="social-preview-card__github-caption">
+              {preview.contributions} contributions in the last year
+            </p>
+          </div>
+          <div
+            className="social-preview-card__heatmap"
+            role="img"
+            aria-label={`${preview.contributions} GitHub contributions in the last year`}
+          >
+            {CONTRIBUTION_LEVELS.map((level, index) => (
+              <span key={index} data-level={level} aria-hidden="true" />
+            ))}
+          </div>
+        </>
+      ) : null}
+
+      {preview.kind === 'downloads' ? (
+        <DownloadChart
+          platform={preview.platform}
+          downloads={preview.downloads}
+          series={preview.series}
+        />
+      ) : null}
     </div>
   );
 }
@@ -71,15 +253,23 @@ function CopyEmailButton({ email }: { email: string }) {
       await navigator.clipboard.writeText(email);
       setCopied(true);
       if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(() => setCopied(false), 2000);
+      timerRef.current = setTimeout(() => setCopied(false), 3000);
     } catch {
       window.location.assign(`mailto:${email}`);
     }
   };
 
   return (
-    <button type="button" className="social-preview-dock__email" onClick={copyEmail}>
-      {copied ? 'Copied' : 'Copy email'}
+    <button
+      type="button"
+      className="social-preview-dock__email"
+      data-copied={copied ? '' : undefined}
+      onClick={copyEmail}
+    >
+      <span className="social-preview-dock__email-label">Copy my email</span>
+      <span className="social-preview-dock__email-label social-preview-dock__email-label--copied" aria-hidden="true">
+        E-mail copied!
+      </span>
       <span className="sr-only" role="status" aria-live="polite">
         {copied ? `${email} copied to clipboard` : ''}
       </span>
@@ -98,22 +288,33 @@ export function SocialPreviewDock({ items, email, className = '' }: SocialPrevie
   useIsoLayoutEffect(() => {
     const wrapper = wrapperRef.current;
     const trigger = activeIndex === null ? null : triggerRefs.current[activeIndex];
-    const card = panelRef.current?.querySelector<HTMLElement>('[data-preview-card]');
+    const activeItem = activeIndex === null ? null : items[activeIndex];
+    const card = activeItem
+      ? panelRef.current?.querySelector<HTMLElement>(`[data-preview-card="${activeItem.id}"]`)
+      : null;
 
     if (!wrapper || !trigger || !card) return;
 
-    const width = card.offsetWidth;
-    const height = card.offsetHeight;
-    const wrapperLeft = wrapper.getBoundingClientRect().left;
-    const centered = offsetLeftWithin(trigger, wrapper) + trigger.offsetWidth / 2 - width / 2;
-    const x = Math.max(
-      PANEL_MARGIN - wrapperLeft,
-      Math.min(centered, window.innerWidth - PANEL_MARGIN - width - wrapperLeft),
-    );
+    const measure = () => {
+      const width = card.offsetWidth;
+      const height = card.offsetHeight;
+      const wrapperLeft = wrapper.getBoundingClientRect().left;
+      const centered = offsetLeftWithin(trigger, wrapper) + trigger.offsetWidth / 2 - width / 2;
+      const x = Math.max(
+        PANEL_MARGIN - wrapperLeft,
+        Math.min(centered, window.innerWidth - PANEL_MARGIN - width - wrapperLeft),
+      );
 
-    setBox({ x, width, height });
+      setBox({ x, width, height });
+    };
+
+    measure();
     openedRef.current = true;
-  }, [activeIndex]);
+
+    const observer = new ResizeObserver(measure);
+    observer.observe(card);
+    return () => observer.disconnect();
+  }, [activeIndex, items]);
 
   const close = React.useCallback(() => {
     openedRef.current = false;
@@ -157,15 +358,15 @@ export function SocialPreviewDock({ items, email, className = '' }: SocialPrevie
             height: firstAppearance ? { duration: 0 } : RESIZE,
           }}
         >
-          <AnimatePresence initial={false} mode="popLayout">
+          <AnimatePresence initial={false}>
             {activeItem && (
               <motion.div
                 key={activeItem.id}
-                data-preview-card
+                data-preview-card={activeItem.id}
                 className="social-preview-dock__card-position"
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -3 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
                 transition={FADE}
               >
                 <PreviewCard item={activeItem} />
