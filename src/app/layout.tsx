@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from 'next';
 import { JetBrains_Mono } from 'next/font/google';
-import { MotionProvider } from '@/hooks/useMotionEnabled';
 import './globals.css';
 
 const jetbrainsMono = JetBrains_Mono({
@@ -23,15 +22,8 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: `(function(){
-  try{if(localStorage.getItem('motion_enabled')==='false')document.documentElement.classList.add('no-motion')}catch(e){}
-})()` }} />
-      </head>
       <body className={`${jetbrainsMono.variable}`}>
-        <MotionProvider>
-          {children}
-        </MotionProvider>
+        {children}
       </body>
     </html>
   );

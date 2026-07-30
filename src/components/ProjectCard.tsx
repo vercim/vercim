@@ -1,15 +1,15 @@
 'use client';
 
 import type { CSSProperties } from 'react';
+import { Dithering } from '@paper-design/shaders-react';
 import type { RepoCard } from '@/types/project';
 import { ArrowUpRight, Scale } from 'lucide-react';
-import { useInView } from '@/hooks/useInView';
-import { useMotionEnabled } from '@/hooks/useMotionEnabled';
 
 interface Props {
   project: RepoCard;
   desktopPlacement: BentoPlacement;
   mobilePlacement: BentoPlacement;
+  showShader: boolean;
 }
 
 export interface BentoPlacement {
@@ -50,9 +50,12 @@ function formatUpdatedAt(value: string) {
   }).format(new Date(value));
 }
 
-export function ProjectCard({ project, desktopPlacement, mobilePlacement }: Props) {
-  const { ref, inView } = useInView();
-  const { enabled: motionEnabled } = useMotionEnabled();
+export function ProjectCard({
+  project,
+  desktopPlacement,
+  mobilePlacement,
+  showShader,
+}: Props) {
   const layoutStyle = {
     '--desktop-column': desktopPlacement.column,
     '--desktop-row': desktopPlacement.row,
@@ -63,18 +66,26 @@ export function ProjectCard({ project, desktopPlacement, mobilePlacement }: Prop
     '--mobile-column-span': mobilePlacement.columnSpan,
     '--mobile-row-span': mobilePlacement.rowSpan,
   } as CSSProperties;
-  const motionStyle = motionEnabled
-    ? inView
-      ? { animation: 'slide-up-fade 0.4s ease both' }
-      : { opacity: 0 }
-    : {};
-
   return (
     <article
-      ref={ref as React.RefObject<HTMLElement>}
-      style={{ ...layoutStyle, ...motionStyle }}
+      style={layoutStyle}
       className="project-card"
     >
+      {showShader && (
+        <div className="project-card__shader" aria-hidden="true">
+          <Dithering
+            shape="sphere"
+            type="random"
+            colorBack="#ffffff00"
+            colorFront="#000000"
+            size={2}
+            speed={0.65}
+            scale={0.9}
+            style={{ width: '100%', height: '100%' }}
+          />
+        </div>
+      )}
+
       <a
         className="project-card__source-link"
         href={project.sourceUrl}
@@ -100,15 +111,15 @@ export function ProjectCard({ project, desktopPlacement, mobilePlacement }: Prop
         <p className="project-card__description">{project.description}</p>
       )}
 
+      {project.license && (
+        <span className="project-card__license">
+          <Scale aria-hidden="true" />
+          {project.license}
+        </span>
+      )}
+
       <div className="project-card__footer">
         <div className="project-card__metadata">
-          {project.license && (
-            <span className="project-card__license">
-              <Scale aria-hidden="true" />
-              {project.license}
-            </span>
-          )}
-
           {project.languages.length > 0 && (
             <ul className="project-card__languages" aria-label="Repository languages">
               {project.languages.map((language) => (

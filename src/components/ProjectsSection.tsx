@@ -116,6 +116,12 @@ export async function ProjectsSection() {
   const mobileColumns = Math.min(2, Math.max(1, cards.length));
   const desktopLayout = createBentoLayout(cards.length, desktopColumns, 1.6, DESKTOP_SHAPES);
   const mobileLayout = createBentoLayout(cards.length, mobileColumns, 1.25, MOBILE_SHAPES);
+  const largestProjectIndex = desktopLayout.placements.reduce((largestIndex, placement, index) => {
+    const largestPlacement = desktopLayout.placements[largestIndex];
+    const area = placement.columnSpan * placement.rowSpan;
+    const largestArea = largestPlacement.columnSpan * largestPlacement.rowSpan;
+    return area > largestArea ? index : largestIndex;
+  }, 0);
   const gridStyle = {
     '--desktop-columns': desktopLayout.columns,
     '--desktop-rows': desktopLayout.rows,
@@ -134,6 +140,7 @@ export async function ProjectsSection() {
                 project={card}
                 desktopPlacement={desktopLayout.placements[index]}
                 mobilePlacement={mobileLayout.placements[index]}
+                showShader={index === largestProjectIndex}
               />
             ))}
           </div>

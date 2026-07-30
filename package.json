@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@paper-design/shaders-react": "0.0.78",
     "@tailwindcss/postcss": "^4.3.3",
     "framer-motion": "^12.43.0",
     "lucide-react": "^1.27.0",
