@@ -1,98 +1,78 @@
 'use client';
 
-import { useState } from 'react';
-import NextImage from 'next/image';
-import { Globe, Check, ArrowUpRight } from 'lucide-react';
-import { TextMorph } from 'torph/react';
 import { socialLinks } from '@/data/social';
-import { config } from '@/data/config';
-import { useMotionEnabled } from '@/hooks/useMotionEnabled';
+import { HoverBusinessCard } from '@/components/ui/hover-business-card';
+import { SocialPreviewDock, type SocialPreviewItem } from '@/components/ui/social-preview-dock';
+
+const SOCIAL_PREVIEWS: Record<string, Omit<SocialPreviewItem, 'id' | 'label' | 'href' | 'icon'>> = {
+  discord: {
+    eyebrow: 'Community preview',
+    title: 'Discord space',
+    description: 'Placeholder for a community status, invite details and current activity.',
+    accent: '#5865f2',
+    width: 310,
+  },
+  youtube: {
+    eyebrow: 'Channel preview',
+    title: 'YouTube channel',
+    description: 'Placeholder for recent uploads, channel notes and featured video information.',
+    accent: '#ff3b30',
+    width: 326,
+  },
+  github: {
+    eyebrow: 'Developer preview',
+    title: 'GitHub profile',
+    description: 'Placeholder for contribution activity, highlighted repositories and current work.',
+    accent: '#8b5cf6',
+    width: 340,
+  },
+  modrinth: {
+    eyebrow: 'Creator preview',
+    title: 'Modrinth profile',
+    description: 'Placeholder for published mods, download totals and the latest project update.',
+    accent: '#1bd96a',
+    width: 318,
+  },
+  curseforge: {
+    eyebrow: 'Creator preview',
+    title: 'CurseForge profile',
+    description: 'Placeholder for project releases, supported versions and community activity.',
+    accent: '#f16436',
+    width: 334,
+  },
+};
 
 export function HeroSection() {
-  const [copied, setCopied] = useState<string | null>(null);
-  const { enabled: motionEnabled } = useMotionEnabled();
-  const gifUrl = config.gifUrl;
-
-  const copyToClipboard = async (id: string, text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-    } catch {
-      const el = document.createElement('textarea');
-      el.value = text;
-      document.body.appendChild(el);
-      el.select();
-      document.execCommand('copy');
-      document.body.removeChild(el);
-    }
-    setCopied(id);
-    setTimeout(() => setCopied(null), 2000);
-  };
+  const email = socialLinks.find((item) => item.id === 'email')?.handle;
+  const items: SocialPreviewItem[] = socialLinks
+    .filter((item) => item.id !== 'email')
+    .map(({ id, label, href, icon: Icon }) => ({
+      id,
+      label,
+      href: href || undefined,
+      icon: Icon ? <Icon aria-hidden="true" /> : null,
+      ...SOCIAL_PREVIEWS[id],
+    }));
 
   return (
-    <section id="home" className="min-h-screen flex items-center justify-center border-b border-divider px-4 py-8">
-      <div className="flex flex-col items-center gap-5 text-center">
-        <div className="relative w-[250px] h-[250px] overflow-hidden shrink-0 max-[480px]:w-40 max-[480px]:h-40">
-          {gifUrl && (
-            <NextImage
-              src={gifUrl}
-              alt="Just a fun gif"
-              fill
-              unoptimized
-              priority
-              className="object-cover object-center"
-              draggable={false}
-            />
-          )}
-        </div>
+    <section id="home" className="hero-section border-b border-divider">
+      <a href="#home" className="hero-logo" aria-label="Vercim — back to the top">
+        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path
+            fillRule="evenodd"
+            clipRule="evenodd"
+            d="M16 2H0V14H16V2ZM5 10.5C6.38071 10.5 7.5 9.38071 7.5 8C7.5 6.61929 6.38071 5.5 5 5.5C3.61929 5.5 2.5 6.61929 2.5 8C2.5 9.38071 3.61929 10.5 5 10.5ZM10 5H14V7H10V5ZM14 9H10V11H14V9Z"
+            fill="currentColor"
+          />
+        </svg>
+      </a>
 
-        <p className="type-body text-subtle">vercim / teathh / kinotea</p>
-        <p className="type-body text-subtle">my socials here 👇</p>
+      <div className="hero-section__content">
+        <HoverBusinessCard />
+      </div>
 
-        <nav className="grid grid-cols-2 gap-[0.45rem] w-full max-w-[380px] sm:flex sm:flex-wrap sm:justify-center" aria-label="Social links">
-          {socialLinks.map(({ id, icon: Icon, label, handle, href }, index) => {
-            const isCopied = copied === id;
-            const isLink = !!href;
-            const delay = `${index * 60}ms`;
-            const animStyle = motionEnabled
-              ? { opacity: 0, animation: `slide-up-fade 0.45s ease ${delay} both` }
-              : {};
-            const chipClass = `inline-flex items-center justify-center gap-2 px-4 py-[0.625rem] min-h-[44px] border border-line-soft bg-transparent text-muted type-body no-underline cursor-pointer transition-colors select-none [-webkit-tap-highlight-color:transparent] hover:text-fg hover:border-line-hover overflow-hidden`;
-
-            if (isLink) {
-              return (
-                <a key={id} href={href} target="_blank" rel="noopener noreferrer"
-                  className={chipClass} style={animStyle} title={`Open ${label}`} aria-label={`Open ${label}`}>
-                  {Icon ? <Icon size={16} /> : <Globe size={16} />}
-                  <span>{label}</span>
-                </a>
-              );
-            }
-
-            return (
-              <button key={id} type="button"
-                onClick={() => copyToClipboard(id, handle)}
-                className={`${chipClass}${isCopied ? ' !text-fg !border-line-bright' : ''}`}
-                style={animStyle}
-                title={`Copy ${handle}`} aria-label={`Copy ${label} — ${handle}`}>
-                {isCopied ? <Check size={16} className="animate-[check-pop_0.3s_ease_both]" /> : Icon ? <Icon size={16} /> : <Globe size={16} />}
-                <TextMorph disabled={!motionEnabled}>{isCopied ? 'copied' : label}</TextMorph>
-              </button>
-            );
-          })}
-        </nav>
-
-        {config.marketplaceUrl && (
-          <a
-            href={config.marketplaceUrl}
-            className="group inline-flex items-center gap-[0.4rem] bg-none border-none px-0 py-2 min-h-[44px] text-subtle type-label font-accent-mono no-underline cursor-pointer transition-colors hover:text-fg [-webkit-tap-highlight-color:transparent]"
-            target="_blank" rel="noopener noreferrer"
-          >
-            <span className="relative after:absolute after:left-0 after:bottom-[-1px] after:w-full after:h-px after:bg-current after:scale-x-0 after:origin-left after:transition-transform group-hover:after:scale-x-100">
-              My own store
-            </span>
-            <ArrowUpRight size={16} />
-          </a>
-        )}
+      <div className="hero-section__socials">
+        <SocialPreviewDock items={items} email={email} />
       </div>
     </section>
   );

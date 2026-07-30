@@ -6,7 +6,6 @@ export interface RepoCard {
   tags: string[];
   language: string | null;
   releaseUrl: string | null;
-  youtubeId?: string;
   pinned: boolean;
   stars: number;
 }

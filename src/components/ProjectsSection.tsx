@@ -1,5 +1,4 @@
 import { config } from '@/data/config';
-import { youtubeOverrides } from '@/data/projects';
 import { fetchRepos, fetchLatestReleaseUrl, fetchPinnedRepoNames } from '@/lib/github';
 import type { RepoCard } from '@/types/project';
 import { Layers } from 'lucide-react';
@@ -26,7 +25,6 @@ export async function ProjectsSection() {
         tags,
         language: repo.language,
         releaseUrl,
-        youtubeId: youtubeOverrides[repo.name],
         pinned: pinnedSet.has(repo.name),
         stars: repo.stargazers_count,
       };

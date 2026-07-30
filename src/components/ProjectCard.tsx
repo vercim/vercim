@@ -1,7 +1,6 @@
 'use client';
 
 import type { RepoCard } from '@/types/project';
-import { YouTubeEmbed } from './YouTubeEmbed';
 import { SiGithub } from 'react-icons/si';
 import { Download } from 'lucide-react';
 import { FaStar } from 'react-icons/fa';
@@ -74,12 +73,6 @@ export function ProjectCard({ project }: Props) {
           )}
         </div>
       </div>
-
-      {project.youtubeId && (
-        <div className="mt-4">
-          <YouTubeEmbed videoId={project.youtubeId} />
-        </div>
-      )}
     </article>
   );
 }

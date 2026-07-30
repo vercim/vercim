@@ -2,10 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { JetBrains_Mono } from 'next/font/google';
 import { ThemeProvider } from 'next-themes';
 import { MotionProvider } from '@/hooks/useMotionEnabled';
-import { SidebarProvider } from '@/hooks/useSidebarEnabled';
 import './globals.css';
-
-// Geist font removed — JetBrains Mono will be the sole site font.
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
@@ -14,8 +11,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Profile',
-  description: 'My profile page with links to my social media and my projects.',
+  title: 'Vercim Creative',
+  description: 'My profile page with links to my social media and all my public projects.',
 };
 
 export const viewport: Viewport = {
@@ -35,9 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${jetbrainsMono.variable}`}>
         <ThemeProvider attribute="class" defaultTheme="dark" themes={['dark', 'light']}>
           <MotionProvider>
-            <SidebarProvider>
-              {children}
-            </SidebarProvider>
+            {children}
           </MotionProvider>
         </ThemeProvider>
       </body>

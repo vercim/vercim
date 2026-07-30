@@ -1,13 +1,13 @@
-import { SiYoutube, SiDiscord, SiRoblox, SiGithub, SiModrinth, SiCurseforge } from 'react-icons/si';
+import { SiYoutube, SiDiscord, SiGithub, SiModrinth, SiCurseforge } from 'react-icons/si';
 import { HiEnvelope } from 'react-icons/hi2';
 import type { IconType } from 'react-icons';
 
 export interface SocialEntry {
   id: string;
-  label: string;    // platform name shown on the chip
-  handle: string;   // your username / contact info (shown as tooltip)
-  href: string;     // full URL or mailto: link — this is what gets copied on click
-  icon?: IconType;  // brand icon — falls back to a globe if omitted
+  label: string;    // Platform name used for accessible labels.
+  handle: string;   // Username or contact value used by non-link actions.
+  href: string;     // External profile URL. Leave empty for preview-only items.
+  icon?: IconType;  // Brand icon shown in the social dock.
 }
 
 // ─── Edit this list to update or add social links ────────────────────────────

@@ -2,13 +2,11 @@
 
 import { useTheme } from 'next-themes';
 import { useMotionEnabled } from '@/hooks/useMotionEnabled';
-import { useSidebarEnabled } from '@/hooks/useSidebarEnabled';
 import { TextMorph } from 'torph/react';
 
 export function Footer() {
   const year = new Date().getFullYear();
   const { enabled: motionEnabled, toggle: toggleMotion } = useMotionEnabled();
-  const { enabled: sidebarEnabled, toggle: toggleSidebar } = useSidebarEnabled();
   const { theme, setTheme } = useTheme();
   const isDark = theme !== 'light';
 
@@ -23,14 +21,6 @@ export function Footer() {
           className="px-3 py-1 rounded-full text-inherit type-body cursor-pointer transition-[color,background] hover:bg-line-hover hover:text-muted"
         >
           <TextMorph disabled={!motionEnabled}>{motionEnabled ? 'Motion enabled' : 'Motion disabled'}</TextMorph>
-        </button>
-        <span className="hidden sm:inline text-sep font-black select-none">/</span>
-        <button
-          type="button"
-          onClick={toggleSidebar}
-          className="px-3 py-1 rounded-full text-inherit type-body cursor-pointer transition-[color,background] hover:bg-line-hover hover:text-muted"
-        >
-          <TextMorph disabled={!motionEnabled}>{sidebarEnabled ? 'Sidebar enabled' : 'Sidebar disabled'}</TextMorph>
         </button>
         <span className="hidden sm:inline text-sep font-black select-none">/</span>
         <button
