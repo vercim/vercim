@@ -2092,9 +2092,11 @@ function TiltCard({
   const glareRef = React2.useRef(null);
   const mobileRef = React2.useRef(false);
   const motionActiveRef = React2.useRef(false);
+  const motionPermissionGrantedRef = React2.useRef(false);
   const orientationBaselineRef = React2.useRef(null);
   const orientationFrameRef = React2.useRef(null);
   const [hovering, setHovering] = React2.useState(false);
+  const [motionStatus, setMotionStatus] = React2.useState("desktop");
   const applyTilt = React2.useCallback(
     (x, y) => {
       const el = cardRef.current;
@@ -2129,12 +2131,23 @@ function TiltCard({
   const requestMotionPermission = React2.useCallback(async () => {
     if (!mobileRef.current) return;
     const requestPermission = globalThis.DeviceOrientationEvent?.requestPermission;
-    if (typeof requestPermission !== "function") return;
+    if (typeof requestPermission !== "function") {
+      setMotionStatus("listening");
+      return;
+    }
+    setMotionStatus("requesting");
     try {
       const permission = await requestPermission.call(globalThis.DeviceOrientationEvent);
-      if (permission === "granted") orientationBaselineRef.current = null;
+      if (permission === "granted") {
+        motionPermissionGrantedRef.current = true;
+        orientationBaselineRef.current = null;
+        setMotionStatus("listening");
+      } else {
+        setMotionStatus("denied");
+      }
     } catch {
       motionActiveRef.current = false;
+      setMotionStatus("denied");
     }
   }, []);
   React2.useEffect(() => {
@@ -2147,10 +2160,25 @@ function TiltCard({
         cardRef.current.style.transform = "perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)";
       }
       if (glareRef.current) glareRef.current.style.background = "transparent";
+      setMotionStatus((status) => status === "active" ? "listening" : status);
     };
     const syncInput = () => {
       mobileRef.current = media.matches;
       resetMotion();
+      if (!media.matches) {
+        setMotionStatus("desktop");
+        return;
+      }
+      if (!("DeviceOrientationEvent" in globalThis)) {
+        setMotionStatus("unsupported");
+        return;
+      }
+      const requestPermission = globalThis.DeviceOrientationEvent?.requestPermission;
+      setMotionStatus(
+        typeof requestPermission === "function" && !motionPermissionGrantedRef.current
+          ? "prompt"
+          : "listening"
+      );
     };
     const onOrientation = (event) => {
       if (!mobileRef.current || event.beta == null || event.gamma == null) return;
@@ -2167,6 +2195,7 @@ function TiltCard({
         if (!motionActiveRef.current) {
           motionActiveRef.current = true;
           setHovering(true);
+          setMotionStatus("active");
         }
         applyTilt(x, y);
         orientationFrameRef.current = null;
@@ -2188,7 +2217,6 @@ function TiltCard({
     "div",
     {
       ref: cardRef,
-      onPointerDown: requestMotionPermission,
       onPointerEnter: () => {
         if (!mobileRef.current) setHovering(true);
       },
@@ -2202,6 +2230,28 @@ function TiltCard({
       },
       children: [
         children,
+        motionStatus === "prompt" || motionStatus === "denied" ? /* @__PURE__ */ jsx4(
+          "button",
+          {
+            type: "button",
+            className: "ticket-motion-permission",
+            onClick: requestMotionPermission,
+            children: motionStatus === "denied" ? "Try motion again" : "Enable motion"
+          }
+        ) : motionStatus === "requesting" || motionStatus === "listening" ? /* @__PURE__ */ jsx4(
+          "span",
+          {
+            className: "ticket-motion-permission ticket-motion-permission--status",
+            "aria-live": "polite",
+            children: motionStatus === "requesting" ? "Enabling\u2026" : "Move your phone"
+          }
+        ) : motionStatus === "unsupported" ? /* @__PURE__ */ jsx4(
+          "span",
+          {
+            className: "ticket-motion-permission ticket-motion-permission--status",
+            children: "Motion unavailable"
+          }
+        ) : null,
         glare > 0 && /* @__PURE__ */ jsx4(
           "div",
           {

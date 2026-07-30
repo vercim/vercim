@@ -824,6 +824,19 @@
   }
 
   @media (max-width: 520px) {
+    .hero-section {
+      height: 100lvh;
+      min-height: 100lvh;
+    }
+
+    .hero-section__content {
+      transform: translateY(calc(50dvh - 50lvh));
+    }
+
+    .hero-section__socials {
+      transform: translateY(calc(100dvh - 100lvh));
+    }
+
     .business-card-stage {
       position: absolute;
       top: 50%;
@@ -835,6 +848,32 @@
 
     .business-card-stage__ticket {
       transform: rotate(-90deg);
+    }
+
+    .ticket-motion-permission {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      z-index: 30;
+      min-width: 7.5rem;
+      padding: 0.7rem 0.9rem;
+      border: 1px solid rgb(255 255 255 / 35%);
+      border-radius: 999px;
+      background: rgb(0 0 0 / 78%);
+      color: #ffffff;
+      font: inherit;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      text-align: center;
+      transform: translate(-50%, -50%) rotate(90deg);
+      white-space: nowrap;
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+    }
+
+    .ticket-motion-permission--status {
+      pointer-events: none;
     }
 
     .social-preview-dock__trigger {
