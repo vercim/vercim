@@ -3,7 +3,7 @@
 import type { CSSProperties } from 'react';
 import { Dithering } from '@paper-design/shaders-react';
 import type { RepoCard } from '@/types/project';
-import { ArrowUpRight, Scale } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 
 interface Props {
   project: RepoCard;
@@ -41,15 +41,6 @@ function formatPercentage(percentage: number) {
   return `${percentage.toFixed(1)}%`;
 }
 
-function formatUpdatedAt(value: string) {
-  return new Intl.DateTimeFormat('en-US', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-    timeZone: 'UTC',
-  }).format(new Date(value));
-}
-
 export function ProjectCard({
   project,
   desktopPlacement,
@@ -77,10 +68,10 @@ export function ProjectCard({
             shape="sphere"
             type="random"
             colorBack="#ffffff00"
-            colorFront="#000000"
-            size={2}
-            speed={0.65}
-            scale={0.9}
+            colorFront="#000000b3"
+            size={1}
+            speed={0.75}
+            scale={1}
             style={{ width: '100%', height: '100%' }}
           />
         </div>
@@ -111,13 +102,6 @@ export function ProjectCard({
         <p className="project-card__description">{project.description}</p>
       )}
 
-      {project.license && (
-        <span className="project-card__license">
-          <Scale aria-hidden="true" />
-          {project.license}
-        </span>
-      )}
-
       <div className="project-card__footer">
         <div className="project-card__metadata">
           {project.languages.length > 0 && (
@@ -140,9 +124,6 @@ export function ProjectCard({
           )}
         </div>
 
-        <div className="project-card__actions">
-          <time dateTime={project.updatedAt}>{formatUpdatedAt(project.updatedAt)}</time>
-        </div>
       </div>
     </article>
   );
