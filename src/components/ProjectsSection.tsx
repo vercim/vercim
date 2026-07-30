@@ -1,49 +1,142 @@
+import type { CSSProperties } from 'react';
 import { config } from '@/data/config';
-import { fetchRepos, fetchLatestReleaseUrl, fetchPinnedRepoNames } from '@/lib/github';
+import { fetchRepoLanguages, fetchRepos } from '@/lib/github';
 import type { RepoCard } from '@/types/project';
-import { Layers } from 'lucide-react';
-import { ProjectCard } from './ProjectCard';
+import { ProjectCard, type BentoPlacement } from './ProjectCard';
+
+interface BentoLayout {
+  columns: number;
+  rows: number;
+  placements: BentoPlacement[];
+}
+
+const DESKTOP_SHAPES = [
+  [2, 2],
+  [2, 1],
+  [1, 2],
+  [2, 1],
+  [1, 2],
+] as const;
+
+const MOBILE_SHAPES = [
+  [2, 1],
+  [1, 2],
+  [1, 1],
+] as const;
+
+function createBentoLayout(
+  count: number,
+  columns: number,
+  density: number,
+  shapes: ReadonlyArray<readonly [number, number]>
+): BentoLayout {
+  if (count === 0) {
+    return { columns: 1, rows: 1, placements: [] };
+  }
+
+  const rows = Math.max(1, Math.ceil((count * density) / columns));
+  const occupied = Array.from({ length: rows }, () => Array(columns).fill(false));
+  const placements: BentoPlacement[] = [];
+  let usedCells = 0;
+
+  const findSpace = (columnSpan: number, rowSpan: number) => {
+    for (let row = 0; row <= rows - rowSpan; row += 1) {
+      for (let column = 0; column <= columns - columnSpan; column += 1) {
+        const available = Array.from({ length: rowSpan }, (_, rowOffset) =>
+          Array.from(
+            { length: columnSpan },
+            (_, columnOffset) => !occupied[row + rowOffset][column + columnOffset]
+          ).every(Boolean)
+        ).every(Boolean);
+
+        if (available) return { column, row };
+      }
+    }
+
+    return null;
+  };
+
+  for (let index = 0; index < count; index += 1) {
+    const remainingCards = count - index - 1;
+    const preferredShape = shapes[index % shapes.length];
+    const candidates = [preferredShape, [1, 1] as const];
+
+    for (const [columnSpan, rowSpan] of candidates) {
+      const area = columnSpan * rowSpan;
+      const freeCellsAfterPlacement = columns * rows - usedCells - area;
+      if (freeCellsAfterPlacement < remainingCards) continue;
+
+      const space = findSpace(columnSpan, rowSpan);
+      if (!space) continue;
+
+      for (let rowOffset = 0; rowOffset < rowSpan; rowOffset += 1) {
+        for (let columnOffset = 0; columnOffset < columnSpan; columnOffset += 1) {
+          occupied[space.row + rowOffset][space.column + columnOffset] = true;
+        }
+      }
+
+      usedCells += area;
+      placements.push({
+        column: space.column + 1,
+        row: space.row + 1,
+        columnSpan,
+        rowSpan,
+      });
+      break;
+    }
+  }
+
+  return { columns, rows, placements };
+}
 
 export async function ProjectsSection() {
-  const [repos, pinnedFromApi] = await Promise.all([
-    fetchRepos(config.githubUsername),
-    fetchPinnedRepoNames(config.githubUsername),
-  ]);
-
-  const pinnedNames = pinnedFromApi.length > 0 ? pinnedFromApi : config.pinnedRepos;
-  const pinnedSet = new Set(pinnedNames);
-
-  const unsorted: RepoCard[] = await Promise.all(
+  const repos = await fetchRepos(config.githubUsername);
+  const cards: RepoCard[] = await Promise.all(
     repos.map(async (repo) => {
-      const releaseUrl = await fetchLatestReleaseUrl(config.githubUsername, repo.name);
-      const tags = repo.topics.length > 0 ? repo.topics : repo.language ? [repo.language.toLowerCase()] : [];
+      const languages = await fetchRepoLanguages(repo);
+      const license = repo.license
+        ? repo.license.spdx_id === 'NOASSERTION'
+          ? repo.license.name
+          : repo.license.spdx_id
+        : null;
+
       return {
-        name: repo.name,
+        fullName: repo.full_name,
         description: repo.description,
         sourceUrl: repo.html_url,
         projectUrl: repo.homepage || null,
-        tags,
-        language: repo.language,
-        releaseUrl,
-        pinned: pinnedSet.has(repo.name),
-        stars: repo.stargazers_count,
+        license,
+        languages,
+        updatedAt: repo.updated_at,
       };
     })
   );
 
-  const pinnedCards = pinnedNames
-    .map((name) => unsorted.find((c) => c.name === name))
-    .filter((c): c is RepoCard => c !== undefined);
-  const restCards = unsorted.filter((c) => !c.pinned);
-  const cards = [...pinnedCards, ...restCards];
+  const desktopColumns = Math.max(1, Math.ceil(Math.sqrt(cards.length * 2)));
+  const mobileColumns = Math.min(2, Math.max(1, cards.length));
+  const desktopLayout = createBentoLayout(cards.length, desktopColumns, 1.6, DESKTOP_SHAPES);
+  const mobileLayout = createBentoLayout(cards.length, mobileColumns, 1.25, MOBILE_SHAPES);
+  const gridStyle = {
+    '--desktop-columns': desktopLayout.columns,
+    '--desktop-rows': desktopLayout.rows,
+    '--mobile-columns': mobileLayout.columns,
+    '--mobile-rows': mobileLayout.rows,
+  } as CSSProperties;
 
   return (
-    <section id="projects" className="min-h-screen flex flex-col items-center border-b border-divider">
-      <div className="w-full max-w-[680px] px-4 py-28 flex flex-col gap-[0.625rem]">
-        {cards.length === 0 ? (
-          <p className="type-body text-ghost py-8">no repositories found</p>
-        ) : (
-          cards.map((card) => <ProjectCard key={card.name} project={card} />)
+    <section id="projects" className="projects-section">
+      <div className="projects-section__inner">
+        {cards.length > 0 && (
+          <div className="projects-grid" style={gridStyle}>
+            {cards.map((card, index) => (
+              <ProjectCard
+                key={card.fullName}
+                project={card}
+                desktopPlacement={desktopLayout.placements[index]}
+                mobilePlacement={mobileLayout.placements[index]}
+              />
+            ))}
+          </div>
         )}
       </div>
     </section>

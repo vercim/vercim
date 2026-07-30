@@ -8,7 +8,6 @@ export type SocialPreview =
       kind: 'discord';
       name: string;
       handle: string;
-      badges: string[];
     }
   | {
       kind: 'youtube';
@@ -78,16 +77,20 @@ function ProfileCard({
   handle,
   details,
   detailsPosition = 'below',
+  action,
 }: {
   icon: React.ReactNode;
   name: string;
   handle: string;
   details?: React.ReactNode;
   detailsPosition?: 'below' | 'aside';
+  action: React.ReactNode;
 }) {
   return (
     <>
-      <div className="social-preview-card__banner" aria-hidden="true" />
+      <div className="social-preview-card__banner">
+        {action}
+      </div>
       <div className="social-preview-card__profile-body">
         <div className="social-preview-card__avatar" aria-hidden="true">
           {icon}
@@ -111,23 +114,16 @@ function ProfileCard({
   );
 }
 
-function DiscordBadges({ labels }: { labels: string[] }) {
-  const icons = [
-    <path key="sparkle" d="M8 2l1.4 4.6L14 8l-4.6 1.4L8 14l-1.4-4.6L2 8l4.6-1.4L8 2Z" />,
-    <path key="gem" d="m8 2 4.5 3.5L8 14 3.5 5.5 8 2Zm-4.5 3.5h9M8 2v12" />,
-    <path key="bolt" d="M9.5 1.5 3.8 8.4h3.6L6.5 14.5l5.7-7H8.6l.9-6Z" />,
-  ];
-
+function PreviewAction({ href, label }: { href: string; label: string }) {
   return (
-    <div className="social-preview-card__badges" aria-label="Discord badges">
-      {labels.map((label, index) => (
-        <span key={label} title={label}>
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" aria-hidden="true">
-            {icons[index % icons.length]}
-          </svg>
-        </span>
-      ))}
-    </div>
+    <a
+      className="social-preview-card__action"
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {label}
+    </a>
   );
 }
 
@@ -135,10 +131,12 @@ function DownloadChart({
   platform,
   downloads,
   series,
+  action,
 }: {
   platform: string;
   downloads: string;
   series: number[];
+  action: React.ReactNode;
 }) {
   const width = 288;
   const height = 56;
@@ -158,6 +156,7 @@ function DownloadChart({
           <p className="social-preview-card__name">{platform}</p>
           <p className="social-preview-card__download-total">{downloads} downloads</p>
         </div>
+        {action}
       </div>
       <svg
         className="social-preview-card__download-chart"
@@ -176,6 +175,8 @@ function DownloadChart({
 
 function PreviewCard({ item }: { item: SocialPreviewItem }) {
   const { preview } = item;
+  const fallbackHref = preview.kind === 'discord' ? 'https://discord.com/app' : '#';
+  const actionHref = item.href || fallbackHref;
 
   return (
     <div
@@ -187,7 +188,7 @@ function PreviewCard({ item }: { item: SocialPreviewItem }) {
           icon={item.icon}
           name={preview.name}
           handle={preview.handle}
-          details={<DiscordBadges labels={preview.badges} />}
+          action={<PreviewAction href={actionHref} label="Open" />}
         />
       ) : null}
 
@@ -197,6 +198,7 @@ function PreviewCard({ item }: { item: SocialPreviewItem }) {
           name={preview.name}
           handle={preview.handle}
           detailsPosition="aside"
+          action={<PreviewAction href={actionHref} label="Subscribe" />}
           details={
             <>
               <span>{preview.subscribers} subscribers</span>
@@ -209,10 +211,13 @@ function PreviewCard({ item }: { item: SocialPreviewItem }) {
       {preview.kind === 'github' ? (
         <>
           <div className="social-preview-card__github-heading">
-            <p className="social-preview-card__name">{preview.username}</p>
-            <p className="social-preview-card__github-caption">
-              {preview.contributions} contributions in the last year
-            </p>
+            <div>
+              <p className="social-preview-card__name">{preview.username}</p>
+              <p className="social-preview-card__github-caption">
+                {preview.contributions} contributions in the last year
+              </p>
+            </div>
+            <PreviewAction href={actionHref} label="View profile" />
           </div>
           <div
             className="social-preview-card__heatmap"
@@ -231,13 +236,14 @@ function PreviewCard({ item }: { item: SocialPreviewItem }) {
           platform={preview.platform}
           downloads={preview.downloads}
           series={preview.series}
+          action={<PreviewAction href={actionHref} label="View projects" />}
         />
       ) : null}
     </div>
   );
 }
 
-function CopyEmailButton({ email }: { email: string }) {
+function CopyEmailButton({ email, onActivate }: { email: string; onActivate: () => void }) {
   const [copied, setCopied] = React.useState(false);
   const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -264,11 +270,13 @@ function CopyEmailButton({ email }: { email: string }) {
       type="button"
       className="social-preview-dock__email"
       data-copied={copied ? '' : undefined}
+      onMouseEnter={onActivate}
+      onFocus={onActivate}
       onClick={copyEmail}
     >
-      <span className="social-preview-dock__email-label">Copy my email</span>
+      <span className="social-preview-dock__email-label">Copy email</span>
       <span className="social-preview-dock__email-label social-preview-dock__email-label--copied" aria-hidden="true">
-        E-mail copied!
+        Copied!
       </span>
       <span className="sr-only" role="status" aria-live="polite">
         {copied ? `${email} copied to clipboard` : ''}
@@ -420,7 +428,7 @@ export function SocialPreviewDock({ items, email, className = '' }: SocialPrevie
             </button>
           );
         })}
-        {email ? <CopyEmailButton email={email} /> : null}
+        {email ? <CopyEmailButton email={email} onActivate={close} /> : null}
       </nav>
     </div>
   );

@@ -1,11 +1,14 @@
-export interface RepoCard {
+export interface RepoLanguage {
   name: string;
+  percentage: number;
+}
+
+export interface RepoCard {
+  fullName: string;
   description: string | null;
   sourceUrl: string;
   projectUrl: string | null;
-  tags: string[];
-  language: string | null;
-  releaseUrl: string | null;
-  pinned: boolean;
-  stars: number;
+  license: string | null;
+  languages: RepoLanguage[];
+  updatedAt: string;
 }

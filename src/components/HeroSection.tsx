@@ -11,7 +11,6 @@ const SOCIAL_PREVIEWS: Record<string, Omit<SocialPreviewItem, 'id' | 'label' | '
       kind: 'discord',
       name: 'Vercim',
       handle: '@teathh',
-      badges: ['Early supporter', 'Creator', 'Active developer'],
     },
   },
   youtube: {
