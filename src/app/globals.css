@@ -265,16 +265,15 @@
   }
 
   .project-card__github-link svg {
-    width: 1.9rem;
-    height: 1.9rem;
+    width: 1.7rem;
+    height: 1.7rem;
     color: #777777;
-    transition: color 180ms ease, transform 180ms ease;
+    transition: color 180ms ease;
   }
 
   .project-card:hover .project-card__github-link svg,
   .project-card__github-link:focus-visible svg {
     color: #181818;
-    transform: translate(2px, -2px);
   }
 
   .project-card__github-link:focus-visible {
@@ -457,7 +456,7 @@
   }
 
   .business-card-stage {
-    width: min(36rem, calc(100vw - 2rem));
+    width: min(48rem, calc(100vw - 2rem));
     perspective: 1100px;
   }
 
