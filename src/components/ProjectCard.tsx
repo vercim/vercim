@@ -68,10 +68,10 @@ export function ProjectCard({
             shape="sphere"
             type="random"
             colorBack="#ffffff00"
-            colorFront="#000000b0"
-            size={1.2}
-            speed={0.7}
-            scale={0.8}
+            colorFront="#000000"
+            size={1.35}
+            speed={0.65}
+            scale={0.75}
             style={{ width: '100%', height: '100%' }}
           />
         </div>

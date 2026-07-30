@@ -2090,33 +2090,108 @@ function TiltCard({
 }) {
   const cardRef = React2.useRef(null);
   const glareRef = React2.useRef(null);
+  const mobileRef = React2.useRef(false);
+  const motionActiveRef = React2.useRef(false);
+  const orientationBaselineRef = React2.useRef(null);
+  const orientationFrameRef = React2.useRef(null);
   const [hovering, setHovering] = React2.useState(false);
-  const onMove = React2.useCallback(
-    (e) => {
+  const applyTilt = React2.useCallback(
+    (x, y) => {
       const el = cardRef.current;
       if (!el) return;
-      const rect = el.getBoundingClientRect();
-      const dx = (e.clientX - rect.left) / rect.width - 0.5;
-      const dy = (e.clientY - rect.top) / rect.height - 0.5;
-      el.style.transform = `perspective(1200px) rotateX(${-(dy * 2) * maxTilt}deg) rotateY(${dx * 2 * maxTilt}deg) scale(${scale})`;
+      el.style.transform = `perspective(1200px) rotateX(${-y * maxTilt}deg) rotateY(${x * maxTilt}deg) scale(${scale})`;
       if (glareRef.current) {
-        glareRef.current.style.background = `radial-gradient(38% 55% at ${(dx + 0.5) * 100}% ${(dy + 0.5) * 100}%, rgba(255,255,255,${glare}) 0%, rgba(255,255,255,0) 70%)`;
+        glareRef.current.style.background = `radial-gradient(38% 55% at ${(x + 1) * 50}% ${(y + 1) * 50}%, rgba(255,255,255,${glare}) 0%, rgba(255,255,255,0) 70%)`;
       }
     },
     [maxTilt, scale, glare]
   );
+  const onMove = React2.useCallback(
+    (e) => {
+      if (mobileRef.current) return;
+      const el = cardRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
+      const y = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
+      applyTilt(x, y);
+    },
+    [applyTilt]
+  );
   const onLeave = React2.useCallback(() => {
+    if (mobileRef.current) return;
     setHovering(false);
     if (cardRef.current) {
       cardRef.current.style.transform = "perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)";
     }
     if (glareRef.current) glareRef.current.style.background = "transparent";
   }, []);
+  const requestMotionPermission = React2.useCallback(async () => {
+    if (!mobileRef.current) return;
+    const requestPermission = globalThis.DeviceOrientationEvent?.requestPermission;
+    if (typeof requestPermission !== "function") return;
+    try {
+      const permission = await requestPermission.call(globalThis.DeviceOrientationEvent);
+      if (permission === "granted") orientationBaselineRef.current = null;
+    } catch {
+      motionActiveRef.current = false;
+    }
+  }, []);
+  React2.useEffect(() => {
+    const media = window.matchMedia("(max-width: 520px)");
+    const resetMotion = () => {
+      orientationBaselineRef.current = null;
+      motionActiveRef.current = false;
+      setHovering(false);
+      if (cardRef.current) {
+        cardRef.current.style.transform = "perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)";
+      }
+      if (glareRef.current) glareRef.current.style.background = "transparent";
+    };
+    const syncInput = () => {
+      mobileRef.current = media.matches;
+      resetMotion();
+    };
+    const onOrientation = (event) => {
+      if (!mobileRef.current || event.beta == null || event.gamma == null) return;
+      if (!orientationBaselineRef.current) {
+        orientationBaselineRef.current = { beta: event.beta, gamma: event.gamma };
+        return;
+      }
+      const sensorRange = 18;
+      const clamp = (value) => Math.max(-1, Math.min(1, value));
+      const x = clamp((event.beta - orientationBaselineRef.current.beta) / sensorRange);
+      const y = clamp((event.gamma - orientationBaselineRef.current.gamma) / sensorRange);
+      if (orientationFrameRef.current != null) cancelAnimationFrame(orientationFrameRef.current);
+      orientationFrameRef.current = requestAnimationFrame(() => {
+        if (!motionActiveRef.current) {
+          motionActiveRef.current = true;
+          setHovering(true);
+        }
+        applyTilt(x, y);
+        orientationFrameRef.current = null;
+      });
+    };
+
+    syncInput();
+    media.addEventListener("change", syncInput);
+    window.addEventListener("orientationchange", resetMotion);
+    window.addEventListener("deviceorientation", onOrientation);
+    return () => {
+      media.removeEventListener("change", syncInput);
+      window.removeEventListener("orientationchange", resetMotion);
+      window.removeEventListener("deviceorientation", onOrientation);
+      if (orientationFrameRef.current != null) cancelAnimationFrame(orientationFrameRef.current);
+    };
+  }, [applyTilt]);
   return /* @__PURE__ */ jsxs(
     "div",
     {
       ref: cardRef,
-      onPointerEnter: () => setHovering(true),
+      onPointerDown: requestMotionPermission,
+      onPointerEnter: () => {
+        if (!mobileRef.current) setHovering(true);
+      },
       onPointerMove: onMove,
       onPointerLeave: onLeave,
       className: `relative w-fit will-change-transform ${className ?? ""}`,

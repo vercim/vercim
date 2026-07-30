@@ -22,7 +22,11 @@ export function HoverBusinessCard() {
   return (
     <div ref={stageRef} className="business-card-stage">
       {width > 0 ? (
-        <div role="img" aria-label="Vercim digital business card">
+        <div
+          className="business-card-stage__ticket"
+          role="img"
+          aria-label="Vercim digital business card"
+        >
           <AdmitOneTicket
             name="Vercim"
             presenter="Vercim Creative"
