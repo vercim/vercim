@@ -101,7 +101,7 @@
 
   ::selection {
     color: var(--c-bg);
-    background: var(--c-accent);
+    background: #ef681c;
   }
 
   ::-webkit-scrollbar { width: 3px; }
