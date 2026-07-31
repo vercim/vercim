@@ -125,6 +125,7 @@ function ProfileCard({
             alt=""
             fill
             sizes="(max-width: 420px) calc(100vw - 1.5rem), 16rem"
+            draggable={false}
           />
         ) : null}
         {action}
@@ -138,6 +139,7 @@ function ProfileCard({
               alt=""
               fill
               sizes="52px"
+              draggable={false}
             />
           ) : icon}
         </div>
