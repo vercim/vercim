@@ -13,106 +13,100 @@ export type CurseForgeStatsResult =
       message: string;
     };
 
-interface CurseForgeMod {
-  id?: number;
-  downloadCount?: number;
-  dateCreated?: string;
-  authors?: {
-    name?: string;
+interface CurseForgeAuthorResponse {
+  username?: string;
+  projects?: {
+    id?: number;
   }[];
 }
 
-interface CurseForgeSearchResponse {
-  data?: CurseForgeMod[];
-  pagination?: {
-    index: number;
-    pageSize: number;
-    resultCount: number;
-    totalCount: number;
+interface CurseForgeProjectResponse {
+  id?: number;
+  created_at?: string;
+  downloads?: {
+    total?: number;
   };
 }
 
-const PAGE_SIZE = 50;
+const CF_WIDGET_HEADERS = {
+  'User-Agent': 'vercim/portfolio/1.0 (contact@verc.im)',
+};
 
-export async function fetchCurseForgeStats(
-  gameId: number,
-  author: string,
-): Promise<CurseForgeStatsResult> {
-  const apiKey = process.env.CURSEFORGE_API_KEY;
-
-  if (!apiKey) {
-    return {
-      status: 'error',
-      message: 'CurseForge API key is not configured',
-    };
-  }
-
-  const projects: (CurseForgeMod & { id: number; downloadCount: number })[] = [];
-
+export async function fetchCurseForgeStats(author: string): Promise<CurseForgeStatsResult> {
   try {
-    for (let index = 0; index < 10000; index += PAGE_SIZE) {
-      const params = new URLSearchParams({
-        gameId: String(gameId),
-        searchFilter: author,
-        index: String(index),
-        pageSize: String(PAGE_SIZE),
-      });
-      const res = await fetch(`https://api.curseforge.com/v1/mods/search?${params}`, {
-        headers: {
-          Accept: 'application/json',
-          'x-api-key': apiKey,
-        },
+    const authorRes = await fetch(
+      `https://api.cfwidget.com/author/search/${encodeURIComponent(author)}`,
+      {
+        headers: CF_WIDGET_HEADERS,
         next: { revalidate: 21600 },
-      });
+      },
+    );
 
-      if (!res.ok) {
-        console.error('[curseforge] projects HTTP error:', res.status);
-        return {
-          status: 'error',
-          message: `CurseForge API returned ${res.status}`,
-        };
-      }
-
-      const payload: CurseForgeSearchResponse = await res.json();
-
-      if (!Array.isArray(payload.data) || !payload.pagination) {
-        return {
-          status: 'error',
-          message: 'CurseForge project data is unavailable',
-        };
-      }
-
-      const authorProjects = payload.data.filter(
-        (project): project is CurseForgeMod & { id: number; downloadCount: number } =>
-          typeof project.id === 'number' &&
-          typeof project.downloadCount === 'number' &&
-          Number.isFinite(project.downloadCount) &&
-          Boolean(
-            project.authors?.some(
-              (projectAuthor) => projectAuthor.name?.toLowerCase() === author.toLowerCase(),
-            ),
-          ),
-      );
-      projects.push(...authorProjects);
-
-      const { resultCount, totalCount } = payload.pagination;
-      if (resultCount < PAGE_SIZE || index + resultCount >= totalCount) break;
+    if (!authorRes.ok) {
+      console.error('[curseforge] public author HTTP error:', authorRes.status);
+      return {
+        status: 'error',
+        message: `CurseForge profile service returned ${authorRes.status}`,
+      };
     }
 
-    if (projects.length === 0) {
+    const authorPayload: CurseForgeAuthorResponse = await authorRes.json();
+    const projectIds = authorPayload.projects
+      ?.map((project) => project.id)
+      .filter((id): id is number => typeof id === 'number');
+
+    if (
+      authorPayload.username?.toLowerCase() !== author.toLowerCase() ||
+      !projectIds ||
+      projectIds.length === 0
+    ) {
       return {
         status: 'error',
         message: 'CurseForge projects were not found',
       };
     }
 
-    projects.sort((first, second) => {
-      const firstCreated = first.dateCreated ? Date.parse(first.dateCreated) : 0;
-      const secondCreated = second.dateCreated ? Date.parse(second.dateCreated) : 0;
-      return firstCreated - secondCreated;
-    });
+    const projects = await Promise.all(
+      [...new Set(projectIds)].map(async (projectId) => {
+        const projectRes = await fetch(`https://api.cfwidget.com/${projectId}`, {
+          headers: CF_WIDGET_HEADERS,
+          next: { revalidate: 21600 },
+        });
 
-    const projectDownloads = projects.map((project) => project.downloadCount);
+        if (!projectRes.ok) {
+          throw new Error(`Project ${projectId} returned ${projectRes.status}`);
+        }
+
+        return projectRes.json() as Promise<CurseForgeProjectResponse>;
+      }),
+    );
+
+    const normalizedProjects = projects
+      .filter(
+        (
+          project,
+        ): project is CurseForgeProjectResponse & {
+          id: number;
+          downloads: { total: number };
+        } =>
+          typeof project.id === 'number' &&
+          typeof project.downloads?.total === 'number' &&
+          Number.isFinite(project.downloads.total),
+      )
+      .sort((first, second) => {
+        const firstCreated = first.created_at ? Date.parse(first.created_at) : 0;
+        const secondCreated = second.created_at ? Date.parse(second.created_at) : 0;
+        return firstCreated - secondCreated;
+      });
+
+    if (normalizedProjects.length !== projects.length) {
+      return {
+        status: 'error',
+        message: 'CurseForge project data is incomplete',
+      };
+    }
+
+    const projectDownloads = normalizedProjects.map((project) => project.downloads.total);
 
     return {
       status: 'success',
@@ -122,10 +116,10 @@ export async function fetchCurseForgeStats(
       },
     };
   } catch (error) {
-    console.error('[curseforge] projects exception:', error);
+    console.error('[curseforge] public profile exception:', error);
     return {
       status: 'error',
-      message: 'Could not reach CurseForge API',
+      message: 'Could not reach CurseForge profile service',
     };
   }
 }

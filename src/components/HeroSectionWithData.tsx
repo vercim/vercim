@@ -14,7 +14,7 @@ export async function HeroSectionWithData() {
     modrinthStats,
     youtubeChannel,
   ] = await Promise.all([
-    fetchCurseForgeStats(config.curseForgeGameId, config.curseForgeAuthor),
+    fetchCurseForgeStats(config.curseForgeAuthor),
     fetchDiscordProfile(config.discordUserId),
     fetchGitHubContributions(config.githubUsername),
     fetchModrinthStats(config.modrinthUsername),
