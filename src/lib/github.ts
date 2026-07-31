@@ -1,19 +1,11 @@
 import type { RepoLanguage } from '@/types/project';
 
 export interface GitHubRepo {
-  id: number;
-  name: string;
   full_name: string;
   description: string | null;
   html_url: string;
-  homepage: string | null;
   languages_url: string;
   language: string | null;
-  license: {
-    name: string;
-    spdx_id: string;
-  } | null;
-  updated_at: string;
 }
 
 export interface GitHubContributions {
@@ -272,20 +264,13 @@ async function fetchReposFromProfilePage(username: string): Promise<GitHubRepo[]
       }
 
       const html = await res.text();
-      const pageRepos = parseProfileRepositories(username, html, repos.length);
+      const pageRepos = parseProfileRepositories(username, html);
       repos.push(...pageRepos);
 
       if (pageRepos.length < 30) break;
     }
 
-    const homepages = await Promise.all(
-      repos.map((repo) => fetchRepoHomepage(repo.html_url))
-    );
-
-    return repos.map((repo, index) => ({
-      ...repo,
-      homepage: homepages[index],
-    }));
+    return repos;
   } catch (error) {
     console.error('[github] profile fallback unavailable:', error);
     return [];
@@ -294,16 +279,14 @@ async function fetchReposFromProfilePage(username: string): Promise<GitHubRepo[]
 
 function parseProfileRepositories(
   username: string,
-  html: string,
-  offset: number
+  html: string
 ): GitHubRepo[] {
   const blocks = html.split(/<li[^>]*itemprop="owns"[^>]*>/).slice(1);
 
-  return blocks.flatMap((block, index) => {
+  return blocks.flatMap((block) => {
     const name = extractText(block, /itemprop="name codeRepository"[^>]*>([\s\S]*?)<\/a>/);
-    const updatedAt = block.match(/<relative-time[^>]*datetime="([^"]+)"/)?.[1];
 
-    if (!name || !updatedAt) return [];
+    if (!name) return [];
 
     const description = extractText(
       block,
@@ -313,52 +296,14 @@ function parseProfileRepositories(
       block,
       /<span[^>]*itemprop="programmingLanguage"[^>]*>([\s\S]*?)<\/span>/
     );
-    const licenseName = extractText(
-      block,
-      /octicon-law[\s\S]{0,1800}?<\/svg>([\s\S]*?)<\/span>/
-    );
-
     return [{
-      id: offset + index,
-      name,
       full_name: `${username}/${name}`,
       description: description || null,
       html_url: `https://github.com/${username}/${name}`,
-      homepage: null,
       languages_url: '',
       language: language || null,
-      license: licenseName
-        ? {
-            name: licenseName,
-            spdx_id: normalizeLicense(licenseName),
-          }
-        : null,
-      updated_at: updatedAt,
     }];
   });
-}
-
-async function fetchRepoHomepage(repoUrl: string): Promise<string | null> {
-  try {
-    const res = await fetch(repoUrl, {
-      headers: {
-        Accept: 'text/html',
-        'User-Agent': 'vercim-portfolio',
-      },
-      next: { revalidate: 21600 },
-    });
-
-    if (!res.ok) return null;
-
-    const html = await res.text();
-    const homepage =
-      html.match(/SidebarAbout-module__websiteLink__[^"]*"[^>]*title="([^"]+)"/)?.[1] ??
-      html.match(/repository-meta-content[\s\S]{0,800}?href="([^"]+)"/)?.[1];
-
-    return homepage ? decodeHtml(homepage) : null;
-  } catch {
-    return null;
-  }
 }
 
 function extractText(html: string, pattern: RegExp): string {
@@ -375,16 +320,4 @@ function decodeHtml(value: string): string {
     .replace(/&#39;|&#x27;/g, "'")
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>');
-}
-
-function normalizeLicense(name: string): string {
-  const licenses: Record<string, string> = {
-    'GNU Affero General Public License v3.0': 'AGPL-3.0',
-    'GNU General Public License v3.0': 'GPL-3.0',
-    'GNU Lesser General Public License v3.0': 'LGPL-3.0',
-    'Apache License 2.0': 'Apache-2.0',
-    'MIT License': 'MIT',
-  };
-
-  return licenses[name] ?? 'NOASSERTION';
 }

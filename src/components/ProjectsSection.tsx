@@ -94,20 +94,12 @@ export async function ProjectsSection() {
   const cards: RepoCard[] = await Promise.all(
     repos.map(async (repo) => {
       const languages = await fetchRepoLanguages(repo);
-      const license = repo.license
-        ? repo.license.spdx_id === 'NOASSERTION'
-          ? repo.license.name
-          : repo.license.spdx_id
-        : null;
 
       return {
         fullName: repo.full_name,
         description: repo.description,
         sourceUrl: repo.html_url,
-        projectUrl: repo.homepage || null,
-        license,
         languages,
-        updatedAt: repo.updated_at,
       };
     })
   );
