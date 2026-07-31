@@ -60,7 +60,7 @@ export function ProjectCard({
   return (
     <article
       style={layoutStyle}
-      className="project-card"
+      className={`project-card${showShader ? ' project-card--with-shader' : ''}`}
     >
       {showShader && (
         <div className="project-card__shader" aria-hidden="true">

@@ -1,70 +1,168 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import { socialLinks } from '@/data/social';
+import type { CurseForgeStatsResult } from '@/lib/curseforge';
+import type { DiscordProfileResult } from '@/lib/discord';
+import type { GitHubContributions } from '@/lib/github';
+import type { ModrinthStatsResult } from '@/lib/modrinth';
+import type { YouTubeChannelResult } from '@/lib/youtube';
 import { HoverBusinessCard } from '@/components/ui/hover-business-card';
 import { SocialPreviewDock, type SocialPreviewItem } from '@/components/ui/social-preview-dock';
 
-const SOCIAL_PREVIEWS: Record<string, Omit<SocialPreviewItem, 'id' | 'label' | 'href' | 'icon'>> = {
-  discord: {
-    accent: '#5865f2',
-    preview: {
-      kind: 'discord',
-      name: 'Vercim',
-      handle: '@teathh',
-    },
-  },
-  youtube: {
-    accent: '#ff3b30',
-    preview: {
-      kind: 'youtube',
-      name: 'teatthh',
-      handle: '@teatthh',
-      subscribers: '12.4K',
-      views: '2.8M',
-    },
-  },
-  github: {
-    accent: '#22c55e',
-    preview: {
-      kind: 'github',
-      username: 'vercim',
-      contributions: '2,227',
-    },
-  },
-  modrinth: {
-    accent: '#1bd96a',
-    preview: {
-      kind: 'downloads',
-      platform: 'Modrinth',
-      downloads: '284K',
-      series: [18, 24, 22, 31, 29, 38, 46, 43, 58, 64, 61, 78],
-    },
-  },
-  curseforge: {
-    accent: '#f16436',
-    preview: {
-      kind: 'downloads',
-      platform: 'CurseForge',
-      downloads: '1.3M',
-      series: [31, 28, 42, 48, 45, 61, 58, 72, 86, 81, 94, 108],
-    },
-  },
-};
+interface HeroSectionProps {
+  curseForgeStats: CurseForgeStatsResult;
+  discordProfile: DiscordProfileResult;
+  githubContributions: GitHubContributions | null;
+  githubUsername: string;
+  modrinthStats: ModrinthStatsResult;
+  youtubeChannel: YouTubeChannelResult;
+}
 
-export function HeroSection() {
+export function HeroSection({
+  curseForgeStats,
+  discordProfile,
+  githubContributions,
+  githubUsername,
+  modrinthStats,
+  youtubeChannel,
+}: HeroSectionProps) {
+  const heroRef = useRef<HTMLElement>(null);
   const email = socialLinks.find((item) => item.id === 'email')?.handle;
   const items: SocialPreviewItem[] = socialLinks
     .filter((item) => item.id !== 'email')
-    .map(({ id, label, href, icon: Icon }) => ({
-      id,
-      label,
-      href: href || undefined,
-      icon: Icon ? <Icon aria-hidden="true" /> : null,
-      ...SOCIAL_PREVIEWS[id],
-    }));
+    .map(({ id, label, href, icon: Icon }) => {
+      const socialPreview = id === 'discord'
+        ? discordProfile.status === 'success'
+          ? {
+              accent: discordProfile.profile.accentColor ?? '#5865f2',
+              preview: {
+                kind: 'discord' as const,
+                status: 'success' as const,
+                ...discordProfile.profile,
+              },
+            }
+          : {
+              accent: '#5865f2',
+              preview: {
+                kind: 'discord' as const,
+                status: 'error' as const,
+                message: discordProfile.message,
+              },
+            }
+        : id === 'modrinth'
+          ? modrinthStats.status === 'success'
+            ? {
+                accent: '#1bd96a',
+                preview: {
+                  kind: 'modrinth' as const,
+                  status: 'success' as const,
+                  downloads: modrinthStats.stats.totalDownloads,
+                  series: modrinthStats.stats.projectDownloads,
+                },
+              }
+            : {
+                accent: '#1bd96a',
+                preview: {
+                  kind: 'modrinth' as const,
+                  status: 'error' as const,
+                  message: modrinthStats.message,
+                },
+              }
+        : id === 'github'
+        ? {
+            accent: '#22c55e',
+            preview: {
+              kind: 'github' as const,
+              username: githubUsername,
+              contributions: githubContributions?.total ?? null,
+              levels: githubContributions?.levels ?? [],
+            },
+          }
+        : id === 'youtube'
+          ? youtubeChannel.status === 'success'
+            ? {
+                accent: '#ff3b30',
+                preview: {
+                  kind: 'youtube' as const,
+                  status: 'success' as const,
+                  ...youtubeChannel.channel,
+                },
+              }
+            : {
+                accent: '#ff3b30',
+                preview: {
+                  kind: 'youtube' as const,
+                  status: 'error' as const,
+                  message: youtubeChannel.message,
+                },
+              }
+        : curseForgeStats.status === 'success'
+          ? {
+              accent: '#f16436',
+              preview: {
+                kind: 'curseforge' as const,
+                status: 'success' as const,
+                downloads: curseForgeStats.stats.totalDownloads,
+                series: curseForgeStats.stats.projectDownloads,
+              },
+            }
+          : {
+              accent: '#f16436',
+              preview: {
+                kind: 'curseforge' as const,
+                status: 'error' as const,
+                message: curseForgeStats.message,
+              },
+            };
+
+      return {
+        id,
+        label,
+        href: href || undefined,
+        icon: Icon ? <Icon aria-hidden="true" /> : null,
+        ...socialPreview,
+      };
+    });
+
+  useEffect(() => {
+    const hero = heroRef.current;
+    if (!hero) return;
+
+    const mobile = window.matchMedia('(max-width: 520px)');
+    const updateDeviceHeight = () => {
+      if (!mobile.matches) {
+        hero.style.removeProperty('--hero-device-height');
+        hero.style.removeProperty('--hero-content-offset');
+        hero.style.removeProperty('--hero-socials-offset');
+        return;
+      }
+
+      const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+      const deviceHeight = Math.max(window.screen.height, viewportHeight);
+      const browserChromeHeight = Math.max(0, deviceHeight - viewportHeight);
+
+      hero.style.setProperty('--hero-device-height', `${Math.round(deviceHeight)}px`);
+      hero.style.setProperty('--hero-content-offset', `${Math.round(-browserChromeHeight / 2)}px`);
+      hero.style.setProperty('--hero-socials-offset', `${Math.round(-browserChromeHeight)}px`);
+    };
+
+    updateDeviceHeight();
+    mobile.addEventListener('change', updateDeviceHeight);
+    window.addEventListener('resize', updateDeviceHeight);
+    window.addEventListener('orientationchange', updateDeviceHeight);
+    window.visualViewport?.addEventListener('resize', updateDeviceHeight);
+
+    return () => {
+      mobile.removeEventListener('change', updateDeviceHeight);
+      window.removeEventListener('resize', updateDeviceHeight);
+      window.removeEventListener('orientationchange', updateDeviceHeight);
+      window.visualViewport?.removeEventListener('resize', updateDeviceHeight);
+    };
+  }, []);
 
   return (
-    <section id="home" className="hero-section border-b border-divider">
+    <section ref={heroRef} id="home" className="hero-section border-b border-divider">
       <a href="#home" className="hero-logo" aria-label="Vercim — back to the top">
         <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
           <path

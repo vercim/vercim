@@ -1,31 +1,67 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
+import Image from 'next/image';
 import * as React from 'react';
 
 export type SocialPreview =
   | {
       kind: 'discord';
+      status: 'success';
       name: string;
       handle: string;
+      avatarUrl: string;
+      bannerUrl: string | null;
+      accentColor: string | null;
+      profileUrl: string;
+    }
+  | {
+      kind: 'discord';
+      status: 'error';
+      message: string;
     }
   | {
       kind: 'youtube';
+      status: 'success';
       name: string;
       handle: string;
-      subscribers: string;
-      views: string;
+      subscribers: number | null;
+      views: number;
+      avatarUrl: string;
+      bannerUrl: string;
+    }
+  | {
+      kind: 'youtube';
+      status: 'error';
+      message: string;
     }
   | {
       kind: 'github';
       username: string;
-      contributions: string;
+      contributions: number | null;
+      levels: number[];
     }
   | {
-      kind: 'downloads';
-      platform: 'Modrinth' | 'CurseForge';
-      downloads: string;
+      kind: 'modrinth';
+      status: 'success';
+      downloads: number;
       series: number[];
+    }
+  | {
+      kind: 'modrinth';
+      status: 'error';
+      message: string;
+    }
+  | {
+      kind: 'curseforge';
+      status: 'success';
+      downloads: number;
+      series: number[];
+    }
+  | {
+      kind: 'curseforge';
+      status: 'error';
+      message: string;
     };
 
 export interface SocialPreviewItem {
@@ -48,17 +84,6 @@ const FADE = { duration: 0.16, ease: [0.22, 1, 0.36, 1] as const };
 const MOVE = { type: 'spring' as const, stiffness: 620, damping: 46, mass: 0.8 };
 const RESIZE = { type: 'spring' as const, stiffness: 700, damping: 54, mass: 0.8 };
 const useIsoLayoutEffect = typeof window === 'undefined' ? React.useEffect : React.useLayoutEffect;
-const CONTRIBUTION_LEVELS = Array.from({ length: 364 }, (_, index) => {
-  const column = Math.floor(index / 7);
-  const value = (index * 17 + column * 13 + Math.floor(column / 5) * 7) % 29;
-
-  if (value < 10) return 0;
-  if (value < 17) return 1;
-  if (value < 23) return 2;
-  if (value < 27) return 3;
-  return 4;
-});
-
 function offsetLeftWithin(element: HTMLElement, ancestor: HTMLElement) {
   let offset = 0;
   let node: HTMLElement | null = element;
@@ -78,6 +103,8 @@ function ProfileCard({
   details,
   detailsPosition = 'below',
   action,
+  avatarUrl,
+  bannerUrl,
 }: {
   icon: React.ReactNode;
   name: string;
@@ -85,15 +112,34 @@ function ProfileCard({
   details?: React.ReactNode;
   detailsPosition?: 'below' | 'aside';
   action: React.ReactNode;
+  avatarUrl?: string;
+  bannerUrl?: string;
 }) {
   return (
     <>
       <div className="social-preview-card__banner">
+        {bannerUrl ? (
+          <Image
+            className="social-preview-card__banner-image"
+            src={bannerUrl}
+            alt=""
+            fill
+            sizes="(max-width: 420px) calc(100vw - 1.5rem), 16rem"
+          />
+        ) : null}
         {action}
       </div>
       <div className="social-preview-card__profile-body">
         <div className="social-preview-card__avatar" aria-hidden="true">
-          {icon}
+          {avatarUrl ? (
+            <Image
+              className="social-preview-card__avatar-image"
+              src={avatarUrl}
+              alt=""
+              fill
+              sizes="52px"
+            />
+          ) : icon}
         </div>
         <div className="social-preview-card__profile-content">
           <div className="social-preview-card__identity">
@@ -114,6 +160,13 @@ function ProfileCard({
   );
 }
 
+function formatCompactCount(value: number) {
+  return new Intl.NumberFormat('en-US', {
+    notation: 'compact',
+    maximumFractionDigits: 1,
+  }).format(value);
+}
+
 function PreviewAction({ href, label }: { href: string; label: string }) {
   return (
     <a
@@ -127,16 +180,62 @@ function PreviewAction({ href, label }: { href: string; label: string }) {
   );
 }
 
+function CopyAction({ value }: { value: string }) {
+  const [copied, setCopied] = React.useState(false);
+  const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  React.useEffect(
+    () => () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    },
+    [],
+  );
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => setCopied(false), 3000);
+    } catch (error) {
+      console.error('[discord] clipboard write failed:', error);
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      className="social-preview-card__action"
+      data-copied={copied ? '' : undefined}
+      onClick={handleCopy}
+    >
+      <span className="social-preview-card__action-label">Copy</span>
+      <span
+        className="social-preview-card__action-label social-preview-card__action-label--copied"
+        aria-hidden="true"
+      >
+        Copied!
+      </span>
+      <span className="sr-only" role="status" aria-live="polite">
+        {copied ? `${value} copied to clipboard` : ''}
+      </span>
+    </button>
+  );
+}
+
 function DownloadChart({
   platform,
   downloads,
   series,
   action,
+  ariaLabel = `${platform} download activity`,
 }: {
   platform: string;
-  downloads: string;
+  downloads: string | number;
   series: number[];
   action: React.ReactNode;
+  ariaLabel?: string;
 }) {
   const width = 288;
   const height = 56;
@@ -154,7 +253,9 @@ function DownloadChart({
       <div className="social-preview-card__download-heading">
         <div>
           <p className="social-preview-card__name">{platform}</p>
-          <p className="social-preview-card__download-total">{downloads} downloads</p>
+          <p className="social-preview-card__download-total">
+            {typeof downloads === 'number' ? formatCompactCount(downloads) : downloads} downloads
+          </p>
         </div>
         {action}
       </div>
@@ -162,7 +263,7 @@ function DownloadChart({
         className="social-preview-card__download-chart"
         viewBox={`0 0 ${width} ${height}`}
         role="img"
-        aria-label={`${platform} download activity`}
+        aria-label={ariaLabel}
         preserveAspectRatio="none"
       >
         <path className="social-preview-card__chart-grid" d={`M 0 ${height / 2} H ${width}`} />
@@ -175,37 +276,66 @@ function DownloadChart({
 
 function PreviewCard({ item }: { item: SocialPreviewItem }) {
   const { preview } = item;
-  const fallbackHref = preview.kind === 'discord' ? 'https://discord.com/app' : '#';
-  const actionHref = item.href || fallbackHref;
+  const actionHref = preview.kind === 'discord' && preview.status === 'success'
+    ? preview.profileUrl
+    : item.href || '#';
 
   return (
     <div
       className={`social-preview-card social-preview-card--${preview.kind}`}
       style={{ '--social-accent': item.accent } as React.CSSProperties}
     >
-      {preview.kind === 'discord' ? (
+      {preview.kind === 'discord' && preview.status === 'success' ? (
         <ProfileCard
           icon={item.icon}
           name={preview.name}
           handle={preview.handle}
-          action={<PreviewAction href={actionHref} label="Open" />}
+          avatarUrl={preview.avatarUrl}
+          bannerUrl={preview.bannerUrl ?? undefined}
+          action={<CopyAction value={preview.handle.replace(/^@/, '')} />}
         />
       ) : null}
 
-      {preview.kind === 'youtube' ? (
+      {preview.kind === 'discord' && preview.status === 'error' ? (
+        <div className="social-preview-card__error" role="alert">
+          <div>
+            <p className="social-preview-card__name">Discord data unavailable</p>
+            <p className="social-preview-card__error-message">{preview.message}</p>
+          </div>
+          <PreviewAction href="https://discord.com/app" label="Open Discord" />
+        </div>
+      ) : null}
+
+      {preview.kind === 'youtube' && preview.status === 'success' ? (
         <ProfileCard
           icon={item.icon}
           name={preview.name}
           handle={preview.handle}
+          avatarUrl={preview.avatarUrl}
+          bannerUrl={preview.bannerUrl}
           detailsPosition="aside"
           action={<PreviewAction href={actionHref} label="Subscribe" />}
           details={
             <>
-              <span>{preview.subscribers} subscribers</span>
-              <span>{preview.views} views</span>
+              <span>
+                {preview.subscribers === null
+                  ? 'Subscribers hidden'
+                  : `${formatCompactCount(preview.subscribers)} subscribers`}
+              </span>
+              <span>{formatCompactCount(preview.views)} views</span>
             </>
           }
         />
+      ) : null}
+
+      {preview.kind === 'youtube' && preview.status === 'error' ? (
+        <div className="social-preview-card__error" role="alert">
+          <div>
+            <p className="social-preview-card__name">YouTube data unavailable</p>
+            <p className="social-preview-card__error-message">{preview.message}</p>
+          </div>
+          <PreviewAction href={actionHref} label="Open channel" />
+        </div>
       ) : null}
 
       {preview.kind === 'github' ? (
@@ -214,7 +344,9 @@ function PreviewCard({ item }: { item: SocialPreviewItem }) {
             <div>
               <p className="social-preview-card__name">{preview.username}</p>
               <p className="social-preview-card__github-caption">
-                {preview.contributions} contributions in the last year
+                {preview.contributions === null
+                  ? 'Contributions unavailable'
+                  : `${preview.contributions.toLocaleString('en-US')} contributions in the last year`}
               </p>
             </div>
             <PreviewAction href={actionHref} label="View profile" />
@@ -222,22 +354,55 @@ function PreviewCard({ item }: { item: SocialPreviewItem }) {
           <div
             className="social-preview-card__heatmap"
             role="img"
-            aria-label={`${preview.contributions} GitHub contributions in the last year`}
+            aria-label={preview.contributions === null
+              ? 'GitHub contribution activity unavailable'
+              : `${preview.contributions.toLocaleString('en-US')} GitHub contributions in the last year`}
           >
-            {CONTRIBUTION_LEVELS.map((level, index) => (
+            {preview.levels.map((level, index) => (
               <span key={index} data-level={level} aria-hidden="true" />
             ))}
           </div>
         </>
       ) : null}
 
-      {preview.kind === 'downloads' ? (
+      {preview.kind === 'modrinth' && preview.status === 'success' ? (
         <DownloadChart
-          platform={preview.platform}
+          platform="Modrinth"
           downloads={preview.downloads}
           series={preview.series}
+          ariaLabel="Modrinth downloads by project"
           action={<PreviewAction href={actionHref} label="View projects" />}
         />
+      ) : null}
+
+      {preview.kind === 'modrinth' && preview.status === 'error' ? (
+        <div className="social-preview-card__error" role="alert">
+          <div>
+            <p className="social-preview-card__name">Modrinth data unavailable</p>
+            <p className="social-preview-card__error-message">{preview.message}</p>
+          </div>
+          <PreviewAction href={actionHref} label="Open profile" />
+        </div>
+      ) : null}
+
+      {preview.kind === 'curseforge' && preview.status === 'success' ? (
+        <DownloadChart
+          platform="CurseForge"
+          downloads={preview.downloads}
+          series={preview.series}
+          ariaLabel="CurseForge downloads by project"
+          action={<PreviewAction href={actionHref} label="View projects" />}
+        />
+      ) : null}
+
+      {preview.kind === 'curseforge' && preview.status === 'error' ? (
+        <div className="social-preview-card__error" role="alert">
+          <div>
+            <p className="social-preview-card__name">CurseForge data unavailable</p>
+            <p className="social-preview-card__error-message">{preview.message}</p>
+          </div>
+          <PreviewAction href={actionHref} label="Open profile" />
+        </div>
       ) : null}
     </div>
   );

@@ -130,7 +130,7 @@ export async function ProjectsSection() {
   } as CSSProperties;
 
   return (
-    <section id="projects" className="projects-section">
+    <section id="projects" className="projects-section py-42">
       <div className="projects-section__inner">
         {cards.length > 0 && (
           <div className="projects-grid" style={gridStyle}>

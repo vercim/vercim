@@ -16,6 +16,38 @@ export interface GitHubRepo {
   updated_at: string;
 }
 
+export interface GitHubContributions {
+  total: number;
+  levels: number[];
+}
+
+type GitHubContributionLevel =
+  | 'NONE'
+  | 'FIRST_QUARTILE'
+  | 'SECOND_QUARTILE'
+  | 'THIRD_QUARTILE'
+  | 'FOURTH_QUARTILE';
+
+interface GitHubContributionsResponse {
+  data?: {
+    user: {
+      contributionsCollection: {
+        contributionCalendar: {
+          totalContributions: number;
+          weeks: {
+            contributionDays: {
+              contributionLevel: GitHubContributionLevel;
+            }[];
+          }[];
+        };
+      };
+    } | null;
+  };
+  errors?: {
+    message: string;
+  }[];
+}
+
 function githubHeaders(): HeadersInit {
   const headers: HeadersInit = {
     Accept: 'application/vnd.github.v3+json',
@@ -25,6 +57,129 @@ function githubHeaders(): HeadersInit {
     headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
   }
   return headers;
+}
+
+export async function fetchGitHubContributions(
+  username: string
+): Promise<GitHubContributions | null> {
+  if (process.env.GITHUB_TOKEN) {
+    const contributions = await fetchGitHubContributionsFromGraphQL(username);
+    if (contributions) return contributions;
+  }
+
+  return fetchGitHubContributionsFromProfile(username);
+}
+
+async function fetchGitHubContributionsFromGraphQL(
+  username: string
+): Promise<GitHubContributions | null> {
+  try {
+    const res = await fetch('https://api.github.com/graphql', {
+      method: 'POST',
+      headers: {
+        ...githubHeaders(),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: `
+          query Contributions($username: String!) {
+            user(login: $username) {
+              contributionsCollection {
+                contributionCalendar {
+                  totalContributions
+                  weeks {
+                    contributionDays {
+                      contributionLevel
+                    }
+                  }
+                }
+              }
+            }
+          }
+        `,
+        variables: { username },
+      }),
+      next: { revalidate: 21600 },
+    });
+
+    if (!res.ok) {
+      console.error('[github] contributions GraphQL HTTP error:', res.status);
+      return null;
+    }
+
+    const payload: GitHubContributionsResponse = await res.json();
+    const calendar = payload.data?.user?.contributionsCollection.contributionCalendar;
+
+    if (!calendar) {
+      const message = payload.errors?.map((error) => error.message).join('; ');
+      console.error('[github] contributions GraphQL response unavailable:', message || 'No data');
+      return null;
+    }
+
+    const levelValues: Record<GitHubContributionLevel, number> = {
+      NONE: 0,
+      FIRST_QUARTILE: 1,
+      SECOND_QUARTILE: 2,
+      THIRD_QUARTILE: 3,
+      FOURTH_QUARTILE: 4,
+    };
+
+    return {
+      total: calendar.totalContributions,
+      levels: calendar.weeks.flatMap((week) =>
+        week.contributionDays.map((day) => levelValues[day.contributionLevel])
+      ),
+    };
+  } catch (error) {
+    console.error('[github] contributions GraphQL exception:', error);
+    return null;
+  }
+}
+
+async function fetchGitHubContributionsFromProfile(
+  username: string
+): Promise<GitHubContributions | null> {
+  try {
+    const res = await fetch(`https://github.com/users/${username}/contributions`, {
+      headers: {
+        Accept: 'text/html',
+        'User-Agent': 'vercim-portfolio',
+      },
+      next: { revalidate: 21600 },
+    });
+
+    if (!res.ok) {
+      console.error('[github] public contributions HTTP error:', res.status);
+      return null;
+    }
+
+    const html = await res.text();
+    const totalMatch = html.match(
+      /id="js-contribution-activity-description"[^>]*>\s*([\d,]+)\s+contributions\b/
+    );
+    const dayTags = html.match(/<td\b[^>]*\bdata-date="[^"]+"[^>]*>/g) ?? [];
+    const days = dayTags.flatMap((tag) => {
+      const date = tag.match(/\bdata-date="([^"]+)"/)?.[1];
+      const level = tag.match(/\bdata-level="([0-4])"/)?.[1];
+
+      return date && level ? [{ date, level: Number(level) }] : [];
+    });
+
+    if (!totalMatch || days.length === 0) {
+      console.error('[github] public contributions markup could not be parsed');
+      return null;
+    }
+
+    days.sort((first, second) => first.date.localeCompare(second.date));
+
+    return {
+      total: Number(totalMatch[1].replace(/,/g, '')),
+      levels: days.map((day) => day.level),
+    };
+  } catch (error) {
+    console.error('[github] public contributions exception:', error);
+    return null;
+  }
 }
 
 export async function fetchRepos(username: string): Promise<GitHubRepo[]> {

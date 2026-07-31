@@ -143,15 +143,12 @@
   .projects-section {
     display: grid;
     width: 100%;
-    height: 100vh;
-    height: 100svh;
     align-items: center;
     padding: clamp(0.625rem, 1.5vw, 1rem);
     color: #111111;
     background: #ffffff;
     font-family: Arial, Helvetica, sans-serif;
     color-scheme: light;
-    overflow: hidden;
   }
 
   .projects-section__inner {
@@ -194,9 +191,13 @@
     background: #fafafa;
   }
 
+  .project-card--with-shader {
+    padding-right: clamp(10rem, 42%, 22rem);
+  }
+
   .project-card__shader {
     position: absolute;
-    right: -4.5rem;
+    right: -3.75rem;
     bottom: -4.5rem;
     z-index: 0;
   width: 20rem;
@@ -367,6 +368,10 @@
       padding-left: 3.1rem;
     }
 
+    .project-card--with-shader {
+      padding-right: clamp(8.5rem, 44%, 13rem);
+    }
+
     .project-card__heading {
       width: 2.45rem;
       padding: 0.55rem 0.3rem;
@@ -520,7 +525,8 @@
     width: min(16rem, calc(100vw - 1.5rem));
   }
 
-  .social-preview-card--downloads {
+  .social-preview-card--modrinth,
+  .social-preview-card--curseforge {
     width: min(20rem, calc(100vw - 1.5rem));
     padding: 1rem;
   }
@@ -532,6 +538,10 @@
       radial-gradient(circle at 78% 12%, rgb(255 255 255 / 0.48), transparent 35%),
       radial-gradient(circle at 5% 85%, color-mix(in srgb, var(--social-accent) 58%, #ffffff), transparent 45%),
       linear-gradient(135deg, var(--social-accent), color-mix(in srgb, var(--social-accent) 62%, #ffffff));
+  }
+
+  .social-preview-card__banner-image {
+    object-fit: cover;
   }
 
   .social-preview-card__profile-body {
@@ -552,6 +562,11 @@
     border-radius: 50%;
     color: #ffffff;
     background: var(--social-accent);
+    overflow: hidden;
+  }
+
+  .social-preview-card__avatar-image {
+    object-fit: cover;
   }
 
   .social-preview-card__avatar svg {
@@ -639,6 +654,41 @@
     position: absolute;
     top: 0.7rem;
     right: 0.7rem;
+    z-index: 1;
+  }
+
+  .social-preview-card--discord .social-preview-card__banner .social-preview-card__action {
+    min-width: 4.5rem;
+  }
+
+  .social-preview-card--youtube .social-preview-card__banner .social-preview-card__action {
+    color: #ffffff;
+    background-color: #000000;
+  }
+
+  .social-preview-card--youtube .social-preview-card__banner .social-preview-card__action:hover,
+  .social-preview-card--youtube .social-preview-card__banner .social-preview-card__action:focus-visible {
+    color: #ffffff;
+    background-color: #202020;
+  }
+
+  .social-preview-card__error {
+    display: flex;
+    min-height: 6.75rem;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid color-mix(in srgb, var(--social-accent) 70%, #303030);
+    background: #101010;
+  }
+
+  .social-preview-card__error-message {
+    max-width: 10rem;
+    margin-top: 0.35rem;
+    color: #ff8c86;
+    font-size: 0.75rem;
+    line-height: 1.35;
   }
 
   .social-preview-card__action:hover,
@@ -656,6 +706,28 @@
     transform: scale(0.95);
   }
 
+  .social-preview-card__action-label {
+    opacity: 1;
+    filter: blur(0);
+    transition: opacity 500ms ease, filter 500ms ease;
+  }
+
+  .social-preview-card__action-label--copied {
+    position: absolute;
+    opacity: 0;
+    filter: blur(2px);
+  }
+
+  .social-preview-card__action[data-copied] .social-preview-card__action-label:not(.social-preview-card__action-label--copied) {
+    opacity: 0;
+    filter: blur(2px);
+  }
+
+  .social-preview-card__action[data-copied] .social-preview-card__action-label--copied {
+    opacity: 1;
+    filter: blur(0);
+  }
+
   .social-preview-card__github-heading {
     display: flex;
     align-items: flex-start;
@@ -667,7 +739,7 @@
   .social-preview-card__heatmap {
     display: grid;
     grid-auto-flow: column;
-    grid-template-columns: repeat(52, minmax(0, 1fr));
+    grid-template-columns: repeat(53, minmax(0, 1fr));
     grid-template-rows: repeat(7, 5px);
     gap: 2px;
     width: 100%;
@@ -824,16 +896,16 @@
 
   @media (max-width: 520px) {
     .hero-section {
-      height: 100lvh;
-      min-height: 100lvh;
+      height: var(--hero-device-height, 100lvh);
+      min-height: var(--hero-device-height, 100lvh);
     }
 
     .hero-section__content {
-      transform: translateY(calc(50dvh - 50lvh));
+      transform: translateY(var(--hero-content-offset, calc(50dvh - 50lvh)));
     }
 
     .hero-section__socials {
-      transform: translateY(calc(100dvh - 100lvh));
+      transform: translateY(var(--hero-socials-offset, calc(100dvh - 100lvh)));
     }
 
     .business-card-stage {
