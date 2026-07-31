@@ -227,25 +227,21 @@ function CopyAction({ value }: { value: string }) {
 function DownloadChart({
   platform,
   downloads,
-  series,
   action,
   ariaLabel = `${platform} download activity`,
 }: {
   platform: string;
   downloads: string | number;
-  series: number[];
   action: React.ReactNode;
   ariaLabel?: string;
 }) {
   const width = 288;
   const height = 56;
-  const max = Math.max(...series, 1);
-  const points = series.map((value, index) => {
-    const x = (index / Math.max(series.length - 1, 1)) * width;
-    const y = height - (value / max) * (height - 6) - 3;
-    return [x, y] as const;
-  });
-  const line = points.map(([x, y], index) => `${index === 0 ? 'M' : 'L'} ${x} ${y}`).join(' ');
+  const line = [
+    `M 0 ${height * 0.58}`,
+    `C ${width * 0.14} ${height * 0.16}, ${width * 0.28} ${height * 0.16}, ${width * 0.42} ${height * 0.5}`,
+    `S ${width * 0.7} ${height * 0.86}, ${width} ${height * 0.32}`,
+  ].join(' ');
   const area = `${line} L ${width} ${height} L 0 ${height} Z`;
 
   return (
@@ -369,8 +365,7 @@ function PreviewCard({ item }: { item: SocialPreviewItem }) {
         <DownloadChart
           platform="Modrinth"
           downloads={preview.downloads}
-          series={preview.series}
-          ariaLabel="Modrinth downloads by project"
+          ariaLabel="Modrinth downloads"
           action={<PreviewAction href={actionHref} label="View projects" />}
         />
       ) : null}
@@ -389,8 +384,7 @@ function PreviewCard({ item }: { item: SocialPreviewItem }) {
         <DownloadChart
           platform="CurseForge"
           downloads={preview.downloads}
-          series={preview.series}
-          ariaLabel="CurseForge downloads by project"
+          ariaLabel="CurseForge downloads"
           action={<PreviewAction href={actionHref} label="View projects" />}
         />
       ) : null}

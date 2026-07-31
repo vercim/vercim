@@ -29,10 +29,10 @@ export function HoverBusinessCard() {
         >
           <AdmitOneTicket
             name="Vercim"
-            presenter="Vercim Creative"
-            event="Creative developer"
+            presenter="Independent Practice"
+            event="Designing Things"
             venue="Teathh / Kinotea"
-            dates="Digital works"
+            dates="Digital Works"
             stubText="Profile"
             watermark="2026"
             width={width}
