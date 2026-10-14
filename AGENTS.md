@@ -29,7 +29,7 @@ There is no test runner. Run `pnpm lint` and `pnpm build` after every change. `p
 src/app/            layout.tsx (metadata, font), page.tsx, globals.css, icon.svg
 src/components/     page sections: HeroSection*, ProjectsSection, ProjectCard, Footer
 src/components/ui/  interactive primitives: admit-one-ticket, hover-business-card, social-preview-dock
-src/data/           config.ts (account names/IDs), social.ts (social links)
+src/data/           social.ts (single source for social accounts and links)
 src/lib/            one server-side fetcher per external service
 src/types/          RepoCard / RepoLanguage models
 ```
@@ -40,8 +40,8 @@ There is no `src/hooks/` yet; create it (`useCamelCase.ts`) when a hook is share
 
 `page.tsx` is a server component with `export const revalidate = 21600` (6 hours). Every `fetch` in `src/lib/` uses `next: { revalidate: 21600 }` — keep the two in sync.
 
-- `HeroSectionWithData` (async server) calls all five fetchers with `Promise.all`, using the identifiers in `src/data/config.ts`, and passes the results to `HeroSection` (client). `HeroSection` merges them with `socialLinks` into `SocialPreviewItem[]` for `SocialPreviewDock`.
-- `ProjectsSection` (async server) calls `fetchRepos` and `fetchRepoLanguages`, computes the bento placement, and renders `ProjectCard` (client) for each repo. Only the largest card renders the dithering shader.
+- `HeroSectionWithData` (async server) calls all five fetchers with `Promise.all`, taking each account from `getSocialAccount(id)` in `src/data/social.ts`, and passes the results to `HeroSection` (client). `HeroSection` merges them with `socialLinks` into `SocialPreviewItem[]` for `SocialPreviewDock`.
+- `ProjectsSection` (async server) calls `fetchRepos(getSocialAccount('github'))` and `fetchRepoLanguages`, computes the bento placement, and renders `ProjectCard` (client) for each repo. Only the largest card renders the dithering shader.
 
 Keep fetching in server components and `src/lib/`; pass plain data to client components as props.
 
@@ -69,8 +69,8 @@ Secrets live in `.env.local` (all `.env*` files and `.vercel/` are git-ignored).
 
 ## Common changes
 
-- **Account names / IDs** — edit `src/data/config.ts`.
-- **Social links** — edit `src/data/social.ts`; array order is the on-page order. An empty `href` makes an item preview-only. The `email` entry is not shown in the dock; it is passed to it separately. Previews are hard-wired by `id` in the ternary chain in `HeroSection.tsx`, and an unknown `id` falls through to the CurseForge branch, so a new platform needs its own branch, fetcher and `SocialPreview` variant.
+- **Accounts and social links** — edit only `src/data/social.ts`; there is no second config file. `account` is the single value per service (username, `@handle`, or Discord user ID): the API fetchers read it through `getSocialAccount(id)` and the profile `href` is built from it by `profileUrl`, so renaming an account is a one-line change. Do not duplicate an account name in `href` or elsewhere. Array order is the on-page order. An entry without `profileUrl` is preview-only (`href` is empty). `handle` is only for non-link values (the `email` address, the Discord tag). The `email` entry is not shown in the dock; it is passed to it separately.
+- **New platform** — add its id to `SocialId`, then an entry in `social.ts`. Previews are hard-wired by `id` in the ternary chain in `HeroSection.tsx`, and an unknown `id` falls through to the CurseForge branch, so the platform also needs its own branch, fetcher and `SocialPreview` variant.
 - **Business card text** — props passed to `AdmitOneTicket` in `hover-business-card.tsx`.
 - **Page metadata** — `metadata` in `src/app/layout.tsx`.
 

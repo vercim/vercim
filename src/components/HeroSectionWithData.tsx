@@ -1,5 +1,5 @@
 import { HeroSection } from '@/components/HeroSection';
-import { config } from '@/data/config';
+import { getSocialAccount } from '@/data/social';
 import { fetchCurseForgeStats } from '@/lib/curseforge';
 import { fetchDiscordProfile } from '@/lib/discord';
 import { fetchGitHubContributions } from '@/lib/github';
@@ -7,6 +7,7 @@ import { fetchModrinthStats } from '@/lib/modrinth';
 import { fetchYouTubeChannel } from '@/lib/youtube';
 
 export async function HeroSectionWithData() {
+  const githubUsername = getSocialAccount('github');
   const [
     curseForgeStats,
     discordProfile,
@@ -14,11 +15,11 @@ export async function HeroSectionWithData() {
     modrinthStats,
     youtubeChannel,
   ] = await Promise.all([
-    fetchCurseForgeStats(config.curseForgeAuthor),
-    fetchDiscordProfile(config.discordUserId),
-    fetchGitHubContributions(config.githubUsername),
-    fetchModrinthStats(config.modrinthUsername),
-    fetchYouTubeChannel(config.youtubeHandle),
+    fetchCurseForgeStats(getSocialAccount('curseforge')),
+    fetchDiscordProfile(getSocialAccount('discord')),
+    fetchGitHubContributions(githubUsername),
+    fetchModrinthStats(getSocialAccount('modrinth')),
+    fetchYouTubeChannel(getSocialAccount('youtube')),
   ]);
 
   return (
@@ -26,7 +27,7 @@ export async function HeroSectionWithData() {
       curseForgeStats={curseForgeStats}
       discordProfile={discordProfile}
       githubContributions={githubContributions}
-      githubUsername={config.githubUsername}
+      githubUsername={githubUsername}
       modrinthStats={modrinthStats}
       youtubeChannel={youtubeChannel}
     />

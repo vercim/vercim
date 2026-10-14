@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import { config } from '@/data/config';
+import { getSocialAccount } from '@/data/social';
 import { fetchRepoLanguages, fetchRepos } from '@/lib/github';
 import type { RepoCard } from '@/types/project';
 import { ProjectCard, type BentoPlacement } from './ProjectCard';
@@ -90,7 +90,7 @@ function createBentoLayout(
 }
 
 export async function ProjectsSection() {
-  const repos = await fetchRepos(config.githubUsername);
+  const repos = await fetchRepos(getSocialAccount('github'));
   const cards: RepoCard[] = await Promise.all(
     repos.map(async (repo) => {
       const languages = await fetchRepoLanguages(repo);
