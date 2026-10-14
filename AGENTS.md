@@ -7,9 +7,9 @@ Guidance for AI coding agents and contributors. `CLAUDE.md` is a symlink to this
 Single-page personal portfolio ("Vercim Creative"), deployed on Vercel. Next.js 15 App Router, React 19, strict TypeScript, Tailwind CSS v4, framer-motion. The page has two parts:
 
 - **Hero** — an interactive 3D business card plus a social dock whose items open live previews (Discord profile, YouTube channel, GitHub contribution graph, Modrinth and CurseForge download stats).
-- **Projects** — a bento grid built from the owner's public GitHub repositories, with language breakdowns.
+- **Projects** — a bento grid built from the owner's public GitHub repositories, with language breakdowns. The section is at least one viewport tall (exactly one on desktop) and ends the page.
 
-The theme is dark only; there is no theme switching.
+The hero is dark and the projects screen is a light panel (`--c-paper*` tokens, Arial); there is no theme switching.
 
 ## Commands
 
@@ -27,10 +27,10 @@ There is no test runner. Run `pnpm lint` and `pnpm build` after every change. `p
 
 ```
 src/app/            layout.tsx (metadata, font), page.tsx, globals.css, icon.svg
-src/components/     page sections: HeroSection*, ProjectsSection, ProjectCard, Footer
+src/components/     page sections: HeroSection*, ProjectsSection, ProjectsBento, ProjectCard, LanguageBar
 src/components/ui/  interactive primitives: admit-one-ticket, hover-business-card, social-preview-dock
-src/data/           social.ts (single source for social accounts and links)
-src/lib/            one server-side fetcher per external service
+src/data/           social.ts (single source for social accounts and links), languages.ts (language colors)
+src/lib/            one server-side fetcher per external service, plus bentoLayout.ts (pure tiling logic)
 src/types/          RepoCard / RepoLanguage models
 ```
 
@@ -41,7 +41,7 @@ There is no `src/hooks/` yet; create it (`useCamelCase.ts`) when a hook is share
 `page.tsx` is a server component with `export const revalidate = 21600` (6 hours). Every `fetch` in `src/lib/` uses `next: { revalidate: 21600 }` — keep the two in sync.
 
 - `HeroSectionWithData` (async server) calls all five fetchers with `Promise.all`, taking each account from `getSocialAccount(id)` in `src/data/social.ts`, and passes the results to `HeroSection` (client). `HeroSection` merges them with `socialLinks` into `SocialPreviewItem[]` for `SocialPreviewDock`.
-- `ProjectsSection` (async server) calls `fetchRepos(getSocialAccount('github'))` and `fetchRepoLanguages`, computes the bento placement, and renders `ProjectCard` (client) for each repo. Only the largest card renders the dithering shader.
+- `ProjectsSection` (async server) calls `fetchRepos(getSocialAccount('github'))` and `fetchRepoLanguages`, then hands the cards to `ProjectsBento`, which takes the placement from `createBentoLayout` (`src/lib/bentoLayout.ts`) and renders `ProjectCard` (client) for each repo. Repositories arrive most recently pushed first (`sort=pushed`, then an explicit sort on `pushed_at`); the first one is the `featured` 2x2 tile and the only card with the dithering shader. The layout tiles the grid exactly for any repository count (no empty cells; rows are added as repositories appear), and new repositories show up on the next 6-hour revalidation. With no repositories it shows a short empty-state message instead of the grid.
 
 Keep fetching in server components and `src/lib/`; pass plain data to client components as props.
 
@@ -77,9 +77,9 @@ Secrets live in `.env.local` (all `.env*` files and `.vercel/` are git-ignored).
 ## Styling
 
 - Tailwind v4 is loaded through PostCSS; `globals.css` starts with `@import "tailwindcss"`.
-- Colors are `--c-*` tokens on `:root`, exposed to Tailwind through `@theme inline` (`bg-surface`, `text-muted`, `border-divider`, ...). Reuse them; do not hard-code new grays.
-- Component styles are BEM-like classes in `@layer components` of `globals.css`, grouped by block: `hero-*`, `business-card-*`, `social-preview-dock*` / `social-preview-card*`, `projects-*`, `project-card*`, `site-footer*`. Extend an existing block before inventing a new one.
-- Pass per-instance dynamic values as CSS custom properties through `style` (see `--language-color`, the bento `--desktop-*` / `--mobile-*` variables) rather than inline layout styles.
+- Colors are `--c-*` tokens on `:root`, exposed to Tailwind through `@theme inline` (`bg-surface`, `text-muted`, `border-divider`, ...). Reuse them; do not hard-code new grays. The light projects screen uses its own `--c-paper*` tokens plus `--c-ticket` (the ticket orange, also the hover accent); they are not exposed to Tailwind. The dithering shader takes a literal color, so its orange is duplicated in `ProjectCard.tsx`.
+- Component styles are BEM-like classes in `@layer components` of `globals.css`, grouped by block: `hero-*`, `business-card-*`, `social-preview-dock*` / `social-preview-card*`, `projects-*`, `project-card*`, `language-bar*`. Extend an existing block before inventing a new one.
+- Pass per-instance dynamic values as CSS custom properties through `style` (see `--language-color`, the bento `--desktop-*` variables) rather than inline layout styles. The cursor spotlight on project cards is driven by `--pointer-x` / `--pointer-y`, set from `onPointerMove` (mouse only).
 - Breakpoints in use: 900px, 680px, 520px, and a short-landscape query (`max-height: 610px` and `min-width: 521px`). At 520px and below the hero uses a rotated card and viewport-height offsets computed in `HeroSection.tsx`; check that layout after any hero change.
 - The font is JetBrains Mono via `next/font` (`--font-jetbrains-mono`).
 
