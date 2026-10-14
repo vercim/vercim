@@ -208,10 +208,18 @@
   }
 
   /* ─── Language bar ───────────────────────────────────────── */
+  /* Glass plate: keeps the bar and legend readable above the featured card's sphere */
   .language-bar {
+    --language-bar-pad: 0.625rem;
     display: grid;
     min-width: 0;
     gap: 0.6rem;
+    margin: 0 calc(-1 * var(--language-bar-pad)) calc(-1 * var(--language-bar-pad));
+    padding: var(--language-bar-pad);
+    border: 1px solid var(--projects-glass-edge);
+    border-radius: 0.75rem;
+    background: color-mix(in srgb, var(--c-paper) 78%, transparent);
+    backdrop-filter: blur(6px);
   }
 
   .language-bar__track {
@@ -417,10 +425,6 @@
     .project-card--featured .project-card__body,
     .project-card--featured .language-bar {
       max-width: none;
-    }
-
-    .project-card__shader {
-      opacity: 0.3;
     }
   }
 

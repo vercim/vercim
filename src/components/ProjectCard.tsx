@@ -1,9 +1,9 @@
 'use client';
 
 import type { CSSProperties } from 'react';
-import { Dithering } from '@paper-design/shaders-react';
 import { ArrowUpRight } from 'lucide-react';
 import { LanguageBar } from '@/components/LanguageBar';
+import { SparseDithering } from '@/components/ui/sparse-dithering';
 import type { BentoPlacement } from '@/lib/bentoLayout';
 import type { RepoCard } from '@/types/project';
 
@@ -35,10 +35,8 @@ export function ProjectCard({ project, index, featured = false, desktopPlacement
     >
       {featured && (
         <div className="project-card__shader" aria-hidden="true">
-          <Dithering
-            shape="sphere"
-            type="random"
-            colorBack="#ffffff00"
+          <SparseDithering
+            maxDensity={0.55}
             // Same orange as --c-ticket; the shader needs a literal color.
             colorFront="#ef681c"
             size={1.25}
