@@ -1,3 +1,4 @@
+import { CloudShader } from '@/components/ui/cloud-shader';
 import { getSocialAccount } from '@/data/social';
 import { fetchRepoLanguages, fetchRepos } from '@/lib/github';
 import type { RepoCard } from '@/types/project';
@@ -20,6 +21,9 @@ export async function ProjectsSection() {
 
   return (
     <section id="projects" className="projects-section">
+      <div className="projects-section__sky" aria-hidden="true">
+        <CloudShader />
+      </div>
       <div className="projects-section__inner">
         {cards.length > 0 ? (
           <ProjectsBento cards={cards} />

@@ -9,7 +9,7 @@ Single-page personal portfolio ("Vercim Creative"), deployed on Vercel. Next.js 
 - **Hero** — an interactive 3D business card plus a social dock whose items open live previews (Discord profile, YouTube channel, GitHub contribution graph, Modrinth and CurseForge download stats).
 - **Projects** — a bento grid built from the owner's public GitHub repositories, with language breakdowns. The section is at least one viewport tall (exactly one on desktop) and ends the page.
 
-The hero is dark and the projects screen is a light panel (`--c-paper*` tokens, Arial); there is no theme switching.
+The hero is dark; the projects screen sits on an animated sky (the WebGL `CloudShader`) behind translucent white cards (`--c-paper*` tokens, Arial). There is no theme switching.
 
 ## Commands
 
@@ -28,7 +28,7 @@ There is no test runner. Run `pnpm lint` and `pnpm build` after every change. `p
 ```
 src/app/            layout.tsx (metadata, font), page.tsx, globals.css, icon.svg
 src/components/     page sections: HeroSection*, ProjectsSection, ProjectsBento, ProjectCard, LanguageBar
-src/components/ui/  interactive primitives: admit-one-ticket, hover-business-card, social-preview-dock
+src/components/ui/  interactive primitives: admit-one-ticket, hover-business-card, social-preview-dock, cloud-shader
 src/data/           social.ts (single source for social accounts and links), languages.ts (language colors)
 src/lib/            one server-side fetcher per external service, plus bentoLayout.ts (pure tiling logic)
 src/types/          RepoCard / RepoLanguage models
@@ -77,9 +77,9 @@ Secrets live in `.env.local` (all `.env*` files and `.vercel/` are git-ignored).
 ## Styling
 
 - Tailwind v4 is loaded through PostCSS; `globals.css` starts with `@import "tailwindcss"`.
-- Colors are `--c-*` tokens on `:root`, exposed to Tailwind through `@theme inline` (`bg-surface`, `text-muted`, `border-divider`, ...). Reuse them; do not hard-code new grays. The light projects screen uses its own `--c-paper*` tokens plus `--c-ticket` (the ticket orange, also the hover accent); they are not exposed to Tailwind. The dithering shader takes a literal color, so its orange is duplicated in `ProjectCard.tsx`.
+- Colors are `--c-*` tokens on `:root`, exposed to Tailwind through `@theme inline` (`bg-surface`, `text-muted`, `border-divider`, ...). Reuse them; do not hard-code new grays. The projects screen uses its own `--c-paper*` tokens, `--c-ticket` (the ticket orange, also the hover accent) and `--c-sky-*` (the section's fallback gradient); they are not exposed to Tailwind. The shaders take literal colors, so the orange is duplicated in `ProjectCard.tsx` (dithering) and the sky blues in `CloudShader`'s defaults.
 - Component styles are BEM-like classes in `@layer components` of `globals.css`, grouped by block: `hero-*`, `business-card-*`, `social-preview-dock*` / `social-preview-card*`, `projects-*`, `project-card*`, `language-bar*`. Extend an existing block before inventing a new one.
-- Pass per-instance dynamic values as CSS custom properties through `style` (see `--language-color`, the bento `--desktop-*` variables) rather than inline layout styles. The cursor spotlight on project cards is driven by `--pointer-x` / `--pointer-y`, set from `onPointerMove` (mouse only).
+- Pass per-instance dynamic values as CSS custom properties through `style` (see `--language-color`, the bento `--desktop-*` variables) rather than inline layout styles. The cursor spotlight on project cards is driven by `--pointer-x` / `--pointer-y`, set from `onPointerMove` (mouse only). The sky wrapper in `ProjectsSection` is `position: sticky` and viewport-tall, so the canvas keeps its proportions when the section grows past one screen; `CloudShader` stops rendering while off screen, and the card glass colors are the `--projects-glass*` variables on `.projects-section`.
 - Breakpoints in use: 900px, 680px, 520px, and a short-landscape query (`max-height: 610px` and `min-width: 521px`). At 520px and below the hero uses a rotated card and viewport-height offsets computed in `HeroSection.tsx`; check that layout after any hero change.
 - The font is JetBrains Mono via `next/font` (`--font-jetbrains-mono`).
 

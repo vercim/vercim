@@ -22,13 +22,14 @@
   --c-divider:      #111;
   --c-sep:          #3a3a3a;
 
-  /* Light panel below the hero (projects, footer) */
+  /* Light panel below the hero (projects) */
   --c-paper:        #fff;
-  --c-paper-wash:   #fafafa;
-  --c-paper-line:   #e4e4e4;
   --c-paper-fg:     #111;
   --c-paper-muted:  #5c5c5c;
-  --c-paper-subtle: #767676;
+  --c-paper-subtle: #646464;
+  /* Same colors as the CloudShader defaults; also the fallback before it draws */
+  --c-sky-top:      #3876ba;
+  --c-sky-bottom:   #8cbfe8;
   --c-ticket:       #ef681c;
 }
 
@@ -156,29 +157,50 @@
 
   /* ─── Projects ───────────────────────────────────────────── */
   .projects-section {
+    --projects-pad: clamp(0.875rem, 2.5vw, 2rem);
+    --projects-glass: color-mix(in srgb, var(--c-paper) 68%, transparent);
+    --projects-glass-hover: color-mix(in srgb, var(--c-paper) 86%, transparent);
+    --projects-glass-edge: color-mix(in srgb, var(--c-paper) 60%, transparent);
+    position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 76rem);
-    justify-content: center;
+    grid-template-columns: minmax(0, 1fr);
     min-height: 100vh;
     min-height: 100dvh;
-    padding: clamp(0.875rem, 2.5vw, 2rem);
     color: var(--c-paper-fg);
-    background: var(--c-paper);
+    background: linear-gradient(to bottom, var(--c-sky-top), var(--c-sky-bottom));
     font-family: Arial, Helvetica, sans-serif;
     color-scheme: light;
+    isolation: isolate;
+  }
+
+  /* Pinned to the viewport so the sky keeps its proportions when the section is taller than the screen */
+  .projects-section__sky {
+    position: sticky;
+    top: 0;
+    z-index: -1;
+    grid-area: 1 / 1;
+    align-self: start;
+    height: 100vh;
+    height: 100dvh;
+    pointer-events: none;
   }
 
   .projects-section__inner {
     display: grid;
+    grid-area: 1 / 1;
+    width: min(calc(76rem + 2 * var(--projects-pad)), 100%);
     min-width: 0;
+    margin-inline: auto;
+    padding: var(--projects-pad);
   }
 
   .projects-empty {
     display: grid;
     place-items: center;
     padding: 3rem 1rem;
-    border: 1px dashed var(--c-paper-line);
+    border: 1px solid var(--projects-glass-edge);
     border-radius: 1rem;
+    background: var(--projects-glass);
     color: var(--c-paper-muted);
     font-family: var(--font-jetbrains-mono), monospace;
     font-size: 0.875rem;
@@ -258,9 +280,10 @@
     gap: 1rem;
     overflow: hidden;
     padding: clamp(1rem, 1.8vw, 1.5rem);
-    border: 1px solid var(--c-paper-line);
+    border: 1px solid var(--projects-glass-edge);
     border-radius: 1rem;
-    background: var(--c-paper-wash);
+    background: var(--projects-glass);
+    backdrop-filter: blur(10px);
     container-type: inline-size;
     isolation: isolate;
     transition:
@@ -286,8 +309,8 @@
 
   .project-card:hover,
   .project-card:focus-within {
-    border-color: color-mix(in srgb, var(--c-ticket) 45%, var(--c-paper-line));
-    background: var(--c-paper);
+    border-color: color-mix(in srgb, var(--c-ticket) 50%, var(--c-paper));
+    background: var(--projects-glass-hover);
   }
 
   @media (hover: hover) {
