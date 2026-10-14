@@ -71,7 +71,7 @@ Secrets live in `.env.local` (all `.env*` files and `.vercel/` are git-ignored).
 
 - **Accounts and social links** — edit only `src/data/social.ts`; there is no second config file. `account` is the single value per service (username, `@handle`, or Discord user ID): the API fetchers read it through `getSocialAccount(id)` and the profile `href` is built from it by `profileUrl`, so renaming an account is a one-line change. Do not duplicate an account name in `href` or elsewhere. Array order is the on-page order. An entry without `profileUrl` is preview-only (`href` is empty). `handle` is only for non-link values (the `email` address, the Discord tag). The `email` entry is not shown in the dock; it is passed to it separately.
 - **New platform** — add its id to `SocialId`, then an entry in `social.ts`. Previews are hard-wired by `id` in the ternary chain in `HeroSection.tsx`, and an unknown `id` falls through to the CurseForge branch, so the platform also needs its own branch, fetcher and `SocialPreview` variant.
-- **Business card text** — props passed to `AdmitOneTicket` in `hover-business-card.tsx`.
+- **Business card text** — props passed to `AdmitOneTicket` in `hover-business-card.tsx`. The ticket date (`dates`) is not hard-coded: it is today's `DD.MM` in the visitor's local time, computed client-side (the ticket renders only after mount, so there is no hydration mismatch).
 - **Page metadata** — `metadata` in `src/app/layout.tsx`.
 
 ## Styling

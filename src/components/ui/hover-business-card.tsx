@@ -3,6 +3,13 @@
 import * as React from 'react';
 import AdmitOneTicket from '@/components/ui/admit-one-ticket';
 
+// Today's date as DD.MM in the visitor's local time
+function formatTicketDate(date: Date) {
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  return `${day}.${month}`;
+}
+
 export function HoverBusinessCard() {
   const stageRef = React.useRef<HTMLDivElement>(null);
   const [width, setWidth] = React.useState(0);
@@ -29,10 +36,10 @@ export function HoverBusinessCard() {
         >
           <AdmitOneTicket
             name="Vercim"
-            presenter="Independent Practice"
+            presenter="696e646570656e64656e74"
             event="Designing Things"
-            venue="Teathh / Kinotea"
-            dates="Digital Works"
+            venue="Pass"
+            dates={formatTicketDate(new Date())}
             stubText="Profile"
             watermark="2026"
             width={width}
