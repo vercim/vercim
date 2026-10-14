@@ -9,7 +9,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Vercim Creative',
+  title: 'Vercim',
   description: 'My profile page with links to my social media and all my public projects.',
 };
 

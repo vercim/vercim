@@ -957,7 +957,7 @@
   .site-footer__wordmark {
     display: block;
     color: transparent;
-    background: linear-gradient(to bottom, #c8c8c8 0%, #ffffff 92%);
+    background: linear-gradient(to bottom, #e4e4e4 0%, #ffffff 92%);
     background-clip: text;
     font-size: 23.5vw;
     font-weight: 700;
