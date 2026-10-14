@@ -2082,6 +2082,20 @@ function TicketCard({
 }
 var TILT_FOLLOW_SECONDS = 0.1;
 var TILT_HOVER_SECONDS = 0.16;
+// Magnetic drag: a rubber-banded pull toward the pointer on a spring. Held, the spring is close to
+// critically damped (smooth lag); released, it is slightly underdamped (damping ratio ~0.55) so the
+// card snaps home with a single small overshoot
+var DRAG_STIFFNESS = 420;
+var DRAG_DAMPING_HELD = 37;
+var DRAG_DAMPING_FREE = 22;
+// Maximum pull as a fraction of the card width (also capped by the viewport) and how heavy the first pixels feel
+var DRAG_REACH = 0.1;
+var DRAG_RESISTANCE = 2.2;
+// Velocity lean in tilt units, the speed that reaches it (px/s) and the extra scale while held
+var DRAG_LEAN = 0.35;
+var DRAG_LEAN_SPEED = 1200;
+var DRAG_LIFT = 0.012;
+var DRAG_SUBSTEP = 1 / 240;
 function TiltCard({
   children,
   clipPath,
@@ -2096,14 +2110,19 @@ function TiltCard({
     const el = cardRef.current;
     if (!el) return;
     const mobile = window.matchMedia("(max-width: 520px)");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const current = { x: 0, y: 0, hover: 0 };
     const target = { x: 0, y: 0, hover: 0 };
+    // x/y: offset in px along the card's own axes, vx/vy: its velocity, goalX/goalY: the rubber-banded pull
+    const drag = { x: 0, y: 0, vx: 0, vy: 0, goalX: 0, goalY: 0, lift: 0 };
+    let grab = null;
     let frame = null;
     let last = null;
     const clamp = (value) => Math.max(-1, Math.min(1, value));
+    const lean = (velocity) => clamp(velocity / DRAG_LEAN_SPEED) * DRAG_LEAN;
     const paint = () => {
-      const s = 1 + (scale - 1) * current.hover;
-      el.style.transform = `perspective(1200px) rotateX(${-current.y * maxTilt}deg) rotateY(${current.x * maxTilt}deg) scale(${s})`;
+      const s = 1 + (scale - 1) * current.hover + DRAG_LIFT * drag.lift;
+      el.style.transform = `translate3d(${drag.x}px, ${drag.y}px, 0) perspective(1200px) rotateX(${-(current.y + lean(drag.vy)) * maxTilt}deg) rotateY(${(current.x + lean(drag.vx)) * maxTilt}deg) scale(${s})`;
       const glareEl = glareRef.current;
       if (glareEl) {
         glareEl.style.opacity = String(current.hover);
@@ -2119,11 +2138,28 @@ function TiltCard({
       current.x += (target.x - current.x) * follow;
       current.y += (target.y - current.y) * follow;
       current.hover += (target.hover - current.hover) * fade;
-      const settled = Math.abs(target.x - current.x) < 5e-4 && Math.abs(target.y - current.y) < 5e-4 && Math.abs(target.hover - current.hover) < 5e-4;
+      // Sub-stepped so the spring stays stable on long frames
+      const damping = grab ? DRAG_DAMPING_HELD : DRAG_DAMPING_FREE;
+      const substeps = Math.max(1, Math.ceil(dt / DRAG_SUBSTEP));
+      const h = dt / substeps;
+      for (let i = 0; i < substeps; i++) {
+        drag.vx += (-DRAG_STIFFNESS * (drag.x - drag.goalX) - damping * drag.vx) * h;
+        drag.vy += (-DRAG_STIFFNESS * (drag.y - drag.goalY) - damping * drag.vy) * h;
+        drag.x += drag.vx * h;
+        drag.y += drag.vy * h;
+      }
+      const liftGoal = grab ? 1 : 0;
+      drag.lift += (liftGoal - drag.lift) * fade;
+      const settled = Math.abs(target.x - current.x) < 5e-4 && Math.abs(target.y - current.y) < 5e-4 && Math.abs(target.hover - current.hover) < 5e-4 && Math.abs(drag.goalX - drag.x) < 0.05 && Math.abs(drag.goalY - drag.y) < 0.05 && Math.abs(drag.vx) < 0.5 && Math.abs(drag.vy) < 0.5 && Math.abs(liftGoal - drag.lift) < 5e-4;
       if (settled) {
         current.x = target.x;
         current.y = target.y;
         current.hover = target.hover;
+        drag.x = drag.goalX;
+        drag.y = drag.goalY;
+        drag.vx = 0;
+        drag.vy = 0;
+        drag.lift = liftGoal;
         frame = null;
         last = null;
       } else {
@@ -2155,14 +2191,71 @@ function TiltCard({
     const onMobileChange = () => {
       if (mobile.matches) release();
     };
+    // The mobile stage is rotated, so screen deltas have to be mapped into the card's own axes
+    const localAxes = () => {
+      let matrix = new DOMMatrix();
+      for (let node = el.parentElement; node; node = node.parentElement) {
+        const transform = getComputedStyle(node).transform;
+        if (transform && transform !== "none") matrix = new DOMMatrix(transform).multiply(matrix);
+      }
+      return matrix.inverse();
+    };
+    const onGrab = (event) => {
+      if (grab || reduceMotion.matches || event.pointerType === "mouse" && event.button !== 0) return;
+      grab = { id: event.pointerId, x: event.clientX, y: event.clientY, axes: localAxes() };
+      try {
+        el.setPointerCapture(event.pointerId);
+      } catch {
+      }
+      el.style.cursor = "grabbing";
+      wake();
+    };
+    const onPull = (event) => {
+      if (!grab || event.pointerId !== grab.id) return;
+      const dx = event.clientX - grab.x;
+      const dy = event.clientY - grab.y;
+      const px = grab.axes.a * dx + grab.axes.c * dy;
+      const py = grab.axes.b * dx + grab.axes.d * dy;
+      const length = Math.hypot(px, py);
+      const reach = Math.min(el.offsetWidth * DRAG_REACH, Math.min(window.innerWidth, window.innerHeight) * 0.2);
+      // tanh keeps the pull proportional at first, then tightens toward the reach like a magnet's field
+      const pull = length > 1e-6 ? reach * Math.tanh(length / (reach * DRAG_RESISTANCE)) / length : 0;
+      drag.goalX = px * pull;
+      drag.goalY = py * pull;
+      wake();
+    };
+    const onDrop = (event) => {
+      if (!grab || event.pointerId !== grab.id) return;
+      grab = null;
+      drag.goalX = 0;
+      drag.goalY = 0;
+      el.style.cursor = "grab";
+      wake();
+    };
+    if (!reduceMotion.matches) {
+      el.style.cursor = "grab";
+      el.style.userSelect = "none";
+      // Vertical swipes on touch screens still scroll the page
+      el.style.touchAction = "pan-y";
+    }
     el.addEventListener("pointerenter", aim);
     el.addEventListener("pointermove", aim);
     el.addEventListener("pointerleave", release);
+    el.addEventListener("pointerdown", onGrab);
+    el.addEventListener("pointermove", onPull);
+    el.addEventListener("pointerup", onDrop);
+    el.addEventListener("pointercancel", onDrop);
+    el.addEventListener("lostpointercapture", onDrop);
     mobile.addEventListener("change", onMobileChange);
     return () => {
       el.removeEventListener("pointerenter", aim);
       el.removeEventListener("pointermove", aim);
       el.removeEventListener("pointerleave", release);
+      el.removeEventListener("pointerdown", onGrab);
+      el.removeEventListener("pointermove", onPull);
+      el.removeEventListener("pointerup", onDrop);
+      el.removeEventListener("pointercancel", onDrop);
+      el.removeEventListener("lostpointercapture", onDrop);
       mobile.removeEventListener("change", onMobileChange);
       if (frame != null) cancelAnimationFrame(frame);
     };
