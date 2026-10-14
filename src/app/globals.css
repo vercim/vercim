@@ -447,13 +447,6 @@
     outline-offset: 0.35rem;
   }
 
-  .hero-store-notice {
-    position: fixed;
-    top: clamp(1.35rem, 3vw, 2.25rem);
-    right: clamp(1rem, 2.6vw, 2rem);
-    z-index: 1000;
-  }
-
   .hero-section__content {
     position: relative;
     display: grid;
@@ -918,12 +911,6 @@
 
     .hero-section__socials {
       transform: translateY(var(--hero-socials-offset, calc(100dvh - 100lvh)));
-    }
-
-    .hero-store-notice {
-      top: 1.5rem;
-      right: 1rem;
-      max-width: calc(100vw - 5.25rem);
     }
 
     .business-card-stage {
