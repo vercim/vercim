@@ -2080,6 +2080,8 @@ function TicketCard({
     }
   );
 }
+var TILT_FOLLOW_SECONDS = 0.1;
+var TILT_HOVER_SECONDS = 0.16;
 function TiltCard({
   children,
   clipPath,
@@ -2090,178 +2092,99 @@ function TiltCard({
 }) {
   const cardRef = React2.useRef(null);
   const glareRef = React2.useRef(null);
-  const mobileRef = React2.useRef(false);
-  const motionActiveRef = React2.useRef(false);
-  const motionPermissionGrantedRef = React2.useRef(false);
-  const orientationBaselineRef = React2.useRef(null);
-  const orientationFrameRef = React2.useRef(null);
-  const [hovering, setHovering] = React2.useState(false);
-  const [motionStatus, setMotionStatus] = React2.useState("desktop");
-  const applyTilt = React2.useCallback(
-    (x, y) => {
-      const el = cardRef.current;
-      if (!el) return;
-      el.style.transform = `perspective(1200px) rotateX(${-y * maxTilt}deg) rotateY(${x * maxTilt}deg) scale(${scale})`;
-      if (glareRef.current) {
-        glareRef.current.style.background = `radial-gradient(38% 55% at ${(x + 1) * 50}% ${(y + 1) * 50}%, rgba(255,255,255,${glare}) 0%, rgba(255,255,255,0) 70%)`;
-      }
-    },
-    [maxTilt, scale, glare]
-  );
-  const onMove = React2.useCallback(
-    (e) => {
-      if (mobileRef.current) return;
-      const el = cardRef.current;
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
-      const y = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
-      applyTilt(x, y);
-    },
-    [applyTilt]
-  );
-  const onLeave = React2.useCallback(() => {
-    if (mobileRef.current) return;
-    setHovering(false);
-    if (cardRef.current) {
-      cardRef.current.style.transform = "perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)";
-    }
-    if (glareRef.current) glareRef.current.style.background = "transparent";
-  }, []);
-  const requestMotionPermission = React2.useCallback(async () => {
-    if (!mobileRef.current) return;
-    const requestPermission = globalThis.DeviceOrientationEvent?.requestPermission;
-    if (typeof requestPermission !== "function") {
-      setMotionStatus("listening");
-      return;
-    }
-    setMotionStatus("requesting");
-    try {
-      const permission = await requestPermission.call(globalThis.DeviceOrientationEvent);
-      if (permission === "granted") {
-        motionPermissionGrantedRef.current = true;
-        orientationBaselineRef.current = null;
-        setMotionStatus("listening");
-      } else {
-        setMotionStatus("denied");
-      }
-    } catch {
-      motionActiveRef.current = false;
-      setMotionStatus("denied");
-    }
-  }, []);
   React2.useEffect(() => {
-    const media = window.matchMedia("(max-width: 520px)");
-    const resetMotion = () => {
-      orientationBaselineRef.current = null;
-      motionActiveRef.current = false;
-      setHovering(false);
-      if (cardRef.current) {
-        cardRef.current.style.transform = "perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)";
+    const el = cardRef.current;
+    if (!el) return;
+    const mobile = window.matchMedia("(max-width: 520px)");
+    const current = { x: 0, y: 0, hover: 0 };
+    const target = { x: 0, y: 0, hover: 0 };
+    let frame = null;
+    let last = null;
+    const clamp = (value) => Math.max(-1, Math.min(1, value));
+    const paint = () => {
+      const s = 1 + (scale - 1) * current.hover;
+      el.style.transform = `perspective(1200px) rotateX(${-current.y * maxTilt}deg) rotateY(${current.x * maxTilt}deg) scale(${s})`;
+      const glareEl = glareRef.current;
+      if (glareEl) {
+        glareEl.style.opacity = String(current.hover);
+        glareEl.style.background = `radial-gradient(38% 55% at ${(current.x + 1) * 50}% ${(current.y + 1) * 50}%, rgba(255,255,255,${glare}) 0%, rgba(255,255,255,0) 70%)`;
       }
-      if (glareRef.current) glareRef.current.style.background = "transparent";
-      setMotionStatus((status) => status === "active" ? "listening" : status);
     };
-    const syncInput = () => {
-      mobileRef.current = media.matches;
-      resetMotion();
-      if (!media.matches) {
-        setMotionStatus("desktop");
-        return;
+    // Frame-rate independent exponential easing toward the target pose
+    const step = (now) => {
+      const dt = last == null ? 1 / 60 : Math.min(Math.max((now - last) / 1e3, 0), 0.05);
+      last = now;
+      const follow = 1 - Math.exp(-dt / TILT_FOLLOW_SECONDS);
+      const fade = 1 - Math.exp(-dt / TILT_HOVER_SECONDS);
+      current.x += (target.x - current.x) * follow;
+      current.y += (target.y - current.y) * follow;
+      current.hover += (target.hover - current.hover) * fade;
+      const settled = Math.abs(target.x - current.x) < 5e-4 && Math.abs(target.y - current.y) < 5e-4 && Math.abs(target.hover - current.hover) < 5e-4;
+      if (settled) {
+        current.x = target.x;
+        current.y = target.y;
+        current.hover = target.hover;
+        frame = null;
+        last = null;
+      } else {
+        frame = requestAnimationFrame(step);
       }
-      if (!("DeviceOrientationEvent" in globalThis)) {
-        setMotionStatus("unsupported");
-        return;
-      }
-      const requestPermission = globalThis.DeviceOrientationEvent?.requestPermission;
-      setMotionStatus(
-        typeof requestPermission === "function" && !motionPermissionGrantedRef.current
-          ? "prompt"
-          : "listening"
-      );
+      paint();
     };
-    const onOrientation = (event) => {
-      if (!mobileRef.current || event.beta == null || event.gamma == null) return;
-      if (!orientationBaselineRef.current) {
-        orientationBaselineRef.current = { beta: event.beta, gamma: event.gamma };
-        return;
-      }
-      const sensorRange = 18;
-      const clamp = (value) => Math.max(-1, Math.min(1, value));
-      const x = clamp((event.beta - orientationBaselineRef.current.beta) / sensorRange);
-      const y = clamp((event.gamma - orientationBaselineRef.current.gamma) / sensorRange);
-      if (orientationFrameRef.current != null) cancelAnimationFrame(orientationFrameRef.current);
-      orientationFrameRef.current = requestAnimationFrame(() => {
-        if (!motionActiveRef.current) {
-          motionActiveRef.current = true;
-          setHovering(true);
-          setMotionStatus("active");
-        }
-        applyTilt(x, y);
-        orientationFrameRef.current = null;
-      });
+    const wake = () => {
+      if (frame == null) frame = requestAnimationFrame(step);
     };
-
-    syncInput();
-    media.addEventListener("change", syncInput);
-    window.addEventListener("orientationchange", resetMotion);
-    window.addEventListener("deviceorientation", onOrientation);
+    const aim = (event) => {
+      if (mobile.matches || event.pointerType === "touch") return;
+      // Measure against the untransformed size so the tilt never feeds back into the pointer position
+      const halfWidth = el.offsetWidth / 2;
+      const halfHeight = el.offsetHeight / 2;
+      if (!halfWidth || !halfHeight) return;
+      const rect = el.getBoundingClientRect();
+      target.x = clamp((event.clientX - (rect.left + rect.width / 2)) / halfWidth);
+      target.y = clamp((event.clientY - (rect.top + rect.height / 2)) / halfHeight);
+      target.hover = 1;
+      wake();
+    };
+    const release = () => {
+      target.x = 0;
+      target.y = 0;
+      target.hover = 0;
+      wake();
+    };
+    const onMobileChange = () => {
+      if (mobile.matches) release();
+    };
+    el.addEventListener("pointerenter", aim);
+    el.addEventListener("pointermove", aim);
+    el.addEventListener("pointerleave", release);
+    mobile.addEventListener("change", onMobileChange);
     return () => {
-      media.removeEventListener("change", syncInput);
-      window.removeEventListener("orientationchange", resetMotion);
-      window.removeEventListener("deviceorientation", onOrientation);
-      if (orientationFrameRef.current != null) cancelAnimationFrame(orientationFrameRef.current);
+      el.removeEventListener("pointerenter", aim);
+      el.removeEventListener("pointermove", aim);
+      el.removeEventListener("pointerleave", release);
+      mobile.removeEventListener("change", onMobileChange);
+      if (frame != null) cancelAnimationFrame(frame);
     };
-  }, [applyTilt]);
+  }, [maxTilt, scale, glare]);
   return /* @__PURE__ */ jsxs(
     "div",
     {
       ref: cardRef,
-      onPointerEnter: () => {
-        if (!mobileRef.current) setHovering(true);
-      },
-      onPointerMove: onMove,
-      onPointerLeave: onLeave,
       className: `relative w-fit will-change-transform ${className ?? ""}`,
       style: {
-        transition: hovering ? "none" : "transform 420ms cubic-bezier(0.22, 1, 0.36, 1)",
         transform: "perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)",
         transformStyle: "preserve-3d"
       },
       children: [
         children,
-        motionStatus === "prompt" || motionStatus === "denied" ? /* @__PURE__ */ jsx4(
-          "button",
-          {
-            type: "button",
-            className: "ticket-motion-permission",
-            onClick: requestMotionPermission,
-            children: motionStatus === "denied" ? "Try motion again" : "Enable motion"
-          }
-        ) : motionStatus === "requesting" || motionStatus === "listening" ? /* @__PURE__ */ jsx4(
-          "span",
-          {
-            className: "ticket-motion-permission ticket-motion-permission--status",
-            "aria-live": "polite",
-            children: motionStatus === "requesting" ? "Enabling\u2026" : "Move your phone"
-          }
-        ) : motionStatus === "unsupported" ? /* @__PURE__ */ jsx4(
-          "span",
-          {
-            className: "ticket-motion-permission ticket-motion-permission--status",
-            children: "Motion unavailable"
-          }
-        ) : null,
         glare > 0 && /* @__PURE__ */ jsx4(
           "div",
           {
             ref: glareRef,
             "aria-hidden": true,
             className: "pointer-events-none absolute inset-0",
-            style: {
-              clipPath,
-              transition: hovering ? "none" : "background 420ms ease-out"
-            }
+            style: { clipPath, opacity: 0 }
           }
         )
       ]

@@ -94,7 +94,7 @@ Secrets live in `.env.local` (all `.env*` files and `.vercel/` are git-ignored).
 
 ## Verification
 
-Besides `pnpm lint` and `pnpm build`, for UI changes check at a mobile width (≤520px) and a desktop width: layout, hover/tap motion, external links, and the error states of the social previews (unset a token in `.env.local` and confirm the card shows a message instead of breaking). The business card tilts with device motion on mobile; that path needs a real device or emulator.
+Besides `pnpm lint` and `pnpm build`, for UI changes check at a mobile width (≤520px) and a desktop width: layout, hover/tap motion, external links, and the error states of the social previews (unset a token in `.env.local` and confirm the card shows a message instead of breaking). The business card tilts toward a mouse or pen pointer only (eased in a `requestAnimationFrame` loop in `TiltCard`); it is static on touch devices and at ≤520px.
 
 ## Commits and pull requests
 
