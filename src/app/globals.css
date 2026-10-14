@@ -161,8 +161,6 @@
     --projects-glass: color-mix(in srgb, var(--c-paper) 68%, transparent);
     --projects-glass-hover: color-mix(in srgb, var(--c-paper) 86%, transparent);
     --projects-glass-edge: color-mix(in srgb, var(--c-paper) 60%, transparent);
-    --projects-plate: color-mix(in srgb, var(--c-paper) 78%, transparent);
-    --projects-plate-pad: 0.625rem;
     position: relative;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -212,14 +210,15 @@
   /* ─── Language bar ───────────────────────────────────────── */
   /* Glass plate: keeps the bar and legend readable above the featured card's sphere */
   .language-bar {
+    --language-bar-pad: 0.625rem;
     display: grid;
     min-width: 0;
     gap: 0.6rem;
-    margin: 0 calc(-1 * var(--projects-plate-pad)) calc(-1 * var(--projects-plate-pad));
-    padding: var(--projects-plate-pad);
+    margin: 0 calc(-1 * var(--language-bar-pad)) calc(-1 * var(--language-bar-pad));
+    padding: var(--language-bar-pad);
     border: 1px solid var(--projects-glass-edge);
     border-radius: 0.75rem;
-    background: var(--projects-plate);
+    background: color-mix(in srgb, var(--c-paper) 78%, transparent);
     backdrop-filter: blur(6px);
   }
 
@@ -342,31 +341,15 @@
     letter-spacing: 0.08em;
   }
 
-  /* Same glass plate as the language bar, so the link stays readable above the sphere */
   .project-card__arrow {
-    display: grid;
-    place-items: center;
-    margin: calc(-1 * var(--projects-plate-pad)) calc(-1 * var(--projects-plate-pad))
-      calc(-1 * var(--projects-plate-pad)) 0;
-    padding: var(--projects-plate-pad);
-    border: 1px solid var(--projects-glass-edge);
-    border-radius: 0.75rem;
-    background: var(--projects-plate);
-    backdrop-filter: blur(6px);
+    width: 1.35rem;
+    height: 1.35rem;
     color: var(--c-paper-subtle);
     transition: color 200ms ease;
   }
 
-  .project-card__arrow svg {
-    width: 1.35rem;
-    height: 1.35rem;
-  }
-
   .project-card:hover .project-card__arrow {
     color: var(--c-ticket);
-  }
-
-  .project-card:hover .project-card__arrow svg {
     animation: arrow-nudge 600ms ease;
   }
 
