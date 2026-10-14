@@ -6,6 +6,7 @@ export interface GitHubRepo {
   html_url: string;
   languages_url: string;
   language: string | null;
+  pushed_at?: string | null;
 }
 
 export interface GitHubContributions {
@@ -174,13 +175,18 @@ async function fetchGitHubContributionsFromProfile(
   }
 }
 
+// Most recently pushed first; the profile-page fallback has no dates and keeps GitHub's order.
+function byLastPush(first: GitHubRepo, second: GitHubRepo) {
+  return Date.parse(second.pushed_at ?? '') - Date.parse(first.pushed_at ?? '') || 0;
+}
+
 export async function fetchRepos(username: string): Promise<GitHubRepo[]> {
   const repos: GitHubRepo[] = [];
 
   try {
     for (let page = 1; ; page += 1) {
       const res = await fetch(
-        `https://api.github.com/users/${username}/repos?sort=updated&per_page=100&type=owner&page=${page}`,
+        `https://api.github.com/users/${username}/repos?sort=pushed&per_page=100&type=owner&page=${page}`,
         { headers: githubHeaders(), next: { revalidate: 21600 } }
       );
 
@@ -200,7 +206,7 @@ export async function fetchRepos(username: string): Promise<GitHubRepo[]> {
     console.error('[github] repositories unavailable:', error);
   }
 
-  return repos;
+  return repos.sort(byLastPush);
 }
 
 export async function fetchRepoLanguages(repo: GitHubRepo): Promise<RepoLanguage[]> {
