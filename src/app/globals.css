@@ -291,32 +291,10 @@
       border-color 200ms ease;
   }
 
-  /* Cursor spotlight, tinted with the ticket orange */
-  .project-card::before {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: radial-gradient(
-      22rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%),
-      rgb(239 104 28 / 0.13),
-      transparent 65%
-    );
-    content: "";
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 250ms ease;
-  }
-
   .project-card:hover,
   .project-card:focus-within {
     border-color: color-mix(in srgb, var(--c-ticket) 50%, var(--c-paper));
     background: var(--projects-glass-hover);
-  }
-
-  @media (hover: hover) {
-    .project-card:hover::before {
-      opacity: 1;
-    }
   }
 
   .project-card:has(.project-card__link:focus-visible) {

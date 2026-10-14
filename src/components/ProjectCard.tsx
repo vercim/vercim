@@ -1,6 +1,6 @@
 'use client';
 
-import type { CSSProperties, PointerEvent } from 'react';
+import type { CSSProperties } from 'react';
 import { Dithering } from '@paper-design/shaders-react';
 import { ArrowUpRight } from 'lucide-react';
 import { LanguageBar } from '@/components/LanguageBar';
@@ -25,15 +25,6 @@ function placementStyle(placement?: BentoPlacement) {
   } as CSSProperties;
 }
 
-// Feeds the cursor position to the hover spotlight; touch input has no hover state.
-function trackPointer(event: PointerEvent<HTMLElement>) {
-  if (event.pointerType !== 'mouse') return;
-
-  const bounds = event.currentTarget.getBoundingClientRect();
-  event.currentTarget.style.setProperty('--pointer-x', `${event.clientX - bounds.left}px`);
-  event.currentTarget.style.setProperty('--pointer-y', `${event.clientY - bounds.top}px`);
-}
-
 export function ProjectCard({ project, index, featured = false, desktopPlacement }: Props) {
   const name = project.fullName.slice(project.fullName.indexOf('/') + 1);
 
@@ -41,7 +32,6 @@ export function ProjectCard({ project, index, featured = false, desktopPlacement
     <article
       style={placementStyle(desktopPlacement)}
       className={`project-card${featured ? ' project-card--featured' : ''}`}
-      onPointerMove={trackPointer}
     >
       {featured && (
         <div className="project-card__shader" aria-hidden="true">
@@ -51,10 +41,10 @@ export function ProjectCard({ project, index, featured = false, desktopPlacement
             colorBack="#ffffff00"
             // Same orange as --c-ticket; the shader needs a literal color.
             colorFront="#ef681c"
-            size={1.35}
-            speed={0.65}
-            scale={0.75}
-            style={{ width: '100%', height: '100%' }}
+            size={1.25}
+            speed={0.5}
+            scale={1}
+            style={{ width: '180%', height: '200%' }}
           />
         </div>
       )}
