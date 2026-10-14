@@ -20,7 +20,7 @@ export const socialLinks: SocialEntry[] = [
   {
     id: 'discord',
     label: 'Discord',
-    handle: 'teathh',
+    handle: 'tea.gg',
     href: '',
     icon: SiDiscord,
   },
@@ -28,7 +28,7 @@ export const socialLinks: SocialEntry[] = [
     id: 'youtube',
     label: 'YouTube',
     handle: '',
-    href: 'https://youtube.com/@teatthh',
+    href: 'https://youtube.com/@vercim',
     icon: SiYoutube,
   },
   {
