@@ -1,27 +1,102 @@
-# Repository Guidelines
+# AGENTS.md
 
-## Project Structure & Module Organization
+Guidance for AI coding agents and contributors. `CLAUDE.md` is a symlink to this file — edit `AGENTS.md` only.
 
-This is a Next.js App Router portfolio written in TypeScript. Routes, layout metadata, and global styles live in `src/app/`. Reusable page sections and UI elements belong in `src/components/`; keep specialized primitives in `src/components/ui/`. Static configuration and social-link data live in `src/data/`, GitHub fetching and normalization in `src/lib/`, shared hooks in `src/hooks/`, and TypeScript models in `src/types/`. The site icon is `src/app/icon.svg`. Generated directories such as `.next/` and `node_modules/` must not be committed.
+## Overview
 
-## Build, Test, and Development Commands
+Single-page personal portfolio ("Vercim Creative"), deployed on Vercel. Next.js 15 App Router, React 19, strict TypeScript, Tailwind CSS v4, framer-motion. The page has two parts:
 
-Use pnpm and keep `pnpm-lock.yaml` synchronized with dependency changes.
+- **Hero** — an interactive 3D business card plus a social dock whose items open live previews (Discord profile, YouTube channel, GitHub contribution graph, Modrinth and CurseForge download stats).
+- **Projects** — a bento grid built from the owner's public GitHub repositories, with language breakdowns.
 
-- `pnpm install` — install the locked dependencies.
-- `pnpm dev` — start the local development server.
-- `pnpm lint` — run the configured Next.js lint checks.
-- `pnpm build` — create a production build and catch type or rendering errors.
-- `pnpm start` — serve the completed production build locally.
+The theme is dark only; there is no theme switching.
 
-## Coding Style & Naming Conventions
+## Commands
 
-Follow the existing TypeScript style: two-space indentation, single quotes, semicolons, and trailing commas in multiline objects. Keep strict typing; avoid `any` and reuse models from `src/types/`. Components use PascalCase filenames and named exports (`ProjectCard.tsx`), hooks use `useCamelCase`, and utilities use camelCase. Prefer the `@/` alias over long relative imports. Add `'use client'` only when browser APIs, state, or interaction require it. Reuse CSS tokens and established BEM-like classes in `globals.css` instead of adding one-off inline styling.
+Use pnpm and keep `pnpm-lock.yaml` in sync with `package.json`.
 
-## Testing Guidelines
+- `pnpm install` — install locked dependencies.
+- `pnpm dev` — dev server on port 3000.
+- `pnpm lint` — ESLint (`next/core-web-vitals`).
+- `pnpm build` — production build; also type-checks and catches rendering errors.
+- `pnpm start` — serve the production build.
 
-No automated test framework or coverage threshold is currently configured. For every change, run `pnpm lint` and `pnpm build`. Manually verify affected layouts at mobile and desktop widths, external links, motion, and GitHub-data fallbacks. If adding a test runner, place tests beside their module as `*.test.ts` or `*.test.tsx` and add the corresponding pnpm script in the same pull request.
+There is no test runner. Run `pnpm lint` and `pnpm build` after every change. `pnpm lint` currently reports `react-hooks/exhaustive-deps` warnings from `admit-one-ticket.tsx` (see Code style); errors and any new warnings elsewhere are not acceptable.
 
-## Commit & Pull Request Guidelines
+## Layout
 
-Recent history favors short, imperative summaries such as `Refine portfolio layout and project presentation`. Keep each commit focused and avoid generic messages like `update`. Pull requests should explain the user-visible result, list validation performed, and link relevant issues. Include before/after screenshots for visual changes and note any dependency or environment-variable changes. Never commit secrets; use `.env.local` for `GITHUB_TOKEN`.
+```
+src/app/            layout.tsx (metadata, font), page.tsx, globals.css, icon.svg
+src/components/     page sections: HeroSection*, ProjectsSection, ProjectCard, Footer
+src/components/ui/  interactive primitives: admit-one-ticket, hover-business-card, social-preview-dock
+src/data/           config.ts (account names/IDs), social.ts (social links)
+src/lib/            one server-side fetcher per external service
+src/types/          RepoCard / RepoLanguage models
+```
+
+There is no `src/hooks/` yet; create it (`useCamelCase.ts`) when a hook is shared between components.
+
+## Data flow
+
+`page.tsx` is a server component with `export const revalidate = 21600` (6 hours). Every `fetch` in `src/lib/` uses `next: { revalidate: 21600 }` — keep the two in sync.
+
+- `HeroSectionWithData` (async server) calls all five fetchers with `Promise.all`, using the identifiers in `src/data/config.ts`, and passes the results to `HeroSection` (client). `HeroSection` merges them with `socialLinks` into `SocialPreviewItem[]` for `SocialPreviewDock`.
+- `ProjectsSection` (async server) calls `fetchRepos` and `fetchRepoLanguages`, computes the bento placement, and renders `ProjectCard` (client) for each repo. Only the largest card renders the dithering shader.
+
+Keep fetching in server components and `src/lib/`; pass plain data to client components as props.
+
+### External services
+
+| Module | Source | Credential |
+| --- | --- | --- |
+| `lib/github.ts` | GitHub REST (repos, languages), GraphQL (contribution calendar), HTML scraping as fallback | `GITHUB_TOKEN`, optional (higher rate limits, enables GraphQL) |
+| `lib/discord.ts` | Discord API v10 `users/{id}` | `DISCORD_BOT_TOKEN`, required |
+| `lib/youtube.ts` | YouTube Data API v3 `channels?forHandle` | `YOUTUBE_API_KEY`, required |
+| `lib/modrinth.ts` | Modrinth v2 public API | none |
+| `lib/curseforge.ts` | `api.cfwidget.com` public widget API | none |
+
+### Fetcher conventions
+
+- Fetchers never throw. Discord, YouTube, Modrinth and CurseForge return `{ status: 'success', ... } | { status: 'error', message }`; GitHub returns `null` or `[]`. The UI must render a sensible state for every failure, including missing tokens.
+- Log failures with `console.error('[service] ...')`.
+- Response and result types live next to the fetcher; `src/types/` holds only the repo-card models.
+- Send a descriptive `User-Agent` (`vercim/portfolio/1.0 (contact@verc.im)` for Modrinth and CurseForge).
+- Remote images rendered through `next/image` need their host in `images.remotePatterns` in `next.config.ts` (currently YouTube and Discord CDNs).
+
+## Environment
+
+Secrets live in `.env.local` (all `.env*` files and `.vercel/` are git-ignored). Never commit, print, or paste their values. `VERCEL_OIDC_TOKEN` there is written by the Vercel CLI and is not read by the code.
+
+## Common changes
+
+- **Account names / IDs** — edit `src/data/config.ts`.
+- **Social links** — edit `src/data/social.ts`; array order is the on-page order. An empty `href` makes an item preview-only. The `email` entry is not shown in the dock; it is passed to it separately. Previews are hard-wired by `id` in the ternary chain in `HeroSection.tsx`, and an unknown `id` falls through to the CurseForge branch, so a new platform needs its own branch, fetcher and `SocialPreview` variant.
+- **Business card text** — props passed to `AdmitOneTicket` in `hover-business-card.tsx`.
+- **Page metadata** — `metadata` in `src/app/layout.tsx`.
+
+## Styling
+
+- Tailwind v4 is loaded through PostCSS; `globals.css` starts with `@import "tailwindcss"`.
+- Colors are `--c-*` tokens on `:root`, exposed to Tailwind through `@theme inline` (`bg-surface`, `text-muted`, `border-divider`, ...). Reuse them; do not hard-code new grays.
+- Component styles are BEM-like classes in `@layer components` of `globals.css`, grouped by block: `hero-*`, `business-card-*`, `social-preview-dock*` / `social-preview-card*`, `projects-*`, `project-card*`, `site-footer*`. Extend an existing block before inventing a new one.
+- Pass per-instance dynamic values as CSS custom properties through `style` (see `--language-color`, the bento `--desktop-*` / `--mobile-*` variables) rather than inline layout styles.
+- Breakpoints in use: 900px, 680px, 520px, and a short-landscape query (`max-height: 610px` and `min-width: 521px`). At 520px and below the hero uses a rotated card and viewport-height offsets computed in `HeroSection.tsx`; check that layout after any hero change.
+- The font is JetBrains Mono via `next/font` (`--font-jetbrains-mono`).
+
+## Code style
+
+- Two-space indent, single quotes, semicolons, trailing commas in multiline literals.
+- Strict TypeScript; no `any`. Prefer the `@/` alias over relative imports across directories.
+- Components are named exports. Section components in `src/components/` use PascalCase filenames (`ProjectCard.tsx`); primitives in `src/components/ui/` use kebab-case (`social-preview-dock.tsx`). Utilities are camelCase.
+- Components are server components by default. Add `'use client'` only for state, effects, browser APIs, or interaction.
+- Comments and log/UI strings are in English. Comment sparingly: only where the reason is not obvious from the code.
+- `src/components/ui/admit-one-ticket.tsx` is a ~2,400-line bundled WebGL component with `// @ts-nocheck` and a default export. Do not reformat or refactor it; make targeted edits only and drive it through props.
+
+## Verification
+
+Besides `pnpm lint` and `pnpm build`, for UI changes check at a mobile width (≤520px) and a desktop width: layout, hover/tap motion, external links, and the error states of the social previews (unset a token in `.env.local` and confirm the card shows a message instead of breaking). The business card tilts with device motion on mobile; that path needs a real device or emulator.
+
+## Commits and pull requests
+
+- Short, imperative, focused commit subjects (for example `Refine project card layout`); avoid `update` or `fix stuff`.
+- A pull request describes the user-visible result, lists the validation performed, links related issues, and includes before/after screenshots for visual changes. Call out any new dependency or environment variable.
