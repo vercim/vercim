@@ -426,6 +426,11 @@
     .project-card--featured .language-bar {
       max-width: none;
     }
+
+    /* The card is short here: keep the sphere's top below the arrow */
+    .project-card__shader {
+      transform: translate(32%, calc(36% + 2rem));
+    }
   }
 
   .hero-section {
