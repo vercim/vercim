@@ -1,3 +1,6 @@
 allowBuilds:
   sharp: true
   unrs-resolver: true
+# ESLint resolves eslint-config-next's plugins from the project root, so they must be hoisted
+publicHoistPattern:
+  - '*eslint*'
