@@ -49,7 +49,9 @@ export function ProjectCard({ project, index, featured = false, desktopPlacement
 
       <div className="project-card__meta">
         <span className="project-card__index">{String(index + 1).padStart(2, '0')}</span>
-        <ArrowUpRight className="project-card__arrow" aria-hidden="true" />
+        <span className="project-card__arrow">
+          <ArrowUpRight aria-hidden="true" />
+        </span>
       </div>
 
       <div className="project-card__body">
