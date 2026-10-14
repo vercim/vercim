@@ -36,7 +36,7 @@ export function ProjectCard({ project, index, featured = false, desktopPlacement
       {featured && (
         <div className="project-card__shader" aria-hidden="true">
           <SparseDithering
-            maxDensity={0.55}
+            maxDensity={0.65}
             // Same orange as --c-ticket; the shader needs a literal color.
             colorFront="#ef681c"
             size={1.25}
