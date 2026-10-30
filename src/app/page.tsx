@@ -5,6 +5,7 @@ import { HeroSection } from '@/components/HeroSection';
 import { MinecraftSection } from '@/components/MinecraftSection';
 import { RobloxSection } from '@/components/RobloxSection';
 import { SiteHeader } from '@/components/SiteHeader';
+import { ScrollReveal } from '@/components/ui/scroll-reveal';
 
 export default function Home() {
   return (
@@ -16,6 +17,7 @@ export default function Home() {
         <RobloxSection />
         <FancySection />
       </main>
+      <ScrollReveal />
     </>
   );
 }

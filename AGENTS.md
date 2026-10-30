@@ -37,7 +37,7 @@ There is no test runner. Run `pnpm lint` and `pnpm build` after every change; bo
 ```
 src/app/            layout.tsx (metadata, fonts), page.tsx (header + blocks), globals.css, icon.svg
 src/components/     page blocks: SiteHeader, HeroSection, MinecraftSection, RobloxSection, FancySection
-src/components/ui/  primitives: cloud-shader, contact-list, art-slot, path-marquee
+src/components/ui/  primitives: cloud-shader, contact-list, art-slot, path-marquee, scroll-reveal
 src/data/           social.ts (contacts and mod-platform accounts), fancy.ts (marquee images)
 src/lib/            one server-side fetcher per external service (modrinth, curseforge), plus mods.ts (merges them)
 public/images/      owner-supplied art: minecraft/, roblox/, fancy/
@@ -45,7 +45,7 @@ public/images/      owner-supplied art: minecraft/, roblox/, fancy/
 
 ## Hero
 
-Sky only, with no game-style decoration; the card fills the viewport below the header. The contacts sit top left as plain text lines (`discord: vercim`, `telegram: @kntex`, `x.com: @vercims`) at the heading size, without underline, and the owner's phrase sits bottom right, tilted by -3deg. On load the sky fades in and then each text line rises from behind a mask (`hero-reveal` / `hero-reveal__line`, staggered with `--reveal-delay`), Apple-style; the header has no intro, and `prefers-reduced-motion` turns it off. Contacts show keyboard focus as an underline, since the mask would clip an outline. The phrase is the owner's own wording in `HeroSection.tsx`; change it only on request.
+Sky only, with no game-style decoration; the card fills the viewport below the header. The contacts sit top left as plain text lines (`discord: vercim`, `telegram: @kntex`, `x.com: @vercims`) at the heading size, without underline, and the owner's phrase sits bottom right, tilted by -3deg. On load the sky fades in and then each text line rises from behind a mask, Apple-style; the header has no intro. Contacts show keyboard focus as an underline, since the mask would clip an outline. The phrase is the owner's own wording in `HeroSection.tsx`; change it only on request.
 
 ## Minecraft
 
@@ -61,6 +61,10 @@ A black block (`--c-dark`) that mirrors the Minecraft one: the owner's Roblox ch
 ## Fancy
 
 The owner's favourite images travel along a curved SVG path with a loop (`PathMarquee`, SVG `animateMotion`, rotated along the path). The list is `fancyImages` in `src/data/fancy.ts` (paths like `/images/fancy/name.png`, repeated to fill the path); while it is empty, the path shows placeholder squares. The motion pauses for `prefers-reduced-motion`. If the path in `path-marquee.tsx` changes, update `PATH_LENGTH` (its `getTotalLength()`).
+
+## Reveal animation
+
+Every block has the same entrance. Text lines rise from behind a mask (`.reveal` wraps `.reveal__line`); images, icons and the marquee fade in while sliding up (`.reveal__fade`). `--reveal-delay` on an element staggers it, `--reveal-base` delays a whole block (0.5s on the hero, after the sky fades in). The hero plays on load; blocks with `data-reveal` stay paused until `ScrollReveal` (`ui/scroll-reveal.tsx`, an IntersectionObserver) adds `.is-visible` the first time they scroll into view. `prefers-reduced-motion` and disabled JavaScript show everything without animation.
 
 ## Data
 

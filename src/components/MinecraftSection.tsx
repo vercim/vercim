@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import type { CSSProperties } from 'react';
 import { ArtSlot } from '@/components/ui/art-slot';
 import { modAccounts } from '@/data/social';
 import { fetchModsOverview } from '@/lib/mods';
@@ -12,19 +13,27 @@ export async function MinecraftSection() {
   );
 
   return (
-    <section id="mods" className="minecraft" aria-label="Minecraft mods">
+    <section id="mods" className="minecraft" aria-label="Minecraft mods" data-reveal>
       <div className="minecraft__stats">
         {totalDownloads !== null ? (
           <p className="minecraft__headline">
-            <span className="minecraft__count">{formatCount.format(totalDownloads)}</span>{' '}
-            downloads i have in total
+            <span className="minecraft__count reveal">
+              <span className="reveal__line">{formatCount.format(totalDownloads)}</span>
+            </span>{' '}
+            <span className="reveal" style={{ '--reveal-delay': '0.1s' } as CSSProperties}>
+              <span className="reveal__line">downloads i have in total</span>
+            </span>
           </p>
         ) : null}
 
         {iconProjects.length > 0 ? (
           <ul className="minecraft__mods">
-            {iconProjects.map(({ title, iconUrl }) => (
-              <li key={title} className="minecraft__mod">
+            {iconProjects.map(({ title, iconUrl }, index) => (
+              <li
+                key={title}
+                className="minecraft__mod reveal__fade"
+                style={{ '--reveal-delay': `${0.25 + index * 0.08}s` } as CSSProperties}
+              >
                 <Image className="minecraft__icon" src={iconUrl} alt={title} width={160} height={160} />
               </li>
             ))}
@@ -33,7 +42,7 @@ export async function MinecraftSection() {
       </div>
 
       <ArtSlot
-        className="minecraft__character art-slot--cut"
+        className="minecraft__character art-slot--cut reveal__fade"
         src="/images/minecraft/character.png"
         alt="My Minecraft character"
         sizes="(max-width: 680px) 85vw, 45vw"

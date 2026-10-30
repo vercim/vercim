@@ -9,17 +9,17 @@ export function ContactList({ contacts }: { contacts: Contact[] }) {
       {contacts.map(({ id, label, account, handle, href }, index) => (
         <li
           key={id}
-          className="hero-reveal"
+          className="reveal"
           style={{ '--reveal-delay': `${index * 0.1}s` } as CSSProperties}
         >
           {href ? (
-            <a className="contact-list__item hero-reveal__line" href={href} target="_blank" rel="noreferrer">
+            <a className="contact-list__item reveal__line" href={href} target="_blank" rel="noreferrer">
               {label}: {handle}
             </a>
           ) : (
             <button
               type="button"
-              className="contact-list__item hero-reveal__line"
+              className="contact-list__item reveal__line"
               aria-label={`${label}: ${handle} (copy username)`}
               onClick={() => navigator.clipboard?.writeText(account).catch(() => {})}
             >
