@@ -12,7 +12,7 @@ export async function MinecraftSection() {
   );
 
   return (
-    <section id="minecraft" className="minecraft" aria-label="Minecraft mods">
+    <section id="mods" className="minecraft" aria-label="Minecraft mods">
       <div className="minecraft__stats">
         {totalDownloads !== null ? (
           <p className="minecraft__headline">
@@ -33,7 +33,7 @@ export async function MinecraftSection() {
       </div>
 
       <ArtSlot
-        className="minecraft__character"
+        className="minecraft__character art-slot--cut"
         src="/images/minecraft/character.png"
         alt="My Minecraft character"
         sizes="(max-width: 680px) 85vw, 45vw"

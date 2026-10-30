@@ -1,7 +1,7 @@
 const sections = [
   { id: 'contacts', label: 'contacts' },
-  { id: 'minecraft', label: 'minecraft' },
-  { id: 'roblox', label: 'roblox' },
+  { id: 'mods', label: 'mods' },
+  { id: 'games', label: 'games' },
   { id: 'fancy', label: 'fancy' },
 ];
 

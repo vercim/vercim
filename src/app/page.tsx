@@ -1,5 +1,6 @@
 export const revalidate = 21600; // 6 hours
 
+import { FancySection } from '@/components/FancySection';
 import { HeroSection } from '@/components/HeroSection';
 import { MinecraftSection } from '@/components/MinecraftSection';
 import { RobloxSection } from '@/components/RobloxSection';
@@ -13,6 +14,7 @@ export default function Home() {
         <HeroSection />
         <MinecraftSection />
         <RobloxSection />
+        <FancySection />
       </main>
     </>
   );

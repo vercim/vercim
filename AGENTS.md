@@ -10,14 +10,15 @@ Principles: show results, not claims; minimal text, no filler headings; no proje
 
 Page structure, top to bottom, on the white page background (`--c-frame`):
 
-- a static (not sticky) header: the small card mark in the top left corner (equal gap above and beside it), lowercase section links on the right (`contacts`, `minecraft`, `roblox`, `fancy`; `#fancy` has no block yet);
+- a static (not sticky) header: the small card mark in the top left corner (equal gap above and beside it), lowercase section links on the right: `contacts`, `mods`, `games`, `fancy` (anchors `#contacts`, `#mods` on the Minecraft block, `#games` on the Roblox block, `#fancy`);
 - the hero: a rounded sky card inset by `--frame-pad`, the only block with the sky;
 - the Minecraft block, directly on the white page, so the white around the hero flows into it without a divider;
-- the Roblox block: a full-width black band that starts with a hard edge, which cuts the Minecraft character at the bottom.
+- the Roblox block: a full-width black band that starts with a hard edge, which cuts the Minecraft character at the bottom;
+- the fancy block on the white page again, whose top edge cuts the Roblox character the same way.
 
 The hero content and every block share one left edge and one right edge (`--inset-start` / `--inset-end`, plus `--frame-pad` outside the hero card).
 
-Planned blocks, in order: hero (done), Minecraft (done), Roblox (started), advantages bento, footer marquee along an SVG path.
+Blocks, in order: hero, Minecraft, Roblox, fancy (all built; owner art still missing). Still to come: an advantages bento between Roblox and fancy, with copy written by the owner.
 
 ## Commands
 
@@ -35,16 +36,16 @@ There is no test runner. Run `pnpm lint` and `pnpm build` after every change; bo
 
 ```
 src/app/            layout.tsx (metadata, fonts), page.tsx (header + blocks), globals.css, icon.svg
-src/components/     page blocks: SiteHeader, HeroSection, MinecraftSection, RobloxSection
-src/components/ui/  primitives: cloud-shader, contact-list, art-slot
-src/data/           social.ts (contacts and mod-platform accounts)
+src/components/     page blocks: SiteHeader, HeroSection, MinecraftSection, RobloxSection, FancySection
+src/components/ui/  primitives: cloud-shader, contact-list, art-slot, path-marquee
+src/data/           social.ts (contacts and mod-platform accounts), fancy.ts (marquee images)
 src/lib/            one server-side fetcher per external service (modrinth, curseforge), plus mods.ts (merges them)
-public/images/      owner-supplied art: minecraft/, roblox/, marquee/
+public/images/      owner-supplied art: minecraft/, roblox/, fancy/
 ```
 
 ## Hero
 
-Sky only, with no game-style decoration; the card fills the viewport below the header. The contacts sit top left as plain text lines (`discord: vercim`, `telegram: @kntex`, `x.com: @vercims`, no underline), and the owner's phrase sits bottom right, tilted by -3deg. The phrase is the owner's own wording in `HeroSection.tsx`; change it only on request.
+Sky only, with no game-style decoration; the card fills the viewport below the header. The contacts sit top left as plain text lines (`discord: vercim`, `telegram: @kntex`, `x.com: @vercims`) at the heading size, without underline, and the owner's phrase sits bottom right, tilted by -3deg. The phrase is the owner's own wording in `HeroSection.tsx`; change it only on request.
 
 ## Minecraft
 
@@ -55,7 +56,11 @@ On the left a two-tone headline (the total download count in ink, the owner's la
 
 ## Roblox
 
-A black block (`--c-dark`) with the owner's phrase "i also make games!" and "(roblox, luau lang)" muted under it. Only the start of the block so far.
+A black block (`--c-dark`) that mirrors the Minecraft one: the owner's Roblox character on the left, standing on the bottom edge so the fancy block cuts it, and on the right the owner's phrase "i also make games!" with "(roblox, luau lang)" muted under it. The render is `public/images/roblox/character.png`; both characters use `ArtSlot` with the `art-slot--cut` modifier.
+
+## Fancy
+
+The owner's favourite images travel along a curved SVG path with a loop (`PathMarquee`, SVG `animateMotion`, rotated along the path). The list is `fancyImages` in `src/data/fancy.ts` (paths like `/images/fancy/name.png`, repeated to fill the path); while it is empty, the path shows placeholder squares. The motion pauses for `prefers-reduced-motion`. If the path in `path-marquee.tsx` changes, update `PATH_LENGTH` (its `getTotalLength()`).
 
 ## Data
 
@@ -75,10 +80,10 @@ Secrets live in `.env.local` (all `.env*` files and `.vercel/` are git-ignored).
 - Tailwind v4 through PostCSS; `globals.css` starts with `@import "tailwindcss"`.
 - Colors are `--c-*` tokens on `:root`; reuse them instead of hard-coding colors. `--c-sky-*` duplicate the `CloudShader` defaults (the shader takes literal colors). Over the sky the phrase is `--c-ink` with the owner's `mix-blend-mode: overlay`, and the contacts are `--c-on-sky` (white). The white blocks use `--c-ink`, the black ones `--c-dark` with `--c-on-dark`.
 - Layout tokens: `--frame-pad` and `--frame-radius` (the hero card), `--header-h`, `--inset-start` / `--inset-end` (the shared content edges).
-- Component styles are BEM-like classes in `@layer components`, grouped by block: `site-header*`, `site-nav*`, `hero*`, `contact-list*`, `minecraft*`, `roblox*`, `art-slot*`. Extend an existing block before inventing a new one.
-- Sizes scale with `clamp()`; the only breakpoint is 680px, where the Minecraft block stacks into one column.
-- One font: Geist from `next/font` in `layout.tsx` (`--font-sans`), weights 400, 500 and 600. Sizes come from `--text-body`, `--text-lead` and `--text-title`; headings, phrases and the download count are 600 with tight tracking, and a heading's second part is muted (`--c-muted`, regular weight).
-- Links have a thin underline (1px, offset 0.3em), never a text shadow.
+- Component styles are BEM-like classes in `@layer components`, grouped by block: `site-header*`, `site-nav*`, `hero*`, `contact-list*`, `minecraft*`, `roblox*`, `fancy*`, `path-marquee*`, `art-slot*`. Extend an existing block before inventing a new one.
+- Sizes scale with `clamp()`; the only breakpoint is 680px, where the Minecraft and Roblox blocks stack into one column. The marquee never gets narrower than 56rem and is cropped at the sides on phones.
+- One font: Geist from `next/font` in `layout.tsx` (`--font-sans`), weights 400, 500 and 600. Sizes come from `--text-body` (the header) and `--text-title` (everything else); all text is 600 by default (set on `body`) except the header, which stays 400; headings use tight tracking, and a heading's second part is muted (`--c-muted`). Anchor links scroll smoothly (`scroll-behavior: smooth`, the owner's choice).
+- Header links have a thin underline (1px, offset 0.3em); the contacts have none. No text shadows.
 
 ## Code style
 
