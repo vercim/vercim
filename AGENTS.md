@@ -45,7 +45,7 @@ public/images/      owner-supplied art: minecraft/, roblox/, fancy/
 
 ## Hero
 
-Sky only, with no game-style decoration; the card fills the viewport below the header. The contacts sit top left as plain text lines (`discord: vercim`, `telegram: @kntex`, `x.com: @vercims`) at the heading size, without underline, and the owner's phrase sits bottom right, tilted by -3deg. The phrase is the owner's own wording in `HeroSection.tsx`; change it only on request.
+Sky only, with no game-style decoration; the card fills the viewport below the header. The contacts sit top left as plain text lines (`discord: vercim`, `telegram: @kntex`, `x.com: @vercims`) at the heading size, without underline, and the owner's phrase sits bottom right, tilted by -3deg. On load the sky fades in and then each text line rises from behind a mask (`hero-reveal` / `hero-reveal__line`, staggered with `--reveal-delay`), Apple-style; the header has no intro, and `prefers-reduced-motion` turns it off. Contacts show keyboard focus as an underline, since the mask would clip an outline. The phrase is the owner's own wording in `HeroSection.tsx`; change it only on request.
 
 ## Minecraft
 

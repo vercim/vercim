@@ -43,6 +43,24 @@ body {
   scroll-behavior: smooth;
 }
 
+@keyframes hero-sky-in {
+  from { opacity: 0; }
+}
+
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(105%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__sky,
+  .hero-reveal__line {
+    animation: none;
+  }
+}
+
 @layer components {
   /* ─── Header: static, card mark in the corner, sections on the right ── */
   .site-header {
@@ -87,11 +105,18 @@ body {
     text-underline-offset: 0.3em;
   }
 
-  .site-nav__link:focus-visible,
-  .contact-list__item:focus-visible {
+  .site-nav__link:focus-visible {
     border-radius: 0.25rem;
     outline: 2px solid currentColor;
     outline-offset: 4px;
+  }
+
+  /* The reveal mask would clip an outline, so contacts show focus as an underline. */
+  .contact-list__item:focus-visible {
+    outline: none;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.12em;
   }
 
   /* ─── Hero: the sky card inset into the page ───────────── */
@@ -110,13 +135,31 @@ body {
     padding: clamp(2.5rem, 13vh, 9rem) var(--inset-end) clamp(3rem, 15vh, 10rem) var(--inset-start);
     overflow: hidden;
     border-radius: var(--frame-radius);
-    background: linear-gradient(to bottom, var(--c-sky-top), var(--c-sky-bottom));
   }
 
+  /* Intro: the sky fades in, then the text rises line by line from behind a
+     mask. The header has no intro. */
   .hero__sky {
     position: absolute;
     inset: 0;
     z-index: -1;
+    background: linear-gradient(to bottom, var(--c-sky-top), var(--c-sky-bottom));
+    animation: hero-sky-in 1.4s ease both;
+  }
+
+  /* A line of text that rises into place; --reveal-delay staggers the lines.
+     The padding keeps descenders inside the mask. */
+  .hero-reveal {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.15em;
+    margin-bottom: -0.15em;
+  }
+
+  .hero-reveal__line {
+    display: inline-block;
+    animation: hero-rise 1.1s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: calc(0.5s + var(--reveal-delay, 0s));
   }
 
   .hero__phrase {
