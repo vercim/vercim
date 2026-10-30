@@ -1,12 +1,9 @@
-export interface CurseForgeStats {
-  totalDownloads: number;
-  projectDownloads: number[];
-}
+import type { ModProject } from '@/lib/mods';
 
-export type CurseForgeStatsResult =
+export type CurseForgeProjectsResult =
   | {
       status: 'success';
-      stats: CurseForgeStats;
+      projects: ModProject[];
     }
   | {
       status: 'error';
@@ -21,8 +18,8 @@ interface CurseForgeAuthorResponse {
 }
 
 interface CurseForgeProjectResponse {
-  id?: number;
-  created_at?: string;
+  title?: string;
+  thumbnail?: string;
   downloads?: {
     total?: number;
   };
@@ -32,7 +29,7 @@ const CF_WIDGET_HEADERS = {
   'User-Agent': 'vercim/portfolio/1.0 (contact@verc.im)',
 };
 
-export async function fetchCurseForgeStats(author: string): Promise<CurseForgeStatsResult> {
+export async function fetchCurseForgeProjects(author: string): Promise<CurseForgeProjectsResult> {
   try {
     const authorRes = await fetch(
       `https://api.cfwidget.com/author/search/${encodeURIComponent(author)}`,
@@ -66,7 +63,7 @@ export async function fetchCurseForgeStats(author: string): Promise<CurseForgeSt
       };
     }
 
-    const projects = await Promise.all(
+    const responses = await Promise.all(
       [...new Set(projectIds)].map(async (projectId) => {
         const projectRes = await fetch(`https://api.cfwidget.com/${projectId}`, {
           headers: CF_WIDGET_HEADERS,
@@ -81,39 +78,32 @@ export async function fetchCurseForgeStats(author: string): Promise<CurseForgeSt
       }),
     );
 
-    const normalizedProjects = projects
-      .filter(
-        (
-          project,
-        ): project is CurseForgeProjectResponse & {
-          id: number;
-          downloads: { total: number };
-        } =>
-          typeof project.id === 'number' &&
-          typeof project.downloads?.total === 'number' &&
-          Number.isFinite(project.downloads.total),
-      )
-      .sort((first, second) => {
-        const firstCreated = first.created_at ? Date.parse(first.created_at) : 0;
-        const secondCreated = second.created_at ? Date.parse(second.created_at) : 0;
-        return firstCreated - secondCreated;
-      });
+    const projects = responses.filter(
+      (
+        project,
+      ): project is CurseForgeProjectResponse & {
+        title: string;
+        downloads: { total: number };
+      } =>
+        typeof project.title === 'string' &&
+        typeof project.downloads?.total === 'number' &&
+        Number.isFinite(project.downloads.total),
+    );
 
-    if (normalizedProjects.length !== projects.length) {
+    if (projects.length !== responses.length) {
       return {
         status: 'error',
         message: 'CurseForge project data is incomplete',
       };
     }
 
-    const projectDownloads = normalizedProjects.map((project) => project.downloads.total);
-
     return {
       status: 'success',
-      stats: {
-        totalDownloads: projectDownloads.reduce((total, downloads) => total + downloads, 0),
-        projectDownloads,
-      },
+      projects: projects.map((project) => ({
+        title: project.title,
+        iconUrl: project.thumbnail || null,
+        downloads: project.downloads.total,
+      })),
     };
   } catch (error) {
     console.error('[curseforge] public profile exception:', error);

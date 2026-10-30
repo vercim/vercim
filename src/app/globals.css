@@ -35,8 +35,23 @@ body {
   }
 
   .site-frame__canvas {
+    isolation: isolate;
     overflow: clip;
     border-radius: var(--frame-radius);
+    background: var(--c-sky-bottom);
+  }
+
+  /* One viewport-tall sky that stays put while every block scrolls over it.
+     The negative margin lets the first block start at the top of the canvas. */
+  .site-frame__sky {
+    position: sticky;
+    top: 0;
+    z-index: -1;
+    height: 100vh;
+    height: 100dvh;
+    margin-bottom: -100vh;
+    margin-bottom: -100dvh;
+    background: linear-gradient(to bottom, var(--c-sky-top), var(--c-sky-bottom));
   }
 
   /* ─── Hero ─────────────────────────────────────────────── */
@@ -53,13 +68,6 @@ body {
     min-height: 30rem;
     padding: clamp(2.5rem, 15vh, 10rem) clamp(1.5rem, 7vw, 7rem) clamp(3rem, 15vh, 10rem) clamp(1.5rem, 9vw, 9rem);
     overflow: hidden;
-    background: linear-gradient(to bottom, var(--c-sky-top), var(--c-sky-bottom));
-  }
-
-  .hero__sky {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
   }
 
   .hero__phrase {
@@ -104,5 +112,103 @@ body {
     border-radius: 0.25rem;
     outline: 3px solid var(--c-on-sky);
     outline-offset: 4px;
+  }
+
+  /* ─── Minecraft ────────────────────────────────────────── */
+  .minecraft {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+    align-items: center;
+    gap: clamp(2rem, 5vw, 5rem);
+    box-sizing: border-box;
+    min-height: calc(100vh - 2 * var(--frame-pad));
+    min-height: calc(100dvh - 2 * var(--frame-pad));
+    padding: clamp(3rem, 10vh, 8rem) clamp(1.5rem, 7vw, 7rem);
+  }
+
+  .minecraft__character {
+    justify-self: center;
+    height: min(75vh, 44rem);
+    height: min(75dvh, 44rem);
+    aspect-ratio: 1 / 2;
+  }
+
+  .minecraft__stats {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1.5rem, 4vh, 2.5rem);
+  }
+
+  .minecraft__icons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(0.75rem, 1.5vw, 1.25rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .minecraft__icon {
+    display: block;
+    width: clamp(5rem, 9vw, 8.5rem);
+    height: auto;
+    aspect-ratio: 1;
+    border-radius: 18%;
+  }
+
+  .minecraft__downloads {
+    margin: 0;
+    color: var(--c-ink);
+    font-size: clamp(1.5rem, 2.8vw, 2.5rem);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  .minecraft__count {
+    display: block;
+    font-size: clamp(4rem, 12vw, 11rem);
+    font-weight: 700;
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+  }
+
+  /* ─── Art slot: owner-supplied image or its placeholder ── */
+  .art-slot {
+    position: relative;
+  }
+
+  .art-slot__image {
+    object-fit: contain;
+    object-position: bottom;
+  }
+
+  .art-slot__placeholder {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    box-sizing: border-box;
+    height: 100%;
+    padding: 0.75rem;
+    border: 2px dashed rgb(255 255 255 / 0.75);
+    border-radius: 1rem;
+    background: rgb(255 255 255 / 0.12);
+    color: var(--c-on-sky);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-align: center;
+    word-break: break-all;
+  }
+}
+
+@media (max-width: 680px) {
+  .minecraft {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .minecraft__character {
+    order: 1;
+    height: min(60vh, 30rem);
+    height: min(60dvh, 30rem);
   }
 }

@@ -1,25 +1,22 @@
-export interface ModrinthStats {
-  totalDownloads: number;
-  projectDownloads: number[];
-}
+import type { ModProject } from '@/lib/mods';
 
-export type ModrinthStatsResult =
+export type ModrinthProjectsResult =
   | {
       status: 'success';
-      stats: ModrinthStats;
+      projects: ModProject[];
     }
   | {
       status: 'error';
       message: string;
     };
 
-interface ModrinthProject {
-  id?: string;
+interface ModrinthProjectResponse {
+  title?: string;
+  icon_url?: string | null;
   downloads?: number;
-  published?: string;
 }
 
-export async function fetchModrinthStats(username: string): Promise<ModrinthStatsResult> {
+export async function fetchModrinthProjects(username: string): Promise<ModrinthProjectsResult> {
   try {
     const res = await fetch(
       `https://api.modrinth.com/v2/user/${encodeURIComponent(username)}/projects`,
@@ -48,35 +45,27 @@ export async function fetchModrinthStats(username: string): Promise<ModrinthStat
       };
     }
 
-    const projects = payload as ModrinthProject[];
-    const normalizedProjects = projects
-      .filter(
-        (project): project is ModrinthProject & { id: string; downloads: number } =>
-          Boolean(project.id) &&
-          typeof project.downloads === 'number' &&
-          Number.isFinite(project.downloads),
-      )
-      .sort((first, second) => {
-        const firstPublished = first.published ? Date.parse(first.published) : 0;
-        const secondPublished = second.published ? Date.parse(second.published) : 0;
-        return firstPublished - secondPublished;
-      });
+    const projects = (payload as ModrinthProjectResponse[]).filter(
+      (project): project is ModrinthProjectResponse & { title: string; downloads: number } =>
+        typeof project.title === 'string' &&
+        typeof project.downloads === 'number' &&
+        Number.isFinite(project.downloads),
+    );
 
-    if (normalizedProjects.length !== projects.length) {
+    if (projects.length !== payload.length) {
       return {
         status: 'error',
         message: 'Modrinth project data is incomplete',
       };
     }
 
-    const projectDownloads = normalizedProjects.map((project) => project.downloads);
-
     return {
       status: 'success',
-      stats: {
-        totalDownloads: projectDownloads.reduce((total, downloads) => total + downloads, 0),
-        projectDownloads: projectDownloads.length > 0 ? projectDownloads : [0],
-      },
+      projects: projects.map((project) => ({
+        title: project.title,
+        iconUrl: project.icon_url ?? null,
+        downloads: project.downloads,
+      })),
     };
   } catch (error) {
     console.error('[modrinth] projects exception:', error);
