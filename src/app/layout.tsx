@@ -1,16 +1,16 @@
 import type { Metadata, Viewport } from 'next';
-import { JetBrains_Mono } from 'next/font/google';
+import { Inter_Tight } from 'next/font/google';
 import './globals.css';
 
-const jetbrainsMono = JetBrains_Mono({
+const interTight = Inter_Tight({
   subsets: ['latin'],
-  variable: '--font-jetbrains-mono',
-  weight: ['400', '500', '600', '700'],
+  variable: '--font-sans',
+  weight: ['500', '600', '700'],
 });
 
 export const metadata: Metadata = {
   title: 'Vercim',
-  description: 'My profile page with links to my social media and all my public projects.',
+  description: 'Minecraft mods and Roblox games.',
 };
 
 export const viewport: Viewport = {
@@ -21,8 +21,8 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${jetbrainsMono.variable}`}>
+    <html lang="en">
+      <body className={interTight.variable}>
         {children}
       </body>
     </html>

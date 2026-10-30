@@ -1,979 +1,205 @@
 @import "tailwindcss";
 
-/* ─── Color tokens ──────────────────────────────────────── */
+/* ─── Tokens ────────────────────────────────────────────── */
 :root {
-  /* Font scaling: change --font-scale to 1.25 for +25% site-wide typography scale */
-  --font-scale: 1;
-  --c-bg:           #000;
-  --c-surface:      #0a0a0a;
-  --c-raised:       #111;
-  --c-fg:           #fff;
-  --c-muted:        #9a9a9a;
-  --c-subtle:       #787878;
-  --c-faint:        #585858;
-  --c-ghost:        #3a3a3a;
-  --c-accent:       #d4a012;
-  --c-accent-dim:   #a87e00;
-  --c-line:         #1a1a1a;
-  --c-line-soft:    #1e1e1e;
-  --c-line-badge:   #222;
-  --c-line-hover:   #121212;
-  --c-line-bright:  #585858;
-  --c-divider:      #111;
-  --c-sep:          #3a3a3a;
-
-  /* Light panel below the hero (projects) */
-  --c-paper:        #fff;
-  --c-paper-fg:     #111;
-  --c-paper-muted:  #5c5c5c;
-  --c-paper-subtle: #646464;
+  --c-frame:      #f1f0ec;
+  --c-ink:        #0f1a2b;
+  --c-ink-hover:  #22344f;
+  --c-on-sky:     #fff;
   /* Same colors as the CloudShader defaults; also the fallback before it draws */
-  --c-sky-top:      #3876ba;
-  --c-sky-bottom:   #8cbfe8;
-  --c-ticket:       #ef681c;
+  --c-sky-top:    #3876ba;
+  --c-sky-bottom: #8cbfe8;
+
+  --frame-pad:    clamp(0.5rem, 1.4vw, 1.25rem);
+  --frame-radius: clamp(1.25rem, 2.4vw, 2.25rem);
 }
 
-/* ─── Tailwind color utilities → tokens ─────────────────── */
 @theme inline {
-  --color-bg:           var(--c-bg);
-  --color-surface:      var(--c-surface);
-  --color-raised:       var(--c-raised);
-  --color-fg:           var(--c-fg);
-  --color-muted:        var(--c-muted);
-  --color-subtle:       var(--c-subtle);
-  --color-faint:        var(--c-faint);
-  --color-ghost:        var(--c-ghost);
-  --color-accent:       var(--c-accent);
-  --color-accent-dim:   var(--c-accent-dim);
-  --color-line:         var(--c-line);
-  --color-line-soft:    var(--c-line-soft);
-  --color-line-badge:   var(--c-line-badge);
-  --color-line-hover:   var(--c-line-hover);
-  --color-line-bright:  var(--c-line-bright);
-  --color-divider:      var(--c-divider);
-  --color-sep:          var(--c-sep);
-
-  --animate-fade-in: fade-in 0.6s ease both;
+  --color-frame: var(--c-frame);
+  --color-ink:   var(--c-ink);
 }
 
-@keyframes fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-@keyframes slide-right-fade {
-  from { opacity: 0; transform: translateX(14px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes arrow-nudge {
-  0%   { transform: translate(0, 0); }
-  45%  { transform: translate(3px, -3px); }
-  100% { transform: translate(0, 0); }
-}
-
-@keyframes download-nudge {
-  0%   { transform: translateY(0); }
-  45%  { transform: translateY(3px); }
-  100% { transform: translateY(0); }
-}
-
-@keyframes check-pop {
-  0%   { transform: scale(0.4) rotate(-15deg); }
-  60%  { transform: scale(1.25) rotate(5deg); }
-  100% { transform: scale(1) rotate(0deg); }
-}
-
-/* ─── Base ───────────────────────────────────────────────── */
-@layer base {
-  *, *::before, *::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-
-  html {
-    /* Scale root font-size by --font-scale so all rem units scale proportionally */
-    font-size: calc(100% * var(--font-scale));
-    scroll-behavior: smooth;
-    text-size-adjust: 100%;
-    -webkit-text-size-adjust: 100%;
-  }
-
-  body {
-    background: var(--c-bg);
-    color: var(--c-fg);
-    font-family: var(--font-jetbrains-mono), monospace;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    overflow-x: hidden;
-  }
-
-  ::selection {
-    color: var(--c-bg);
-    background: #ef681c;
-  }
-
-  ::-webkit-scrollbar { width: 3px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--c-line-hover); }
-  * { scrollbar-width: thin; scrollbar-color: var(--c-line-hover) transparent; }
-
-  a { color: inherit; text-decoration: none; }
-
-  button {
-    font-family: inherit;
-    cursor: pointer;
-    background: transparent;
-    border: none;
-    padding: 0;
-    color: inherit;
-    appearance: none;
-  }
-
+html,
+body {
+  margin: 0;
+  background: var(--c-frame);
+  color: var(--c-ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 @layer components {
-  .font-accent-mono {
-    font-family: var(--font-jetbrains-mono), monospace;
+  /* ─── Frame: one rounded canvas that holds every block ── */
+  .site-frame {
+    padding: var(--frame-pad);
   }
 
-  .type-body {
-    font-size: 0.875rem;
-    font-weight: 500;
+  .site-frame__canvas {
+    overflow: clip;
+    border-radius: var(--frame-radius);
   }
 
-  .type-label {
-    font-size: 0.875rem;
-    font-weight: 600;
-    text-transform: uppercase;
-  }
-
-  .type-section-title {
-    font-size: 0.875rem;
-    font-weight: 600;
-    text-transform: uppercase;
-  }
-
-  /* ─── Projects ───────────────────────────────────────────── */
-  .projects-section {
-    --projects-pad: clamp(0.875rem, 2.5vw, 2rem);
-    --projects-glass: color-mix(in srgb, var(--c-paper) 68%, transparent);
-    --projects-glass-hover: color-mix(in srgb, var(--c-paper) 86%, transparent);
-    --projects-glass-edge: color-mix(in srgb, var(--c-paper) 60%, transparent);
+  /* ─── Hero ─────────────────────────────────────────────── */
+  .hero {
     position: relative;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    min-height: 100vh;
-    min-height: 100dvh;
-    color: var(--c-paper-fg);
-    background: linear-gradient(to bottom, var(--c-sky-top), var(--c-sky-bottom));
-    font-family: Arial, Helvetica, sans-serif;
-    color-scheme: light;
     isolation: isolate;
+    height: calc(100vh - 2 * var(--frame-pad));
+    height: calc(100dvh - 2 * var(--frame-pad));
+    min-height: 34rem;
+    overflow: hidden;
+    background: linear-gradient(to bottom, var(--c-sky-top), var(--c-sky-bottom));
   }
 
-  /* Pinned to the viewport so the sky keeps its proportions when the section is taller than the screen */
-  .projects-section__sky {
-    position: sticky;
-    top: 0;
+  .hero__sky {
+    position: absolute;
+    inset: 0;
     z-index: -1;
-    grid-area: 1 / 1;
-    align-self: start;
-    height: 100vh;
-    height: 100dvh;
-    pointer-events: none;
   }
 
-  .projects-section__inner {
-    display: grid;
-    grid-area: 1 / 1;
-    width: min(calc(76rem + 2 * var(--projects-pad)), 100%);
-    min-width: 0;
-    margin-inline: auto;
-    padding: var(--projects-pad);
-  }
-
-  .projects-empty {
-    display: grid;
-    place-items: center;
-    padding: 3rem 1rem;
-    border: 1px solid var(--projects-glass-edge);
-    border-radius: 1rem;
-    background: var(--projects-glass);
-    color: var(--c-paper-muted);
-    font-family: var(--font-jetbrains-mono), monospace;
-    font-size: 0.875rem;
+  .hero__content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(1.5rem, 4vh, 2.5rem);
+    padding: clamp(3.5rem, 13vh, 9rem) 1rem 0;
     text-align: center;
   }
 
-  /* ─── Language bar ───────────────────────────────────────── */
-  /* Glass plate: keeps the bar and legend readable above the featured card's sphere */
-  .language-bar {
-    --language-bar-pad: 0.625rem;
-    display: grid;
-    min-width: 0;
-    gap: 0.6rem;
-    margin: 0 calc(-1 * var(--language-bar-pad)) calc(-1 * var(--language-bar-pad));
-    padding: var(--language-bar-pad);
-    border: 1px solid var(--projects-glass-edge);
-    border-radius: 0.75rem;
-    background: color-mix(in srgb, var(--c-paper) 78%, transparent);
-    backdrop-filter: blur(6px);
+  .hero__phrase {
+    max-width: 12ch;
+    margin: 0;
+    color: var(--c-on-sky);
+    font-size: clamp(2.75rem, 7.2vw, 6.75rem);
+    font-weight: 600;
+    line-height: 0.95;
+    letter-spacing: -0.045em;
+    text-wrap: balance;
+    text-shadow: 0 0.125rem 1.5rem rgb(15 40 80 / 0.25);
   }
 
-  .language-bar__track {
-    display: flex;
-    height: 0.3rem;
-    gap: 2px;
-    overflow: hidden;
-    border-radius: 999px;
-  }
-
-  .language-bar__segment {
-    min-width: 3px;
-    background: var(--language-color);
-  }
-
-  .language-bar__legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.2rem 0.75rem;
-    list-style: none;
-    color: var(--c-paper-fg);
-    font-family: var(--font-jetbrains-mono), monospace;
-    font-size: 0.6875rem;
-    line-height: 1.3;
-  }
-
-  .language-bar__legend li {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    white-space: nowrap;
-  }
-
-  .language-bar__dot {
-    width: 0.4rem;
-    height: 0.4rem;
-    flex: none;
-    border-radius: 50%;
-    background: var(--language-color);
-  }
-
-  .language-bar__percentage,
-  .language-bar__more {
-    color: var(--c-paper-subtle);
-  }
-
-  /* ─── Project card (bento grid) ──────────────────────────── */
-  .projects-grid {
-    display: grid;
-    grid-template-columns: repeat(var(--desktop-columns), minmax(0, 1fr));
-    grid-template-rows: repeat(var(--desktop-rows), minmax(11.5rem, 1fr));
-    gap: 0.625rem;
-  }
-
-  .projects-grid > .project-card {
-    grid-column: var(--desktop-column) / span var(--desktop-column-span);
-    grid-row: var(--desktop-row) / span var(--desktop-row-span);
-  }
-
-  .project-card {
-    position: relative;
-    display: flex;
-    min-width: 0;
-    min-height: 0;
-    flex-direction: column;
-    gap: 1rem;
-    overflow: hidden;
-    padding: clamp(1rem, 1.8vw, 1.5rem);
-    border: 1px solid var(--projects-glass-edge);
-    border-radius: 1rem;
-    background: var(--projects-glass);
-    backdrop-filter: blur(10px);
-    container-type: inline-size;
-    isolation: isolate;
-    transition:
-      background-color 200ms ease,
-      border-color 200ms ease;
-  }
-
-  .project-card:hover,
-  .project-card:focus-within {
-    border-color: color-mix(in srgb, var(--c-ticket) 50%, var(--c-paper));
-    background: var(--projects-glass-hover);
-  }
-
-  .project-card:has(.project-card__link:focus-visible) {
-    outline: 2px solid var(--c-paper-fg);
-    outline-offset: 2px;
-  }
-
-  .project-card__shader {
+  .hero__ground {
     position: absolute;
     right: 0;
     bottom: 0;
-    z-index: -1;
-    width: min(62cqw, 32rem);
-    aspect-ratio: 1;
-    opacity: 0.9;
-    pointer-events: none;
-    transform: translate(32%, 36%);
-  }
-
-  .project-card__shader canvas {
-    display: block;
-    width: 100% !important;
-    height: 100% !important;
-  }
-
-  .project-card__meta {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .project-card__index {
-    color: var(--c-paper-subtle);
-    font-family: var(--font-jetbrains-mono), monospace;
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-  }
-
-  .project-card__arrow {
-    width: 1.35rem;
-    height: 1.35rem;
-    color: var(--c-paper-subtle);
-    transition: color 200ms ease;
-  }
-
-  .project-card:hover .project-card__arrow {
-    color: var(--c-ticket);
-    animation: arrow-nudge 600ms ease;
-  }
-
-  .project-card__body {
-    display: grid;
-    flex: 1;
-    align-content: start;
-    gap: 0.5rem;
-    min-width: 0;
-  }
-
-  .project-card--featured .project-card__body,
-  .project-card--featured .language-bar {
-    max-width: 52cqw;
-  }
-
-  .project-card__name {
-    font-size: clamp(1.125rem, 1.7vw, 1.5rem);
-    font-weight: 700;
-    line-height: 1.1;
-    letter-spacing: -0.04em;
-    overflow-wrap: anywhere;
-  }
-
-  .project-card--featured .project-card__name {
-    font-size: clamp(1.75rem, 3.4vw, 3rem);
-    letter-spacing: -0.05em;
-  }
-
-  /* Stretched link: the whole card is the click target */
-  .project-card__link::after {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    content: "";
-  }
-
-  .project-card__link:focus-visible {
-    outline: none;
-  }
-
-  .project-card__description {
-    display: -webkit-box;
-    overflow: hidden;
-    color: var(--c-paper-muted);
-    font-size: 0.875rem;
-    line-height: 1.5;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-  }
-
-  .project-card--featured .project-card__description {
-    font-size: clamp(0.9rem, 1.2vw, 1.05rem);
-    -webkit-line-clamp: 4;
-  }
-
-  @media (max-width: 680px) {
-    .projects-grid {
-      grid-template-columns: minmax(0, 1fr);
-      grid-template-rows: none;
-      grid-auto-rows: minmax(11rem, auto);
-    }
-
-    .projects-grid > .project-card {
-      grid-column: auto;
-      grid-row: auto;
-    }
-
-    .project-card--featured {
-      min-height: 17rem;
-    }
-
-    .project-card--featured .project-card__body,
-    .project-card--featured .language-bar {
-      max-width: none;
-    }
-
-    /* The card is short here: keep the sphere's top below the arrow */
-    .project-card__shader {
-      transform: translate(32%, calc(36% + 2rem));
-    }
-  }
-
-  .hero-section {
-    --hero-dock-row: clamp(7rem, 14dvh, 10.5rem);
-    position: relative;
-    display: grid;
-    grid-template-rows: minmax(0, 1fr) var(--hero-dock-row);
-    width: 100%;
-    height: 100vh;
-    height: 100dvh;
-    place-items: center;
-    overflow: hidden;
-    isolation: isolate;
-  }
-
-  .hero-section::before {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-  background: radial-gradient(
-    circle at 50% 46%,
-    color-mix(in srgb, var(--c-line) 70%, transparent),
-    transparent 33%
-  );
-    content: "";
-    pointer-events: none;
-  }
-
-  .hero-logo {
-    position: absolute;
-    top: clamp(1rem, 2.6vw, 2rem);
-    left: clamp(1rem, 2.6vw, 2rem);
-    z-index: 10;
-    display: grid;
-    width: 2.75rem;
-    height: 2.75rem;
-    place-items: center;
-    color: var(--c-fg);
-  }
-
-  .hero-logo svg {
-    width: 2rem;
-    height: 2rem;
-  }
-
-  .hero-logo:focus-visible {
-    outline: 1px solid var(--c-line-bright);
-    outline-offset: 0.35rem;
-  }
-
-  .hero-section__content {
-    position: relative;
-    display: grid;
-    width: 100%;
-    height: 100%;
-    place-items: center;
-    padding: 4.5rem 1rem;
-  }
-
-  .hero-section__socials {
-    position: relative;
-    z-index: 10;
-    display: grid;
-    width: 100%;
-    height: 100%;
-    place-items: center;
-  }
-
-  .business-card-stage {
-    width: min(48rem, calc(100vw - 2rem));
-    perspective: 1100px;
-  }
-
-  .business-card-stage__ticket {
-    transform-origin: center;
-  }
-
-  .business-card-stage__placeholder {
-    width: 100%;
-    aspect-ratio: 741 / 425;
-  }
-
-  .social-preview-dock {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-  }
-
-  .social-preview-dock__panel-wrap {
-    position: absolute;
-    bottom: 100%;
     left: 0;
-    z-index: 20;
-    padding-bottom: 0.75rem;
-    filter: drop-shadow(0 18px 30px rgb(0 0 0 / 0.26)) drop-shadow(0 2px 8px rgb(0 0 0 / 0.18));
-  }
-
-  .social-preview-dock__panel {
-    position: relative;
-    overflow: hidden;
-    border: 1px solid #2a2a2a;
-    border-radius: 1rem;
-    background: #101010;
-    color: var(--c-fg);
-    font-family: Arial, Helvetica, sans-serif;
-    backdrop-filter: blur(18px);
-    will-change: transform, width, height, opacity;
-  }
-
-  .social-preview-dock__card-position {
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
-
-  .social-preview-card {
-    width: min(19rem, calc(100vw - 1.5rem));
-    max-width: calc(100vw - 1.5rem);
-  }
-
-  .social-preview-card--github {
-    width: min(26.25rem, calc(100vw - 1.5rem));
-    padding: 1rem;
-  }
-
-  .social-preview-card--discord {
-    width: min(14rem, calc(100vw - 1.5rem));
-  }
-
-  .social-preview-card--youtube {
-    width: min(16rem, calc(100vw - 1.5rem));
-  }
-
-  .social-preview-card--modrinth,
-  .social-preview-card--curseforge {
-    width: min(20rem, calc(100vw - 1.5rem));
-    padding: 1rem;
-  }
-
-  .social-preview-card__banner {
-    position: relative;
-    height: 4.25rem;
-    background:
-      radial-gradient(circle at 78% 12%, rgb(255 255 255 / 0.48), transparent 35%),
-      radial-gradient(circle at 5% 85%, color-mix(in srgb, var(--social-accent) 58%, #ffffff), transparent 45%),
-      linear-gradient(135deg, var(--social-accent), color-mix(in srgb, var(--social-accent) 62%, #ffffff));
-  }
-
-  .social-preview-card__banner-image {
-    object-fit: cover;
-  }
-
-  .social-preview-card__profile-body {
-    position: relative;
-    min-height: 5.75rem;
-    padding: 1.95rem 1rem 0.9rem;
-  }
-
-  .social-preview-card__avatar {
-    position: absolute;
-    top: -1.6rem;
-    left: 1rem;
-    display: grid;
-    width: 3.2rem;
-    height: 3.2rem;
-    place-items: center;
-    border: 4px solid #101010;
-    border-radius: 50%;
-    color: #ffffff;
-    background: var(--social-accent);
-    overflow: hidden;
-  }
-
-  .social-preview-card__avatar-image {
-    object-fit: cover;
-  }
-
-  .social-preview-card__avatar svg {
-    width: 1.4rem;
-    height: 1.4rem;
-  }
-
-  .social-preview-card__identity {
-    min-width: 0;
-  }
-
-  .social-preview-card__profile-content {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 0.75rem;
-  }
-
-  .social-preview-card__name {
-    overflow: hidden;
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1.25;
-    letter-spacing: -0.025em;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .social-preview-card__handle,
-  .social-preview-card__github-caption {
-    margin-top: 0.2rem;
-    color: #a8a8a8;
-    font-size: 0.78rem;
-    line-height: 1.4;
-  }
-
-  .social-preview-card__details {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.35rem;
-    margin-top: 0.35rem;
-    color: #b5b5b5;
-    font-size: 0.75rem;
-    line-height: 1.35;
-  }
-
-  .social-preview-card__details span + span::before {
-    margin-right: 0.35rem;
-    content: "·";
-  }
-
-  .social-preview-card__details--aside {
-    align-items: flex-end;
-    flex: none;
-    flex-direction: column;
-    gap: 0.15rem;
-    margin-top: 0;
-    text-align: right;
-    white-space: nowrap;
-  }
-
-  .social-preview-card__details--aside span + span::before {
-    content: none;
-  }
-
-  .social-preview-card__action {
-    display: inline-flex;
-    min-height: 2rem;
-    align-items: center;
-    justify-content: center;
-    padding: 0.55rem 0.8rem;
-    border-radius: 999px;
-    color: #000000;
-    background-color: #ffffff;
-    font-size: 0.75rem;
-    font-weight: 600;
-    line-height: 1;
-    letter-spacing: -0.025em;
-    white-space: nowrap;
-    transition: background-color 160ms ease, transform 100ms ease;
-  }
-
-  .social-preview-card__banner .social-preview-card__action {
-    position: absolute;
-    top: 0.7rem;
-    right: 0.7rem;
     z-index: 1;
+    height: clamp(10rem, 30vh, 21rem);
   }
 
-  .social-preview-card--discord .social-preview-card__banner .social-preview-card__action {
-    min-width: 4.5rem;
-  }
-
-  .social-preview-card--youtube .social-preview-card__banner .social-preview-card__action {
-    color: #ffffff;
-    background-color: #000000;
-  }
-
-  .social-preview-card--youtube .social-preview-card__banner .social-preview-card__action:hover,
-  .social-preview-card--youtube .social-preview-card__banner .social-preview-card__action:focus-visible {
-    color: #ffffff;
-    background-color: #202020;
-  }
-
-  .social-preview-card__error {
-    display: flex;
-    min-height: 6.75rem;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 1rem;
-    border: 1px solid color-mix(in srgb, var(--social-accent) 70%, #303030);
-    background: #101010;
-  }
-
-  .social-preview-card__error-message {
-    max-width: 10rem;
-    margin-top: 0.35rem;
-    color: #ff8c86;
-    font-size: 0.75rem;
-    line-height: 1.35;
-  }
-
-  .social-preview-card__action:hover,
-  .social-preview-card__action:focus-visible {
-    color: #000000;
-    background-color: #f1f1f1;
-  }
-
-  .social-preview-card__action:focus-visible {
-    outline: 2px solid #ffffff;
-    outline-offset: 2px;
-  }
-
-  .social-preview-card__action:active {
-    transform: scale(0.95);
-  }
-
-  .social-preview-card__action-label {
-    opacity: 1;
-    filter: blur(0);
-    transition: opacity 500ms ease, filter 500ms ease;
-  }
-
-  .social-preview-card__action-label--copied {
+  .two-worlds-ground,
+  .hero__ground-image {
     position: absolute;
-    opacity: 0;
-    filter: blur(2px);
-  }
-
-  .social-preview-card__action[data-copied] .social-preview-card__action-label:not(.social-preview-card__action-label--copied) {
-    opacity: 0;
-    filter: blur(2px);
-  }
-
-  .social-preview-card__action[data-copied] .social-preview-card__action-label--copied {
-    opacity: 1;
-    filter: blur(0);
-  }
-
-  .social-preview-card__github-heading {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 0.75rem;
-    margin-bottom: 0.85rem;
-  }
-
-  .social-preview-card__heatmap {
-    display: grid;
-    grid-auto-flow: column;
-    grid-template-columns: repeat(53, minmax(0, 1fr));
-    grid-template-rows: repeat(7, 5px);
-    gap: 2px;
+    inset: 0;
     width: 100%;
+    height: 100%;
   }
 
-  .social-preview-card__heatmap span {
-    border-radius: 1px;
-    background: #222222;
+  .hero__ground-image {
+    object-fit: cover;
+    object-position: bottom;
   }
 
-  .social-preview-card__heatmap span[data-level="1"] {
-    background: color-mix(in srgb, var(--social-accent) 28%, #222222);
+  .hero__character {
+    position: absolute;
+    bottom: 40%;
+    height: clamp(14rem, 42vh, 32rem);
+    aspect-ratio: 1 / 2;
+    transform: translateX(-50%);
   }
 
-  .social-preview-card__heatmap span[data-level="2"] {
-    background: color-mix(in srgb, var(--social-accent) 48%, #222222);
+  .hero__character img {
+    object-fit: contain;
+    object-position: bottom;
   }
 
-  .social-preview-card__heatmap span[data-level="3"] {
-    background: color-mix(in srgb, var(--social-accent) 72%, #222222);
+  .hero__character--minecraft {
+    left: 18%;
   }
 
-  .social-preview-card__heatmap span[data-level="4"] {
-    background: var(--social-accent);
+  .hero__character--roblox {
+    left: 82%;
   }
 
-  .social-preview-card__download-heading {
+  .hero__character-placeholder {
     display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-  }
-
-  .social-preview-card__download-total {
-    margin-top: 0.2rem;
-    color: #b5b5b5;
-    font-size: 0.78rem;
-    line-height: 1.4;
-  }
-
-  .social-preview-card__download-chart {
-    display: block;
-    width: 100%;
-    height: 4rem;
-    margin-top: 0.8rem;
-    overflow: visible;
-  }
-
-  .social-preview-card__chart-grid {
-    fill: none;
-    stroke: #282828;
-    stroke-width: 1;
-    vector-effect: non-scaling-stroke;
-  }
-
-  .social-preview-card__chart-area {
-    fill: color-mix(in srgb, var(--social-accent) 18%, transparent);
-  }
-
-  .social-preview-card__chart-line {
-    fill: none;
-    stroke: var(--social-accent);
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-width: 2;
-    vector-effect: non-scaling-stroke;
-  }
-
-  .social-preview-dock__rail {
-    position: relative;
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    gap: clamp(0.45rem, 1.2vw, 0.8rem);
-  }
-
-  .social-preview-dock__email {
-    position: relative;
-    display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: center;
-    margin-left: 0.2rem;
-    padding: 0.65rem 0.85rem;
-    border-radius: 999px;
-    color: #000000;
-    background-color: #ffffff;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 0.85rem;
+    height: 100%;
+    padding: 0.75rem;
+    box-sizing: border-box;
+    border: 2px dashed rgb(255 255 255 / 0.75);
+    border-radius: 1rem;
+    background: rgb(255 255 255 / 0.12);
+    color: var(--c-on-sky);
+    font-size: 0.875rem;
     font-weight: 600;
-    line-height: 1;
-    letter-spacing: -0.03em;
-    white-space: nowrap;
-    transition: background-color 160ms ease, transform 100ms ease;
+    word-break: break-all;
   }
 
-  .social-preview-dock__email:hover,
-  .social-preview-dock__email:focus-visible {
-    color: #000000;
-    background-color: #f1f1f1;
+  /* ─── Contact buttons ──────────────────────────────────── */
+  .contact-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
-  .social-preview-dock__email:focus-visible {
-    outline: 2px solid var(--c-fg);
+  .contact-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-height: 3.5rem;
+    padding: 0 1.5rem;
+    border: 0;
+    border-radius: 999px;
+    background: var(--c-ink);
+    color: var(--c-on-sky);
+    font: inherit;
+    font-size: 1.125rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+  }
+
+  .contact-button:hover {
+    background: var(--c-ink-hover);
+  }
+
+  .contact-button:focus-visible {
+    outline: 3px solid var(--c-on-sky);
     outline-offset: 3px;
   }
 
-  .social-preview-dock__email:active {
-    transform: scale(0.95);
-  }
-
-  .social-preview-dock__email-label {
-    opacity: 1;
-    filter: blur(0);
-    transition: opacity 500ms ease, filter 500ms ease;
-  }
-
-  .social-preview-dock__email-label--copied {
-    position: absolute;
-    opacity: 0;
-    filter: blur(2px);
-  }
-
-  .social-preview-dock__email[data-copied] .social-preview-dock__email-label:not(.social-preview-dock__email-label--copied) {
-    opacity: 0;
-    filter: blur(2px);
-  }
-
-  .social-preview-dock__email[data-copied] .social-preview-dock__email-label--copied {
-    opacity: 1;
-    filter: blur(0);
-  }
-
-  .social-preview-dock__trigger {
-    display: grid;
-    width: 2.65rem;
-    height: 2.65rem;
-    place-items: center;
-    border: 0;
-    color: var(--c-subtle);
-    outline: none;
-    transition: color 160ms ease;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .social-preview-dock__trigger svg {
+  .contact-button svg {
     width: 1.25rem;
     height: 1.25rem;
   }
+}
 
-  .social-preview-dock__trigger:hover,
-  .social-preview-dock__trigger:focus-visible,
-  .social-preview-dock__trigger[data-active] {
-    color: var(--c-fg);
+@media (max-width: 680px) {
+  .hero__character {
+    height: clamp(10rem, 30vh, 18rem);
   }
 
-  @media (max-width: 520px) {
-    .hero-section {
-      height: var(--hero-device-height, 100lvh);
-      min-height: var(--hero-device-height, 100lvh);
-    }
-
-    .hero-section__content {
-      transform: translateY(var(--hero-content-offset, calc(50dvh - 50lvh)));
-    }
-
-    .hero-section__socials {
-      transform: translateY(var(--hero-socials-offset, calc(100dvh - 100lvh)));
-    }
-
-    .business-card-stage {
-      position: absolute;
-      /* Centers the card between the logo bottom (3.125rem) and the dock top (1.275rem = half a dock item above the row center) */
-      top: calc(50% + 0.925rem + var(--hero-dock-row) / 4);
-      left: 50%;
-      width: min(42rem, 68dvh);
-      max-width: none;
-      transform: translate(-50%, -50%);
-    }
-
-    .business-card-stage__ticket {
-      transform: rotate(-90deg);
-    }
-
-    .social-preview-dock__trigger {
-      width: 2.55rem;
-      height: 2.55rem;
-    }
+  .hero__character--minecraft {
+    left: 20%;
   }
 
-  @media (max-height: 610px) and (min-width: 521px) {
-    .business-card-stage {
-      width: min(28rem, calc(100vw - 2rem));
-    }
+  .hero__character--roblox {
+    left: 80%;
+  }
+}
 
-    .hero-section__content {
-      padding-top: 4rem;
-    }
+@media (max-width: 520px) {
+  .contact-button {
+    min-height: 3.25rem;
+    padding: 0 1.25rem;
+    font-size: 1rem;
   }
 }

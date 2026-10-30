@@ -1,13 +1,13 @@
 export const revalidate = 21600; // 6 hours
 
-import { HeroSectionWithData } from '@/components/HeroSectionWithData';
-import { ProjectsSection } from '@/components/ProjectsSection';
+import { HeroSection } from '@/components/HeroSection';
 
 export default function Home() {
   return (
-    <main>
-      <HeroSectionWithData />
-      <ProjectsSection />
-    </main>
+    <div className="site-frame">
+      <main className="site-frame__canvas">
+        <HeroSection />
+      </main>
+    </div>
   );
 }

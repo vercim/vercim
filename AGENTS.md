@@ -4,12 +4,13 @@ Guidance for AI coding agents and contributors. `CLAUDE.md` is a symlink to this
 
 ## Overview
 
-Single-page personal portfolio ("Vercim Creative"), deployed on Vercel. Next.js 15 App Router, React 19, strict TypeScript, Tailwind CSS v4, framer-motion. The page has two parts:
+Single-page personal site, deployed on Vercel. Next.js 15 App Router, React 19, strict TypeScript, Tailwind CSS v4. It is aimed at people who liked the owner's Minecraft mods and at Roblox developers: a client with an idea should see the work and write in. The site is being redesigned from scratch; blocks are added one at a time.
 
-- **Hero** — an interactive 3D business card plus a social dock whose items open live previews (Discord profile, YouTube channel, GitHub contribution graph, Modrinth and CurseForge download stats).
-- **Projects** — a bento grid built from the owner's public GitHub repositories, with language breakdowns. The section is at least one viewport tall (exactly one on desktop) and ends the page.
+Principles: show results, not claims; minimal text, no filler headings; bold visuals; everything large and readable; no decorative animations or captions. Copy about the owner's skills, advantages or philosophy is always written by the owner — leave a `TODO` placeholder instead of inventing it. All copy is in English. The site shows no name or branding; the favicon (`src/app/icon.svg`, a card) is the only mark.
 
-The hero is dark; the projects screen sits on an animated sky (the WebGL `CloudShader`) behind translucent white cards (`--c-paper*` tokens, Arial). There is no theme switching.
+Every block sits inside one rounded canvas (`.site-frame__canvas`) on the `--c-frame` background, so the page reads as one space without dividers.
+
+Planned blocks, in order: hero (done), Minecraft (character render, live download count, hand-drawn project icons, no project links), Roblox, advantages bento, footer marquee along an SVG path.
 
 ## Commands
 
@@ -21,80 +22,57 @@ Use pnpm and keep `pnpm-lock.yaml` in sync with `package.json`.
 - `pnpm build` — production build; also type-checks and catches rendering errors.
 - `pnpm start` — serve the production build.
 
-There is no test runner. Run `pnpm lint` and `pnpm build` after every change. `pnpm lint` currently reports `react-hooks/exhaustive-deps` warnings from `admit-one-ticket.tsx` (see Code style); errors and any new warnings elsewhere are not acceptable.
+There is no test runner. Run `pnpm lint` and `pnpm build` after every change; both must pass without warnings.
 
 ## Layout
 
 ```
-src/app/            layout.tsx (metadata, font), page.tsx, globals.css, icon.svg
-src/components/     page sections: HeroSection*, ProjectsSection, ProjectsBento, ProjectCard, LanguageBar
-src/components/ui/  interactive primitives: admit-one-ticket, hover-business-card, social-preview-dock, cloud-shader, sparse-dithering
-src/data/           social.ts (single source for social accounts and links), languages.ts (language colors)
-src/lib/            one server-side fetcher per external service, plus bentoLayout.ts (pure tiling logic)
-src/types/          RepoCard / RepoLanguage models
+src/app/            layout.tsx (metadata, font), page.tsx (frame + blocks), globals.css, icon.svg
+src/components/     page blocks: HeroSection
+src/components/ui/  primitives: cloud-shader, contact-buttons, two-worlds-ground
+src/data/           social.ts (contacts and mod-platform accounts)
+src/lib/            one server-side fetcher per external service (modrinth, curseforge)
+public/images/      owner-supplied art: hero/, icons/, roblox/, marquee/
 ```
 
-There is no `src/hooks/` yet; create it (`useCamelCase.ts`) when a hook is shared between components.
+## Hero
 
-## Data flow
+Sky (`CloudShader`) inside the frame, the owner's phrase (`HERO_PHRASE` in `HeroSection.tsx`), contact buttons, and at the bottom the "two worlds" ground: blocky Minecraft terrain on the left blending into smooth Roblox terrain on the right, with the owner's two characters standing on it.
 
-`page.tsx` is a server component with `export const revalidate = 21600` (6 hours). Every `fetch` in `src/lib/` uses `next: { revalidate: 21600 }` — keep the two in sync.
+Art lives in `public/images/hero/`: `minecraft.png`, `roblox.png` (transparent PNG characters) and optionally `ground.png`. `HeroSection` checks at build time whether each file exists and otherwise renders a placeholder (`TwoWorldsGround` SVG for the ground, a dashed box for a character), so adding a file needs a rebuild. Character position and size are `.hero__character*` rules in `globals.css`.
 
-- `HeroSectionWithData` (async server) calls all five fetchers with `Promise.all`, taking each account from `getSocialAccount(id)` in `src/data/social.ts`, and passes the results to `HeroSection` (client). `HeroSection` merges them with `socialLinks` into `SocialPreviewItem[]` for `SocialPreviewDock`.
-- `ProjectsSection` (async server) calls `fetchRepos(getSocialAccount('github'))` and `fetchRepoLanguages`, then hands the cards to `ProjectsBento`, which takes the placement from `createBentoLayout` (`src/lib/bentoLayout.ts`) and renders `ProjectCard` (client) for each repo. Repositories arrive most recently pushed first (`sort=pushed`, then an explicit sort on `pushed_at`); the first one is the `featured` 2x2 tile and the only card with the dithering shader. The layout tiles the grid exactly for any repository count (no empty cells; rows are added as repositories appear), and new repositories show up on the next 6-hour revalidation. With no repositories it shows a short empty-state message instead of the grid.
+## Data
 
-Keep fetching in server components and `src/lib/`; pass plain data to client components as props.
+`page.tsx` sets `export const revalidate = 21600` (6 hours); every `fetch` in `src/lib/` uses `next: { revalidate: 21600 }` — keep them in sync. Fetching stays in server components and `src/lib/`; client components get plain data.
 
-### External services
-
-| Module | Source | Credential |
-| --- | --- | --- |
-| `lib/github.ts` | GitHub REST (repos, languages), GraphQL (contribution calendar), HTML scraping as fallback | `GITHUB_TOKEN`, optional (higher rate limits, enables GraphQL) |
-| `lib/discord.ts` | Discord API v10 `users/{id}` | `DISCORD_BOT_TOKEN`, required |
-| `lib/youtube.ts` | YouTube Data API v3 `channels?forHandle` | `YOUTUBE_API_KEY`, required |
-| `lib/modrinth.ts` | Modrinth v2 public API | none |
-| `lib/curseforge.ts` | `api.cfwidget.com` public widget API | none |
-
-### Fetcher conventions
-
-- Fetchers never throw. Discord, YouTube, Modrinth and CurseForge return `{ status: 'success', ... } | { status: 'error', message }`; GitHub returns `null` or `[]`. The UI must render a sensible state for every failure, including missing tokens.
-- Log failures with `console.error('[service] ...')`.
-- Response and result types live next to the fetcher; `src/types/` holds only the repo-card models.
-- Send a descriptive `User-Agent` (`vercim/portfolio/1.0 (contact@verc.im)` for Modrinth and CurseForge).
-- Remote images rendered through `next/image` need their host in `images.remotePatterns` in `next.config.ts` (currently YouTube and Discord CDNs).
+- **Contacts** — edit only `contacts` in `src/data/social.ts`. `account` is the single place a username lives; `profileUrl` builds the link. An entry without `profileUrl` (Discord) copies its account on click, silently — no toast or icon change. Array order is the on-page order.
+- **Mod platforms** — `modAccounts` in `social.ts` feeds `lib/modrinth.ts` and `lib/curseforge.ts` (public APIs, no credentials; `User-Agent: vercim/portfolio/1.0 (contact@verc.im)`).
+- Fetchers never throw: they return `{ status: 'success', ... } | { status: 'error', message }` and log with `console.error('[service] ...')`. The UI must render a sensible state for every failure.
+- Remote images rendered through `next/image` need their host in `images.remotePatterns` in `next.config.ts` (none at the moment).
 
 ## Environment
 
-Secrets live in `.env.local` (all `.env*` files and `.vercel/` are git-ignored). Never commit, print, or paste their values. `VERCEL_OIDC_TOKEN` there is written by the Vercel CLI and is not read by the code.
-
-## Common changes
-
-- **Accounts and social links** — edit only `src/data/social.ts`; there is no second config file. `account` is the single value per service (username, `@handle`, or Discord user ID): the API fetchers read it through `getSocialAccount(id)` and the profile `href` is built from it by `profileUrl`, so renaming an account is a one-line change. Do not duplicate an account name in `href` or elsewhere. Array order is the on-page order. An entry without `profileUrl` is preview-only (`href` is empty). `handle` is only for non-link values (the `email` address, the Discord tag). The `email` entry is not shown in the dock; it is passed to it separately.
-- **New platform** — add its id to `SocialId`, then an entry in `social.ts`. Previews are hard-wired by `id` in the ternary chain in `HeroSection.tsx`, and an unknown `id` falls through to the CurseForge branch, so the platform also needs its own branch, fetcher and `SocialPreview` variant.
-- **Business card text** — props passed to `AdmitOneTicket` in `hover-business-card.tsx`. The ticket date (`dates`) is not hard-coded: it is today's `DD.MM` in the visitor's local time, computed client-side (the ticket renders only after mount, so there is no hydration mismatch).
-- **Page metadata** — `metadata` in `src/app/layout.tsx`.
+Secrets live in `.env.local` (all `.env*` files and `.vercel/` are git-ignored). Never commit, print, or paste their values. The current code reads no environment variables.
 
 ## Styling
 
-- Tailwind v4 is loaded through PostCSS; `globals.css` starts with `@import "tailwindcss"`.
-- Colors are `--c-*` tokens on `:root`, exposed to Tailwind through `@theme inline` (`bg-surface`, `text-muted`, `border-divider`, ...). Reuse them; do not hard-code new grays. The projects screen uses its own `--c-paper*` tokens, `--c-ticket` (the ticket orange, also the hover accent) and `--c-sky-*` (the section's fallback gradient); they are not exposed to Tailwind. The shaders take literal colors, so the orange is duplicated in `ProjectCard.tsx` (dithering) and the sky blues in `CloudShader`'s defaults. `SparseDithering` wraps `ShaderMount` with the stock dithering fragment shader patched with a `maxDensity` knob that caps the fill of the brightest phase and leaves dim phases nearly untouched (dot size is unchanged); this is why `@paper-design/shaders` is a direct dependency, pinned to the same version as `@paper-design/shaders-react`. The language bar is a glass plate so it stays readable above the featured card's sphere.
-- Component styles are BEM-like classes in `@layer components` of `globals.css`, grouped by block: `hero-*`, `business-card-*`, `social-preview-dock*` / `social-preview-card*`, `projects-*`, `project-card*`, `language-bar*`. Extend an existing block before inventing a new one.
-- Pass per-instance dynamic values as CSS custom properties through `style` (see `--language-color`, the bento `--desktop-*` variables) rather than inline layout styles. The sky wrapper in `ProjectsSection` is `position: sticky` and viewport-tall, so the canvas keeps its proportions when the section grows past one screen; `CloudShader` stops rendering while off screen, and the card glass colors are the `--projects-glass*` variables on `.projects-section`.
-- Breakpoints in use: 900px, 680px, 520px, and a short-landscape query (`max-height: 610px` and `min-width: 521px`). At 520px and below the hero uses a rotated card and viewport-height offsets computed in `HeroSection.tsx`; check that layout after any hero change.
-- The font is JetBrains Mono via `next/font` (`--font-jetbrains-mono`).
+- Tailwind v4 through PostCSS; `globals.css` starts with `@import "tailwindcss"`.
+- Colors are `--c-*` tokens on `:root`; reuse them instead of hard-coding colors. `--c-sky-*` duplicate the `CloudShader` defaults (the shader takes literal colors). The placeholder terrain colors are literals in `two-worlds-ground.tsx`.
+- Component styles are BEM-like classes in `@layer components`, grouped by block: `site-frame*`, `hero*`, `contact-button*`. Extend an existing block before inventing a new one.
+- Breakpoints in use: 680px and 520px.
+- The font is Inter Tight via `next/font` (`--font-sans`).
 
 ## Code style
 
 - Two-space indent, single quotes, semicolons, trailing commas in multiline literals.
 - Strict TypeScript; no `any`. Prefer the `@/` alias over relative imports across directories.
-- Components are named exports. Section components in `src/components/` use PascalCase filenames (`ProjectCard.tsx`); primitives in `src/components/ui/` use kebab-case (`social-preview-dock.tsx`). Utilities are camelCase.
-- Components are server components by default. Add `'use client'` only for state, effects, browser APIs, or interaction.
+- Components are named exports. Block components in `src/components/` use PascalCase filenames; primitives in `src/components/ui/` use kebab-case. Utilities are camelCase.
+- Server components by default; add `'use client'` only for state, effects, browser APIs, or interaction. Do not pass functions (including icon components) from server to client components — import the data in the client module instead.
 - Comments and log/UI strings are in English. Comment sparingly: only where the reason is not obvious from the code.
-- `src/components/ui/admit-one-ticket.tsx` is a ~2,400-line bundled WebGL component with `// @ts-nocheck` and a default export. Do not reformat or refactor it; make targeted edits only and drive it through props.
 
 ## Verification
 
-Besides `pnpm lint` and `pnpm build`, for UI changes check at a mobile width (≤520px) and a desktop width: layout, hover/tap motion, external links, and the error states of the social previews (unset a token in `.env.local` and confirm the card shows a message instead of breaking). The business card tilts toward a mouse or pen pointer only (eased in a `requestAnimationFrame` loop in `TiltCard`); it is static on touch devices and at ≤520px.
+Besides `pnpm lint` and `pnpm build`, for UI changes check at a mobile width (≤520px) and a desktop width: layout, no horizontal scroll, readable text over the moving clouds, and external links.
 
 ## Commits and pull requests
 
