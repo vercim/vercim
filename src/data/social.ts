@@ -35,7 +35,7 @@ const contactDefinitions: ContactDefinition[] = [
   },
   {
     id: 'x',
-    label: 'x.com',
+    label: 'twitter',
     account: 'vercims',
     showAt: true,
     profileUrl: (account) => `https://x.com/${account}`,
