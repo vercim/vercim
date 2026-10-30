@@ -55,7 +55,7 @@ Secrets live in `.env.local` (all `.env*` files and `.vercel/` are git-ignored).
 ## Styling
 
 - Tailwind v4 through PostCSS; `globals.css` starts with `@import "tailwindcss"`.
-- Colors are `--c-*` tokens on `:root`; reuse them instead of hard-coding colors. `--c-sky-*` duplicate the `CloudShader` defaults (the shader takes literal colors). Text over the sky is `--c-ink`, which stays readable on both the blue and the white clouds.
+- Colors are `--c-*` tokens on `:root`; reuse them instead of hard-coding colors. `--c-sky-*` duplicate the `CloudShader` defaults (the shader takes literal colors). Over the sky the phrase is `--c-ink`; the contacts are `--c-on-sky` (white) with a soft text shadow.
 - Component styles are BEM-like classes in `@layer components`, grouped by block: `site-frame*`, `hero*`, `contact-list*`. Extend an existing block before inventing a new one.
 - Sizes scale with `clamp()`; there are no breakpoints yet.
 - Fonts come from `next/font` in `layout.tsx`: Geist is the main face (`--font-sans`), Syne is the accent face for the phrases (`--font-accent`). Contacts, numbers and other text stay in Geist.

@@ -92,7 +92,8 @@ body {
     padding: 0;
     border: 0;
     background: none;
-    color: var(--c-ink);
+    color: var(--c-on-sky);
+    text-shadow: 0 0.0625rem 0.75rem rgb(15 40 80 / 0.3);
     font: inherit;
     letter-spacing: inherit;
     text-decoration: none;
@@ -107,7 +108,7 @@ body {
 
   .contact-list__item:focus-visible {
     border-radius: 0.25rem;
-    outline: 3px solid var(--c-ink);
+    outline: 3px solid var(--c-on-sky);
     outline-offset: 4px;
   }
 }
