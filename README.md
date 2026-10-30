@@ -1,1 +1,1 @@
-i love to make inspiring and astonishing things
+I love to make inspiring and astonishing things. Send me a message if u want but please be concise :)
