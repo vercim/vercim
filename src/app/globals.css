@@ -4,14 +4,20 @@
 :root {
   --c-frame:      #f1f0ec;
   --c-ink:        #0f1a2b;
-  --c-ink-hover:  #22344f;
   --c-on-sky:     #fff;
+  --c-dark:       #000;
+  --c-on-dark:    #fff;
   /* Same colors as the CloudShader defaults; also the fallback before it draws */
   --c-sky-top:    #3876ba;
   --c-sky-bottom: #8cbfe8;
 
   --frame-pad:    clamp(0.5rem, 1.4vw, 1.25rem);
   --frame-radius: clamp(1.25rem, 2.4vw, 2.25rem);
+  --header-h:     4.5rem;
+  /* Content insets inside the hero card. Full-width blocks add --frame-pad,
+     so the header, the hero and every block share one left and right edge. */
+  --inset-start:  clamp(1.5rem, 9vw, 9rem);
+  --inset-end:    clamp(1.5rem, 7vw, 7rem);
 }
 
 @theme inline {
@@ -29,32 +35,23 @@ body {
 }
 
 @layer components {
-  /* ─── Frame: one rounded canvas that holds every block ── */
-  .site-frame {
-    padding: var(--frame-pad);
+  /* ─── Header: static, only the card mark ───────────────── */
+  .site-header {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    height: var(--header-h);
+    padding: 0 calc(var(--frame-pad) + var(--inset-end)) 0 calc(var(--frame-pad) + var(--inset-start));
   }
 
-  .site-frame__canvas {
-    isolation: isolate;
-    overflow: clip;
-    border-radius: var(--frame-radius);
-    background: var(--c-sky-bottom);
+  .site-header__mark {
+    display: block;
+    width: 2.5rem;
+    height: auto;
+    color: var(--c-ink);
   }
 
-  /* One viewport-tall sky that stays put while every block scrolls over it.
-     The negative margin lets the first block start at the top of the canvas. */
-  .site-frame__sky {
-    position: sticky;
-    top: 0;
-    z-index: -1;
-    height: 100vh;
-    height: 100dvh;
-    margin-bottom: -100vh;
-    margin-bottom: -100dvh;
-    background: linear-gradient(to bottom, var(--c-sky-top), var(--c-sky-bottom));
-  }
-
-  /* ─── Hero ─────────────────────────────────────────────── */
+  /* ─── Hero: the sky card inset into the page ───────────── */
   .hero {
     position: relative;
     isolation: isolate;
@@ -63,11 +60,20 @@ body {
     justify-content: space-between;
     gap: 3rem;
     box-sizing: border-box;
-    height: calc(100vh - 2 * var(--frame-pad));
-    height: calc(100dvh - 2 * var(--frame-pad));
-    min-height: 30rem;
-    padding: clamp(2.5rem, 15vh, 10rem) clamp(1.5rem, 7vw, 7rem) clamp(3rem, 15vh, 10rem) clamp(1.5rem, 9vw, 9rem);
+    height: calc(100vh - var(--header-h) - var(--frame-pad));
+    height: calc(100dvh - var(--header-h) - var(--frame-pad));
+    min-height: 28rem;
+    margin: 0 var(--frame-pad) var(--frame-pad);
+    padding: clamp(2.5rem, 15vh, 10rem) var(--inset-end) clamp(3rem, 15vh, 10rem) var(--inset-start);
     overflow: hidden;
+    border-radius: var(--frame-radius);
+    background: linear-gradient(to bottom, var(--c-sky-top), var(--c-sky-bottom));
+  }
+
+  .hero__sky {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
   }
 
   .hero__phrase {
@@ -114,29 +120,25 @@ body {
     outline-offset: 4px;
   }
 
-  /* ─── Minecraft ────────────────────────────────────────── */
+  /* ─── Minecraft: on the page itself, the character is cut
+         by the top edge of the next block ──────────────────── */
   .minecraft {
+    --minecraft-pad-y: clamp(3rem, 10vh, 8rem);
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
-    align-items: center;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
     gap: clamp(2rem, 5vw, 5rem);
     box-sizing: border-box;
-    min-height: calc(100vh - 2 * var(--frame-pad));
-    min-height: calc(100dvh - 2 * var(--frame-pad));
-    padding: clamp(3rem, 10vh, 8rem) clamp(1.5rem, 7vw, 7rem);
-  }
-
-  .minecraft__character {
-    justify-self: center;
-    height: min(75vh, 44rem);
-    height: min(75dvh, 44rem);
-    aspect-ratio: 1 / 2;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: var(--minecraft-pad-y) calc(var(--frame-pad) + var(--inset-end)) 0 calc(var(--frame-pad) + var(--inset-start));
   }
 
   .minecraft__stats {
     display: flex;
     flex-direction: column;
+    align-self: center;
     gap: clamp(1.5rem, 4vh, 2.5rem);
+    padding-bottom: var(--minecraft-pad-y);
   }
 
   .minecraft__icons {
@@ -173,6 +175,54 @@ body {
     letter-spacing: -0.05em;
   }
 
+  .minecraft__character {
+    align-self: end;
+    justify-self: end;
+    width: min(100%, 64vh);
+    width: min(100%, 64dvh);
+    aspect-ratio: 3 / 4;
+  }
+
+  /* Fill the slot from the head down; whatever does not fit is cut at the bottom. */
+  .minecraft__character .art-slot__image {
+    object-fit: cover;
+    object-position: top;
+  }
+
+  .minecraft__character .art-slot__placeholder {
+    border-bottom: 0;
+    border-radius: 1rem 1rem 0 0;
+  }
+
+  /* ─── Roblox: black, starts with a hard edge ───────────── */
+  .roblox {
+    box-sizing: border-box;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: clamp(3rem, 10vh, 8rem) calc(var(--frame-pad) + var(--inset-end)) clamp(3rem, 10vh, 8rem) calc(var(--frame-pad) + var(--inset-start));
+    background: var(--c-dark);
+    color: var(--c-on-dark);
+  }
+
+  .roblox__phrase {
+    margin: 0;
+    font-family: var(--font-accent), var(--font-sans), sans-serif;
+    font-size: clamp(2.25rem, 5.6vw, 5.75rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  .roblox__note {
+    display: block;
+    margin-top: 0.75rem;
+    font-family: var(--font-sans), sans-serif;
+    font-size: clamp(1.25rem, 2.2vw, 2rem);
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: -0.02em;
+  }
+
   /* ─── Art slot: owner-supplied image or its placeholder ── */
   .art-slot {
     position: relative;
@@ -183,6 +233,7 @@ body {
     object-position: bottom;
   }
 
+  /* Drawn in the surrounding text color, so it reads on any block. */
   .art-slot__placeholder {
     display: flex;
     align-items: flex-end;
@@ -190,10 +241,9 @@ body {
     box-sizing: border-box;
     height: 100%;
     padding: 0.75rem;
-    border: 2px dashed rgb(255 255 255 / 0.75);
+    border: 2px dashed currentColor;
     border-radius: 1rem;
-    background: rgb(255 255 255 / 0.12);
-    color: var(--c-on-sky);
+    opacity: 0.45;
     font-size: 0.875rem;
     font-weight: 600;
     text-align: center;
@@ -204,11 +254,16 @@ body {
 @media (max-width: 680px) {
   .minecraft {
     grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+  }
+
+  .minecraft__stats {
+    padding-bottom: 0;
   }
 
   .minecraft__character {
-    order: 1;
-    height: min(60vh, 30rem);
-    height: min(60dvh, 30rem);
+    justify-self: center;
+    width: min(85%, 46vh);
+    width: min(85%, 46dvh);
   }
 }

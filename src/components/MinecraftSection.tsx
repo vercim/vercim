@@ -13,13 +13,6 @@ export async function MinecraftSection() {
 
   return (
     <section className="minecraft" aria-label="Minecraft mods">
-      <ArtSlot
-        className="minecraft__character"
-        src="/images/minecraft/character.png"
-        alt="My Minecraft character"
-        sizes="(max-width: 680px) 60vw, 30vw"
-      />
-
       <div className="minecraft__stats">
         {iconProjects.length > 0 ? (
           <ul className="minecraft__icons">
@@ -33,11 +26,18 @@ export async function MinecraftSection() {
 
         {totalDownloads !== null ? (
           <p className="minecraft__downloads">
-            <span className="minecraft__count">{formatCount.format(totalDownloads)}</span>
-            downloads
+            <span className="minecraft__count">{formatCount.format(totalDownloads)}</span>{' '}
+            downloads i have in total
           </p>
         ) : null}
       </div>
+
+      <ArtSlot
+        className="minecraft__character"
+        src="/images/minecraft/character.png"
+        alt="My Minecraft character"
+        sizes="(max-width: 680px) 85vw, 45vw"
+      />
     </section>
   );
 }
