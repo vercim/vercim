@@ -11,10 +11,17 @@ export type CurseForgeProjectsResult =
     };
 
 interface CurseForgeAuthorResponse {
+  id?: number;
   username?: string;
   projects?: {
     id?: number;
   }[];
+}
+
+function projectIdsOf(author: CurseForgeAuthorResponse): number[] {
+  return (author.projects ?? [])
+    .map((project) => project.id)
+    .filter((id): id is number => typeof id === 'number');
 }
 
 interface CurseForgeProjectResponse {
@@ -48,15 +55,32 @@ export async function fetchCurseForgeProjects(author: string): Promise<CurseForg
     }
 
     const authorPayload: CurseForgeAuthorResponse = await authorRes.json();
-    const projectIds = authorPayload.projects
-      ?.map((project) => project.id)
-      .filter((id): id is number => typeof id === 'number');
 
-    if (
-      authorPayload.username?.toLowerCase() !== author.toLowerCase() ||
-      !projectIds ||
-      projectIds.length === 0
-    ) {
+    if (authorPayload.username?.toLowerCase() !== author.toLowerCase()) {
+      return {
+        status: 'error',
+        message: 'CurseForge author was not found',
+      };
+    }
+
+    // The search endpoint caches the project list for a long time and misses
+    // new projects; the lookup by author id is fresh. Both lists are merged.
+    const projectIds = projectIdsOf(authorPayload);
+
+    if (typeof authorPayload.id === 'number') {
+      const freshRes = await fetch(`https://api.cfwidget.com/author/${authorPayload.id}`, {
+        headers: CF_WIDGET_HEADERS,
+        next: { revalidate: 21600 },
+      });
+
+      if (freshRes.ok) {
+        projectIds.push(...projectIdsOf(await freshRes.json()));
+      } else {
+        console.error('[curseforge] author by id HTTP error:', freshRes.status);
+      }
+    }
+
+    if (projectIds.length === 0) {
       return {
         status: 'error',
         message: 'CurseForge projects were not found',

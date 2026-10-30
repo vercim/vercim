@@ -12,8 +12,13 @@ export interface ModsOverview {
   projects: ModProject[];         // Most downloaded first.
 }
 
-// Merges both platforms by project title. Modrinth goes first, so its icon
-// wins when a project is published on both.
+// "Drag It!" and "Drag It" are the same project.
+function titleKey(title: string): string {
+  return title.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+// Union of both platforms, matched by title: a project published on only one
+// of them is kept. Modrinth goes first, so its icon wins when a project is on both.
 export async function fetchModsOverview(accounts: {
   modrinth: string;
   curseforge: string;
@@ -31,7 +36,7 @@ export async function fetchModsOverview(accounts: {
     answered += 1;
 
     for (const project of result.projects) {
-      const key = project.title.trim().toLowerCase();
+      const key = titleKey(project.title);
       const known = byTitle.get(key);
 
       if (known) {
