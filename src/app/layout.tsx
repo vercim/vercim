@@ -9,8 +9,8 @@ const geist = Geist({
 });
 
 export const metadata: Metadata = {
-  title: 'Vercim',
-  description: 'Minecraft mods and Roblox games.',
+  title: 'Hello, i\'m vercim.',
+  description: 'My personal internet page.',
 };
 
 export const viewport: Viewport = {
