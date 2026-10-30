@@ -43,9 +43,15 @@ body {
   .hero {
     position: relative;
     isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 3rem;
+    box-sizing: border-box;
     height: calc(100vh - 2 * var(--frame-pad));
     height: calc(100dvh - 2 * var(--frame-pad));
-    min-height: 34rem;
+    min-height: 30rem;
+    padding: clamp(2.5rem, 15vh, 10rem) clamp(1.5rem, 7vw, 7rem) clamp(3rem, 15vh, 10rem) clamp(1.5rem, 9vw, 9rem);
     overflow: hidden;
     background: linear-gradient(to bottom, var(--c-sky-top), var(--c-sky-bottom));
   }
@@ -56,150 +62,51 @@ body {
     z-index: -1;
   }
 
-  .hero__content {
-    position: relative;
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: clamp(1.5rem, 4vh, 2.5rem);
-    padding: clamp(3.5rem, 13vh, 9rem) 1rem 0;
-    text-align: center;
-  }
-
   .hero__phrase {
-    max-width: 12ch;
+    align-self: flex-end;
     margin: 0;
-    color: var(--c-on-sky);
-    font-size: clamp(2.75rem, 7.2vw, 6.75rem);
-    font-weight: 600;
-    line-height: 0.95;
-    letter-spacing: -0.045em;
+    color: var(--c-ink);
+    font-size: clamp(2.5rem, 6.5vw, 6.5rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    text-align: right;
     text-wrap: balance;
-    text-shadow: 0 0.125rem 1.5rem rgb(15 40 80 / 0.25);
+    transform: rotate(-3deg);
+    transform-origin: right bottom;
   }
 
-  .hero__ground {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 1;
-    height: clamp(10rem, 30vh, 21rem);
-  }
-
-  .two-worlds-ground,
-  .hero__ground-image {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-  }
-
-  .hero__ground-image {
-    object-fit: cover;
-    object-position: bottom;
-  }
-
-  .hero__character {
-    position: absolute;
-    bottom: 40%;
-    height: clamp(14rem, 42vh, 32rem);
-    aspect-ratio: 1 / 2;
-    transform: translateX(-50%);
-  }
-
-  .hero__character img {
-    object-fit: contain;
-    object-position: bottom;
-  }
-
-  .hero__character--minecraft {
-    left: 18%;
-  }
-
-  .hero__character--roblox {
-    left: 82%;
-  }
-
-  .hero__character-placeholder {
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    height: 100%;
-    padding: 0.75rem;
-    box-sizing: border-box;
-    border: 2px dashed rgb(255 255 255 / 0.75);
-    border-radius: 1rem;
-    background: rgb(255 255 255 / 0.12);
-    color: var(--c-on-sky);
-    font-size: 0.875rem;
-    font-weight: 600;
-    word-break: break-all;
-  }
-
-  /* ─── Contact buttons ──────────────────────────────────── */
-  .contact-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.75rem;
+  /* ─── Contact list ─────────────────────────────────────── */
+  .contact-list {
     margin: 0;
     padding: 0;
     list-style: none;
+    font-size: clamp(1.5rem, 2.8vw, 2.5rem);
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: -0.02em;
   }
 
-  .contact-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.625rem;
-    min-height: 3.5rem;
-    padding: 0 1.5rem;
+  .contact-list__item {
+    padding: 0;
     border: 0;
-    border-radius: 999px;
-    background: var(--c-ink);
-    color: var(--c-on-sky);
+    background: none;
+    color: var(--c-ink);
     font: inherit;
-    font-size: 1.125rem;
-    font-weight: 600;
+    letter-spacing: inherit;
     text-decoration: none;
     cursor: pointer;
-    transition: background-color 0.15s ease;
   }
 
-  .contact-button:hover {
-    background: var(--c-ink-hover);
+  .contact-list__item:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.15em;
   }
 
-  .contact-button:focus-visible {
-    outline: 3px solid var(--c-on-sky);
-    outline-offset: 3px;
-  }
-
-  .contact-button svg {
-    width: 1.25rem;
-    height: 1.25rem;
-  }
-}
-
-@media (max-width: 680px) {
-  .hero__character {
-    height: clamp(10rem, 30vh, 18rem);
-  }
-
-  .hero__character--minecraft {
-    left: 20%;
-  }
-
-  .hero__character--roblox {
-    left: 80%;
-  }
-}
-
-@media (max-width: 520px) {
-  .contact-button {
-    min-height: 3.25rem;
-    padding: 0 1.25rem;
-    font-size: 1rem;
+  .contact-list__item:focus-visible {
+    border-radius: 0.25rem;
+    outline: 3px solid var(--c-ink);
+    outline-offset: 4px;
   }
 }

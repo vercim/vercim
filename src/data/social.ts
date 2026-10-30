@@ -1,17 +1,15 @@
-import { SiDiscord, SiTelegram, SiX } from 'react-icons/si';
-import type { IconType } from 'react-icons';
-
-export type ContactId = 'telegram' | 'x' | 'discord';
+export type ContactId = 'discord' | 'telegram' | 'x';
 
 export interface Contact {
   id: ContactId;
-  label: string;     // Platform name used for accessible labels.
+  label: string;     // Platform name shown before the handle.
   account: string;   // Username without the leading @.
-  href: string;      // Profile URL. Empty when the button copies the account instead.
-  icon: IconType;
+  handle: string;    // Account as shown on the page.
+  href: string;      // Profile URL. Empty when the entry copies the account instead.
 }
 
-interface ContactDefinition extends Omit<Contact, 'href'> {
+interface ContactDefinition extends Omit<Contact, 'handle' | 'href'> {
+  showAt?: boolean;
   profileUrl?: (account: string) => string;
 }
 
@@ -24,29 +22,29 @@ interface ContactDefinition extends Omit<Contact, 'href'> {
 //
 const contactDefinitions: ContactDefinition[] = [
   {
+    id: 'discord',
+    label: 'discord',
+    account: 'vercim',
+  },
+  {
     id: 'telegram',
-    label: 'Telegram',
+    label: 'telegram',
     account: 'kntex',
+    showAt: true,
     profileUrl: (account) => `https://t.me/${account}`,
-    icon: SiTelegram,
   },
   {
     id: 'x',
-    label: 'X',
+    label: 'x.com',
     account: 'vercims',
+    showAt: true,
     profileUrl: (account) => `https://x.com/${account}`,
-    icon: SiX,
-  },
-  {
-    id: 'discord',
-    label: 'Discord',
-    account: 'vercim',
-    icon: SiDiscord,
   },
 ];
 
-export const contacts: Contact[] = contactDefinitions.map(({ profileUrl, ...entry }) => ({
+export const contacts: Contact[] = contactDefinitions.map(({ showAt, profileUrl, ...entry }) => ({
   ...entry,
+  handle: showAt ? `@${entry.account}` : entry.account,
   href: profileUrl ? profileUrl(entry.account) : '',
 }));
 

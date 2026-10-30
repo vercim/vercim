@@ -29,23 +29,21 @@ There is no test runner. Run `pnpm lint` and `pnpm build` after every change; bo
 ```
 src/app/            layout.tsx (metadata, font), page.tsx (frame + blocks), globals.css, icon.svg
 src/components/     page blocks: HeroSection
-src/components/ui/  primitives: cloud-shader, contact-buttons, two-worlds-ground
+src/components/ui/  primitives: cloud-shader, contact-list
 src/data/           social.ts (contacts and mod-platform accounts)
 src/lib/            one server-side fetcher per external service (modrinth, curseforge)
-public/images/      owner-supplied art: hero/, icons/, roblox/, marquee/
+public/images/      owner-supplied art: minecraft/, icons/, roblox/, marquee/
 ```
 
 ## Hero
 
-Sky (`CloudShader`) inside the frame, the owner's phrase (`HERO_PHRASE` in `HeroSection.tsx`), contact buttons, and at the bottom the "two worlds" ground: blocky Minecraft terrain on the left blending into smooth Roblox terrain on the right, with the owner's two characters standing on it.
-
-Art lives in `public/images/hero/`: `minecraft.png`, `roblox.png` (transparent PNG characters) and optionally `ground.png`. `HeroSection` checks at build time whether each file exists and otherwise renders a placeholder (`TwoWorldsGround` SVG for the ground, a dashed box for a character), so adding a file needs a rebuild. Character position and size are `.hero__character*` rules in `globals.css`.
+Only the sky (`CloudShader`) inside the frame, with no game-style decoration. The contacts sit top left as plain text lines (`discord: vercim`, `telegram: @kntex`, `x.com: @vercims`), and the owner's phrase sits bottom right, tilted by -3deg. The phrase is the owner's own wording in `HeroSection.tsx`; change it only on request.
 
 ## Data
 
 `page.tsx` sets `export const revalidate = 21600` (6 hours); every `fetch` in `src/lib/` uses `next: { revalidate: 21600 }` — keep them in sync. Fetching stays in server components and `src/lib/`; client components get plain data.
 
-- **Contacts** — edit only `contacts` in `src/data/social.ts`. `account` is the single place a username lives; `profileUrl` builds the link. An entry without `profileUrl` (Discord) copies its account on click, silently — no toast or icon change. Array order is the on-page order.
+- **Contacts** — edit only `contacts` in `src/data/social.ts`. `account` is the single place a username lives; `profileUrl` builds the link and `showAt` prefixes the shown handle with `@`. An entry without `profileUrl` (Discord) copies its account on click, silently — no toast or icon change. Array order is the on-page order.
 - **Mod platforms** — `modAccounts` in `social.ts` feeds `lib/modrinth.ts` and `lib/curseforge.ts` (public APIs, no credentials; `User-Agent: vercim/portfolio/1.0 (contact@verc.im)`).
 - Fetchers never throw: they return `{ status: 'success', ... } | { status: 'error', message }` and log with `console.error('[service] ...')`. The UI must render a sensible state for every failure.
 - Remote images rendered through `next/image` need their host in `images.remotePatterns` in `next.config.ts` (none at the moment).
@@ -57,9 +55,9 @@ Secrets live in `.env.local` (all `.env*` files and `.vercel/` are git-ignored).
 ## Styling
 
 - Tailwind v4 through PostCSS; `globals.css` starts with `@import "tailwindcss"`.
-- Colors are `--c-*` tokens on `:root`; reuse them instead of hard-coding colors. `--c-sky-*` duplicate the `CloudShader` defaults (the shader takes literal colors). The placeholder terrain colors are literals in `two-worlds-ground.tsx`.
-- Component styles are BEM-like classes in `@layer components`, grouped by block: `site-frame*`, `hero*`, `contact-button*`. Extend an existing block before inventing a new one.
-- Breakpoints in use: 680px and 520px.
+- Colors are `--c-*` tokens on `:root`; reuse them instead of hard-coding colors. `--c-sky-*` duplicate the `CloudShader` defaults (the shader takes literal colors). Text over the sky is `--c-ink`, which stays readable on both the blue and the white clouds.
+- Component styles are BEM-like classes in `@layer components`, grouped by block: `site-frame*`, `hero*`, `contact-list*`. Extend an existing block before inventing a new one.
+- Sizes scale with `clamp()`; there are no breakpoints yet.
 - The font is Inter Tight via `next/font` (`--font-sans`).
 
 ## Code style
