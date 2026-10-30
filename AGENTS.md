@@ -6,16 +6,16 @@ Guidance for AI coding agents and contributors. `CLAUDE.md` is a symlink to this
 
 Single-page personal site, deployed on Vercel. Next.js 15 App Router, React 19, strict TypeScript, Tailwind CSS v4. It is aimed at people who liked the owner's Minecraft mods and at Roblox developers: a client with an idea should see the work and write in. The site is being redesigned from scratch; blocks are added one at a time.
 
-Principles: show results, not claims; minimal text, no filler headings; bold visuals; everything large and readable; no decorative animations or captions. Copy about the owner's skills, advantages or philosophy is always written by the owner — leave a `TODO` placeholder instead of inventing it. All copy is in English. The site shows no name or branding; the favicon (`src/app/icon.svg`, a card) is the only mark.
+Principles: show results, not claims; minimal text, no filler headings; no project names on the page (icons only, names go to `alt`); readable but restrained type in the spirit of the references (imput.net, the Petalpay and dental studio templates on 21st.dev); no text shadows, decorative animations or captions. Copy about the owner's skills, advantages or philosophy is always written by the owner — leave a `TODO` placeholder instead of inventing it. All copy is in English. The site shows no name or branding; the favicon (`src/app/icon.svg`, a card) is the only mark.
 
 Page structure, top to bottom, on the white page background (`--c-frame`):
 
-- a static (not sticky) header with only the card mark on the left;
+- a static (not sticky) header: the small card mark in the top left corner (equal gap above and beside it), lowercase section links on the right (`contacts`, `minecraft`, `roblox`, `fancy`; `#fancy` has no block yet);
 - the hero: a rounded sky card inset by `--frame-pad`, the only block with the sky;
 - the Minecraft block, directly on the white page, so the white around the hero flows into it without a divider;
 - the Roblox block: a full-width black band that starts with a hard edge, which cuts the Minecraft character at the bottom.
 
-The header mark, the hero content and every block share one left edge and one right edge (`--inset-start` / `--inset-end`, plus `--frame-pad` outside the hero card).
+The hero content and every block share one left edge and one right edge (`--inset-start` / `--inset-end`, plus `--frame-pad` outside the hero card).
 
 Planned blocks, in order: hero (done), Minecraft (done), Roblox (started), advantages bento, footer marquee along an SVG path.
 
@@ -48,14 +48,14 @@ Sky only, with no game-style decoration; the card fills the viewport below the h
 
 ## Minecraft
 
-On the left the project icons above the total download count and the owner's label "downloads i have in total"; on the right the owner's character render, standing on the bottom edge of the block so the black Roblox block cuts it (below the stats on phones). No headings and no links to the projects: visitors usually come from them.
+On the left a two-tone headline (the total download count in ink, the owner's label "downloads i have in total" muted) above a row of project icons (no names, no per-project counts); on the right the owner's character render, standing on the bottom edge of the block so the black Roblox block cuts it (below the stats on phones). No headings and no links to the projects: visitors usually come from them.
 
 - The render is `public/images/minecraft/character.png` (transparent PNG), shown through `ArtSlot` in a 3:4 slot. The image covers the slot from the top (`object-fit: cover; object-position: top`), so a full-body render is cut at the bottom; the slot's `aspect-ratio` decides how much is shown. While the file is missing, the slot shows its expected path instead; the check happens in the browser (`onError`), not with `fs`, because public files are not available to the server during ISR revalidation on Vercel.
 - The icons and the count come live from Modrinth and CurseForge through `fetchModsOverview` (`lib/mods.ts`): the union of both platforms, matched by title with punctuation ignored ("Drag It!" = "Drag It"), so a project published on only one platform is kept. Modrinth's icon wins and projects are sorted by downloads. The icons are the owner's own hand-drawn pixel art uploaded to those platforms, so a new mod shows up after the next revalidation. If no platform answers, the count and the icons are hidden; if one fails, the count covers the other.
 
 ## Roblox
 
-A black block (`--c-dark`) with the owner's phrase "i also make games!" (Syne) and "(roblox, luau lang)" under it. Only the start of the block so far.
+A black block (`--c-dark`) with the owner's phrase "i also make games!" and "(roblox, luau lang)" muted under it. Only the start of the block so far.
 
 ## Data
 
@@ -73,11 +73,12 @@ Secrets live in `.env.local` (all `.env*` files and `.vercel/` are git-ignored).
 ## Styling
 
 - Tailwind v4 through PostCSS; `globals.css` starts with `@import "tailwindcss"`.
-- Colors are `--c-*` tokens on `:root`; reuse them instead of hard-coding colors. `--c-sky-*` duplicate the `CloudShader` defaults (the shader takes literal colors). Over the sky the phrase is `--c-ink` and the contacts are `--c-on-sky` (white) with a soft text shadow. The white blocks use `--c-ink`, the black ones `--c-dark` with `--c-on-dark`.
+- Colors are `--c-*` tokens on `:root`; reuse them instead of hard-coding colors. `--c-sky-*` duplicate the `CloudShader` defaults (the shader takes literal colors). Over the sky the phrase is `--c-ink` with the owner's `mix-blend-mode: overlay`, and the contacts are `--c-on-sky` (white). The white blocks use `--c-ink`, the black ones `--c-dark` with `--c-on-dark`.
 - Layout tokens: `--frame-pad` and `--frame-radius` (the hero card), `--header-h`, `--inset-start` / `--inset-end` (the shared content edges).
-- Component styles are BEM-like classes in `@layer components`, grouped by block: `site-header*`, `hero*`, `contact-list*`, `minecraft*`, `roblox*`, `art-slot*`. Extend an existing block before inventing a new one.
+- Component styles are BEM-like classes in `@layer components`, grouped by block: `site-header*`, `site-nav*`, `hero*`, `contact-list*`, `minecraft*`, `roblox*`, `art-slot*`. Extend an existing block before inventing a new one.
 - Sizes scale with `clamp()`; the only breakpoint is 680px, where the Minecraft block stacks into one column.
-- Fonts come from `next/font` in `layout.tsx`: Geist is the main face (`--font-sans`), Syne is the accent face for the phrases (`--font-accent`). Contacts, numbers and other text stay in Geist.
+- One font: Geist from `next/font` in `layout.tsx` (`--font-sans`), weights 400, 500 and 600. Sizes come from `--text-body`, `--text-lead` and `--text-title`; headings, phrases and the download count are 600 with tight tracking, and a heading's second part is muted (`--c-muted`, regular weight).
+- Links have a thin underline (1px, offset 0.3em), never a text shadow.
 
 ## Code style
 

@@ -2,22 +2,29 @@
 
 /* ─── Tokens ────────────────────────────────────────────── */
 :root {
-  --c-frame:      #f1f0ec;
-  --c-ink:        #0f1a2b;
-  --c-on-sky:     #fff;
-  --c-dark:       #000;
-  --c-on-dark:    #fff;
+  --c-frame:         #f1f0ec;
+  --c-ink:           #0f1a2b;
+  --c-muted:         #6b6e74;
+  --c-on-sky:        #fff;
+  --c-dark:          #000;
+  --c-on-dark:       #fff;
+  --c-on-dark-muted: #8d8d8d;
   /* Same colors as the CloudShader defaults; also the fallback before it draws */
-  --c-sky-top:    #3876ba;
-  --c-sky-bottom: #8cbfe8;
+  --c-sky-top:       #3876ba;
+  --c-sky-bottom:    #8cbfe8;
 
   --frame-pad:    clamp(0.5rem, 1.4vw, 1.25rem);
   --frame-radius: clamp(1.25rem, 2.4vw, 2.25rem);
-  --header-h:     4.5rem;
+  --header-h:     3.75rem;
   /* Content insets inside the hero card. Full-width blocks add --frame-pad,
-     so the header, the hero and every block share one left and right edge. */
+     so the hero and every block share one left and right edge. */
   --inset-start:  clamp(1.5rem, 9vw, 9rem);
   --inset-end:    clamp(1.5rem, 7vw, 7rem);
+
+  /* Type scale: regular-weight headings, small body text. */
+  --text-body:    clamp(1rem, 1.3vw, 1.25rem);
+  --text-lead:    clamp(1.125rem, 1.7vw, 1.5rem);
+  --text-title:   clamp(1.75rem, 4.8vw, 4.75rem);
 }
 
 @theme inline {
@@ -35,20 +42,54 @@ body {
 }
 
 @layer components {
-  /* ─── Header: static, only the card mark ───────────────── */
+  /* ─── Header: static, card mark in the corner, sections on the right ── */
   .site-header {
+    --mark-w: 2rem;
+    /* Same gap above and beside the mark (the card is 4:3, so its height is 0.75 of its width). */
+    --header-pad-x: calc((var(--header-h) - var(--mark-w) * 0.75) / 2);
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
     box-sizing: border-box;
     height: var(--header-h);
-    padding: 0 calc(var(--frame-pad) + var(--inset-end)) 0 calc(var(--frame-pad) + var(--inset-start));
+    padding: 0 var(--header-pad-x);
   }
 
   .site-header__mark {
     display: block;
-    width: 2.5rem;
+    flex: none;
+    width: var(--mark-w);
     height: auto;
     color: var(--c-ink);
+  }
+
+  .site-nav {
+    display: flex;
+    gap: clamp(0.875rem, 2vw, 1.75rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--text-body);
+  }
+
+  .site-nav__link {
+    color: var(--c-ink);
+  }
+
+  /* Thin underline with air under it, on every link. */
+  .site-nav__link,
+  .contact-list__item {
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.3em;
+  }
+
+  .site-nav__link:focus-visible,
+  .contact-list__item:focus-visible {
+    border-radius: 0.25rem;
+    outline: 2px solid currentColor;
+    outline-offset: 4px;
   }
 
   /* ─── Hero: the sky card inset into the page ───────────── */
@@ -64,7 +105,7 @@ body {
     height: calc(100dvh - var(--header-h) - var(--frame-pad));
     min-height: 28rem;
     margin: 0 var(--frame-pad) var(--frame-pad);
-    padding: clamp(2.5rem, 15vh, 10rem) var(--inset-end) clamp(3rem, 15vh, 10rem) var(--inset-start);
+    padding: clamp(2.5rem, 13vh, 9rem) var(--inset-end) clamp(3rem, 15vh, 10rem) var(--inset-start);
     overflow: hidden;
     border-radius: var(--frame-radius);
     background: linear-gradient(to bottom, var(--c-sky-top), var(--c-sky-bottom));
@@ -80,15 +121,15 @@ body {
     align-self: flex-end;
     margin: 0;
     color: var(--c-ink);
-    font-family: var(--font-accent), var(--font-sans), sans-serif;
-    font-size: clamp(2.25rem, 5.6vw, 5.75rem);
-    font-weight: 800;
+    font-size: var(--text-title);
+    font-weight: 600;
     line-height: 1;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.045em;
     text-align: right;
     text-wrap: balance;
     transform: rotate(-3deg);
     transform-origin: right bottom;
+    mix-blend-mode: overlay;
   }
 
   /* ─── Contact list ─────────────────────────────────────── */
@@ -96,10 +137,9 @@ body {
     margin: 0;
     padding: 0;
     list-style: none;
-    font-size: clamp(1.25rem, 2.2vw, 2rem);
-    font-weight: 600;
-    line-height: 1.35;
-    letter-spacing: -0.02em;
+    font-size: var(--text-lead);
+    line-height: 1.7;
+    letter-spacing: -0.01em;
   }
 
   .contact-list__item {
@@ -107,17 +147,9 @@ body {
     border: 0;
     background: none;
     color: var(--c-on-sky);
-    text-shadow: 0 0.0625rem 0.75rem rgb(15 40 80 / 0.3);
     font: inherit;
     letter-spacing: inherit;
-    text-decoration: none;
     cursor: pointer;
-  }
-
-  .contact-list__item:focus-visible {
-    border-radius: 0.25rem;
-    outline: 3px solid var(--c-on-sky);
-    outline-offset: 4px;
   }
 
   /* ─── Minecraft: on the page itself, the character is cut
@@ -137,11 +169,26 @@ body {
     display: flex;
     flex-direction: column;
     align-self: center;
-    gap: clamp(1.5rem, 4vh, 2.5rem);
+    gap: clamp(2rem, 5vh, 3rem);
     padding-bottom: var(--minecraft-pad-y);
   }
 
-  .minecraft__icons {
+  .minecraft__headline {
+    margin: 0;
+    color: var(--c-muted);
+    font-size: var(--text-title);
+    line-height: 1.05;
+    letter-spacing: -0.045em;
+    text-wrap: balance;
+  }
+
+  .minecraft__count {
+    display: block;
+    color: var(--c-ink);
+    font-weight: 600;
+  }
+
+  .minecraft__mods {
     display: flex;
     flex-wrap: wrap;
     gap: clamp(0.75rem, 1.5vw, 1.25rem);
@@ -150,29 +197,16 @@ body {
     list-style: none;
   }
 
+  .minecraft__mod {
+    width: clamp(5.5rem, 10vw, 9.5rem);
+  }
+
   .minecraft__icon {
     display: block;
-    width: clamp(5rem, 9vw, 8.5rem);
+    width: 100%;
     height: auto;
     aspect-ratio: 1;
-    border-radius: 18%;
-  }
-
-  .minecraft__downloads {
-    margin: 0;
-    color: var(--c-ink);
-    font-size: clamp(1.5rem, 2.8vw, 2.5rem);
-    font-weight: 600;
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-  }
-
-  .minecraft__count {
-    display: block;
-    font-size: clamp(4rem, 12vw, 11rem);
-    font-weight: 700;
-    line-height: 0.9;
-    letter-spacing: -0.05em;
+    border-radius: 0.75rem;
   }
 
   .minecraft__character {
@@ -206,21 +240,15 @@ body {
 
   .roblox__phrase {
     margin: 0;
-    font-family: var(--font-accent), var(--font-sans), sans-serif;
-    font-size: clamp(2.25rem, 5.6vw, 5.75rem);
-    font-weight: 800;
-    line-height: 1;
-    letter-spacing: -0.02em;
+    font-size: var(--text-title);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.045em;
   }
 
   .roblox__note {
     display: block;
-    margin-top: 0.75rem;
-    font-family: var(--font-sans), sans-serif;
-    font-size: clamp(1.25rem, 2.2vw, 2rem);
-    font-weight: 600;
-    line-height: 1.35;
-    letter-spacing: -0.02em;
+    color: var(--c-on-dark-muted);
   }
 
   /* ─── Art slot: owner-supplied image or its placeholder ── */
@@ -241,11 +269,10 @@ body {
     box-sizing: border-box;
     height: 100%;
     padding: 0.75rem;
-    border: 2px dashed currentColor;
+    border: 1px dashed currentColor;
     border-radius: 1rem;
     opacity: 0.45;
     font-size: 0.875rem;
-    font-weight: 600;
     text-align: center;
     word-break: break-all;
   }

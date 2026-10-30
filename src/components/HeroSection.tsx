@@ -4,7 +4,7 @@ import { contacts } from '@/data/social';
 
 export function HeroSection() {
   return (
-    <section className="hero">
+    <section id="contacts" className="hero">
       <div className="hero__sky" aria-hidden="true">
         <CloudShader />
       </div>

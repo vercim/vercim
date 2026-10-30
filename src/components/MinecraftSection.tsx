@@ -12,23 +12,23 @@ export async function MinecraftSection() {
   );
 
   return (
-    <section className="minecraft" aria-label="Minecraft mods">
+    <section id="minecraft" className="minecraft" aria-label="Minecraft mods">
       <div className="minecraft__stats">
-        {iconProjects.length > 0 ? (
-          <ul className="minecraft__icons">
-            {iconProjects.map(({ title, iconUrl }) => (
-              <li key={title}>
-                <Image className="minecraft__icon" src={iconUrl} alt={title} width={136} height={136} />
-              </li>
-            ))}
-          </ul>
-        ) : null}
-
         {totalDownloads !== null ? (
-          <p className="minecraft__downloads">
+          <p className="minecraft__headline">
             <span className="minecraft__count">{formatCount.format(totalDownloads)}</span>{' '}
             downloads i have in total
           </p>
+        ) : null}
+
+        {iconProjects.length > 0 ? (
+          <ul className="minecraft__mods">
+            {iconProjects.map(({ title, iconUrl }) => (
+              <li key={title} className="minecraft__mod">
+                <Image className="minecraft__icon" src={iconUrl} alt={title} width={160} height={160} />
+              </li>
+            ))}
+          </ul>
         ) : null}
       </div>
 

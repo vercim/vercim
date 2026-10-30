@@ -1,18 +1,11 @@
 import type { Metadata, Viewport } from 'next';
-import { Geist, Syne } from 'next/font/google';
+import { Geist } from 'next/font/google';
 import './globals.css';
 
 const geist = Geist({
   subsets: ['latin'],
   variable: '--font-sans',
-  weight: ['500', '600', '700'],
-});
-
-// Accent face for the phrases.
-const syne = Syne({
-  subsets: ['latin'],
-  variable: '--font-accent',
-  weight: ['700', '800'],
+  weight: ['400', '500', '600'],
 });
 
 export const metadata: Metadata = {
@@ -29,7 +22,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${geist.variable} ${syne.variable}`}>
+      <body className={geist.variable}>
         {children}
       </body>
     </html>
