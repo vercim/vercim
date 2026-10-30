@@ -66,10 +66,11 @@ body {
     align-self: flex-end;
     margin: 0;
     color: var(--c-ink);
-    font-size: clamp(2.5rem, 6.5vw, 6.5rem);
-    font-weight: 700;
+    font-family: var(--font-accent), var(--font-sans), sans-serif;
+    font-size: clamp(2.25rem, 5.6vw, 5.75rem);
+    font-weight: 800;
     line-height: 1;
-    letter-spacing: -0.04em;
+    letter-spacing: -0.02em;
     text-align: right;
     text-wrap: balance;
     transform: rotate(-3deg);
