@@ -6,11 +6,13 @@ import { useEffect, useRef } from 'react';
 const PATH =
   'M -40 250 C 150 300 380 330 480 220 C 590 100 520 -10 430 40 C 340 90 360 250 520 275 C 660 297 900 200 1040 160';
 const PATH_LENGTH = 1701; // getTotalLength() of PATH
-const ITEM = 44;
-const SLOTS = Math.floor(PATH_LENGTH / (ITEM + 6));
+const ITEM_WIDTH = 88;
+const ITEM_HEIGHT = 31;
+const ITEM_GAP = 54;
+const SLOTS = Math.floor(PATH_LENGTH / (ITEM_WIDTH + ITEM_GAP));
 const LAP_SECONDS = 70;
 
-// Square images that travel along a curved path (SVG animateMotion). The
+// 88×31 images that travel along a curved path (SVG animateMotion). The
 // motion stops when the visitor prefers reduced motion.
 export function PathMarquee({ images }: { images: string[] }) {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -44,19 +46,19 @@ export function PathMarquee({ images }: { images: string[] }) {
             {src ? (
               <image
                 href={src}
-                x={-ITEM / 2}
-                y={-ITEM / 2}
-                width={ITEM}
-                height={ITEM}
+                x={-ITEM_WIDTH / 2}
+                y={-ITEM_HEIGHT / 2}
+                width={ITEM_WIDTH}
+                height={ITEM_HEIGHT}
                 preserveAspectRatio="xMidYMid slice"
               />
             ) : (
               <rect
                 className="path-marquee__placeholder"
-                x={-ITEM / 2}
-                y={-ITEM / 2}
-                width={ITEM}
-                height={ITEM}
+                x={-ITEM_WIDTH / 2}
+                y={-ITEM_HEIGHT / 2}
+                width={ITEM_WIDTH}
+                height={ITEM_HEIGHT}
                 rx={4}
               />
             )}

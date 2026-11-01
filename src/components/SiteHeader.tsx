@@ -2,7 +2,6 @@ const sections = [
   { id: 'contacts', label: 'contacts' },
   { id: 'mods', label: 'mods' },
   { id: 'games', label: 'games' },
-  { id: 'fancy', label: 'fancy' },
 ];
 
 // The card mark from src/app/icon.svg, drawn in the current text color.

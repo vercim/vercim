@@ -6,6 +6,9 @@
   --c-ink:           #0f1a2b;
   --c-muted:         #6b6e74;
   --c-on-sky:        #fff;
+  /* The reveal animation fills opacity, so the hover dimming on contacts
+     transitions color instead — same effect, and it animates. */
+  --c-on-sky-dim:    rgba(255, 255, 255, 0.55);
   --c-dark:          #000;
   --c-on-dark:       #fff;
   --c-on-dark-muted: #8d8d8d;
@@ -41,6 +44,12 @@ body {
   font-weight: 600;
   -webkit-font-smoothing: antialiased;
   scroll-behavior: smooth;
+}
+
+img {
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 @keyframes hero-sky-in {
@@ -141,10 +150,10 @@ body {
     justify-content: space-between;
     gap: 3rem;
     box-sizing: border-box;
-    height: calc(100vh - var(--header-h) - var(--frame-pad));
-    height: calc(100dvh - var(--header-h) - var(--frame-pad));
-    min-height: 28rem;
+    min-height: max(28rem, calc(100vh - var(--header-h) - var(--frame-pad)));
+    min-height: max(28rem, calc(100svh - var(--header-h) - var(--frame-pad)));
     margin: 0 var(--frame-pad) var(--frame-pad);
+    scroll-margin-top: var(--header-h);
     padding: clamp(2.5rem, 13vh, 9rem) var(--inset-end) clamp(3rem, 15vh, 10rem) var(--inset-start);
     overflow: hidden;
     border-radius: var(--frame-radius);
@@ -220,18 +229,23 @@ body {
     letter-spacing: inherit;
     text-decoration: none;
     cursor: pointer;
+    transition: color 0.15s ease;
+  }
+
+  .contact-list__item:focus-visible {
+    color: var(--c-on-sky-dim);
   }
 
   /* ─── Minecraft: on the page itself, the character is cut
          by the top edge of the next block ──────────────────── */
   .minecraft {
-    --minecraft-pad-y: clamp(3rem, 10vh, 8rem);
+    --minecraft-pad-y: clamp(1rem, 4vh, 2rem);
     display: grid;
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: clamp(2rem, 5vw, 5rem);
     box-sizing: border-box;
     min-height: 100vh;
-    min-height: 100dvh;
+    min-height: 100svh;
     padding: var(--minecraft-pad-y) calc(var(--frame-pad) + var(--inset-end)) 0 calc(var(--frame-pad) + var(--inset-start));
   }
 
@@ -239,8 +253,8 @@ body {
     display: flex;
     flex-direction: column;
     align-self: center;
-    gap: clamp(2rem, 5vh, 3rem);
-    padding-bottom: var(--minecraft-pad-y);
+    justify-self: center;
+    gap: clamp(1rem, 3vh, 1.5rem);
   }
 
   .minecraft__headline {
@@ -268,7 +282,7 @@ body {
   }
 
   .minecraft__mod {
-    width: clamp(5.5rem, 10vw, 9.5rem);
+    width: clamp(3.5rem, 7vw, 6rem);
   }
 
   .minecraft__icon {
@@ -282,23 +296,24 @@ body {
   .minecraft__character {
     align-self: end;
     justify-self: end;
-    width: min(100%, 64vh);
-    width: min(100%, 64dvh);
-    aspect-ratio: 3 / 4;
+    width: min(60vh, 34vw);
+    width: min(60dvh, 34vw);
   }
 
 
   /* ─── Roblox: black, starts with a hard edge; mirrors the
          Minecraft block, the character is cut by the next block ── */
   .roblox {
-    --roblox-pad-y: clamp(3rem, 10vh, 8rem);
+    --roblox-pad: clamp(3rem, 5vw, 6rem);
+    position: relative;
+    z-index: 1;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    grid-template-columns: auto minmax(0, 1fr);
     gap: clamp(2rem, 5vw, 5rem);
     box-sizing: border-box;
     min-height: 100vh;
-    min-height: 100dvh;
-    padding: var(--roblox-pad-y) calc(var(--frame-pad) + var(--inset-end)) 0 calc(var(--frame-pad) + var(--inset-start));
+    min-height: 100svh;
+    padding: var(--roblox-pad) var(--roblox-pad) 0 calc(var(--frame-pad) + var(--inset-start));
     background: var(--c-dark);
     color: var(--c-on-dark);
   }
@@ -306,14 +321,11 @@ body {
   .roblox__character {
     align-self: end;
     justify-self: start;
-    width: min(100%, 64vh);
-    width: min(100%, 64dvh);
-    aspect-ratio: 3 / 4;
+    width: min(60vw, 40vw);
   }
 
   .roblox__phrase {
-    align-self: center;
-    padding-bottom: var(--roblox-pad-y);
+    align-self: start;
     margin: 0;
     font-size: var(--text-title);
     font-weight: 600;
@@ -321,15 +333,227 @@ body {
     letter-spacing: -0.045em;
   }
 
+  .roblox__phrase .reveal {
+    white-space: nowrap;
+  }
+
   .roblox__note {
     display: block;
     color: var(--c-on-dark-muted);
   }
 
-  /* ─── Fancy: images on a curved path, full width ─────── */
+  /* ─── Fancy: six-card advantages bento ────────────────── */
   .fancy {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    min-height: 100vh;
+    min-height: 100svh;
+    padding: clamp(4rem, 8vw, 8rem) calc(var(--frame-pad) + var(--inset-end)) clamp(4rem, 8vw, 8rem) calc(var(--frame-pad) + var(--inset-start));
+    background: var(--c-dark);
+    color: var(--c-on-dark);
+  }
+
+  .fancy__grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-auto-rows: minmax(clamp(8rem, 14vw, 12rem), auto);
+    gap: clamp(0.625rem, 1vw, 0.875rem);
+    width: 100%;
+  }
+
+  .fancy__card {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    min-width: 0;
+    padding: clamp(1.25rem, 2vw, 2rem);
     overflow: hidden;
-    padding: clamp(3rem, 10vh, 8rem) 0;
+    border: 1px solid color-mix(in srgb, var(--c-on-dark) 8%, transparent);
+    border-radius: clamp(0.75rem, 1vw, 1rem);
+    background: color-mix(in srgb, var(--c-on-dark) 4%, var(--c-dark));
+  }
+
+  .fancy__card--left {
+    grid-column: 1 / 3;
+    grid-row: 1 / 3;
+  }
+
+  .fancy__card--layouts {
+    grid-column: 3 / 5;
+    grid-row: 1;
+  }
+
+  .fancy__card--speed {
+    grid-column: 3 / 5;
+    grid-row: 2;
+  }
+
+  .fancy__card--right {
+    grid-column: 5 / 7;
+    grid-row: 1 / 3;
+  }
+
+  .fancy__card--security {
+    grid-column: 1 / 4;
+    grid-row: 3;
+  }
+
+  .fancy__card--mobile {
+    grid-column: 4 / 7;
+    grid-row: 3;
+  }
+
+  .fancy__visual {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    min-height: 3rem;
+    padding-bottom: 1rem;
+  }
+
+  .fancy__content h2,
+  .fancy__content p {
+    margin: 0;
+  }
+
+  .fancy__content h2 {
+    font-size: clamp(1rem, 1.4vw, 1.25rem);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+
+  .fancy__content p {
+    margin-top: 0.45rem;
+    color: var(--c-on-dark-muted);
+    font-size: clamp(0.75rem, 0.9vw, 0.9rem);
+    line-height: 1.35;
+    letter-spacing: 0;
+  }
+
+  .fancy__type {
+    font-size: clamp(5rem, 9vw, 9rem);
+    font-weight: 400;
+    line-height: 0.8;
+    letter-spacing: -0.08em;
+  }
+
+  .fancy__layouts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+    width: clamp(4.5rem, 7vw, 6.5rem);
+  }
+
+  .fancy__layouts span {
+    height: 0.65rem;
+    border-radius: 0.2rem;
+    background: var(--c-on-dark);
+    opacity: 0.16;
+  }
+
+  .fancy__speed {
+    display: flex;
+    align-items: center;
+    width: clamp(5rem, 8vw, 7rem);
+    height: 3rem;
+  }
+
+  .fancy__speed span {
+    width: 100%;
+    height: 2px;
+    background: var(--c-on-dark);
+  }
+
+  .fancy__globe {
+    width: clamp(5rem, 8vw, 7rem);
+    height: auto;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    opacity: 0.8;
+  }
+
+  .fancy__globe-ring {
+    opacity: 0.14;
+  }
+
+  .fancy__security {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .fancy__security > span {
+    display: flex;
+    padding: 0.55rem;
+    border-radius: 0.4rem;
+    background: color-mix(in srgb, var(--c-on-dark) 6%, transparent);
+    color: var(--c-on-dark-muted);
+  }
+
+  .fancy__security > span:nth-child(2) {
+    background: color-mix(in srgb, var(--c-on-dark) 12%, transparent);
+    color: var(--c-on-dark);
+  }
+
+  .fancy__security svg {
+    width: 1.2rem;
+    height: 1.2rem;
+    stroke: currentColor;
+    stroke-width: 1.5;
+  }
+
+  .fancy__phone {
+    width: 2.75rem;
+    height: auto;
+    stroke: currentColor;
+    stroke-width: 1.5;
+  }
+
+  .fancy__phone circle {
+    fill: currentColor;
+    stroke: none;
+  }
+
+  @media (max-width: 680px) {
+    .fancy {
+      min-height: 0;
+      padding-top: clamp(3rem, 12vw, 5rem);
+      padding-bottom: clamp(3rem, 12vw, 5rem);
+    }
+
+    .fancy__grid {
+      grid-template-columns: minmax(0, 1fr);
+      grid-auto-rows: auto;
+    }
+
+    .fancy__card,
+    .fancy__card--left,
+    .fancy__card--layouts,
+    .fancy__card--speed,
+    .fancy__card--right,
+    .fancy__card--security,
+    .fancy__card--mobile {
+      grid-column: 1;
+      grid-row: auto;
+      min-height: 13rem;
+    }
+
+    .fancy__card--left,
+    .fancy__card--right {
+      min-height: 20rem;
+    }
+  }
+
+  /* ─── Footer: the decorative spiral, separate from fancy ── */
+  .spiral-footer {
+    position: relative;
+    z-index: 2;
+    overflow: hidden;
+    padding: clamp(1rem, 4vh, 3rem) 0 clamp(2rem, 6vh, 5rem);
+    background: var(--c-frame);
   }
 
   /* Never narrower than 56rem, so the squares stay big on phones; the
@@ -347,12 +571,14 @@ body {
     opacity: 0.12;
   }
 
-  /* ─── Art slot: owner-supplied image or its placeholder ── */
+  /* ─── Art slot: owner-supplied image ── */
   .art-slot {
     position: relative;
   }
 
   .art-slot__image {
+    width: 100%;
+    height: auto;
     object-fit: contain;
     object-position: bottom;
   }
@@ -363,33 +589,12 @@ body {
     object-fit: cover;
     object-position: top;
   }
-
-  .art-slot--cut .art-slot__placeholder {
-    border-bottom: 0;
-    border-radius: 1rem 1rem 0 0;
-  }
-
-  /* Drawn in the surrounding text color, so it reads on any block. */
-  .art-slot__placeholder {
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    box-sizing: border-box;
-    height: 100%;
-    padding: 0.75rem;
-    border: 1px dashed currentColor;
-    border-radius: 1rem;
-    opacity: 0.45;
-    font-size: 0.875rem;
-    text-align: center;
-    word-break: break-all;
-  }
 }
 
 @media (max-width: 680px) {
   .minecraft {
     grid-template-columns: minmax(0, 1fr);
-    min-height: 0;
+    height: auto;
   }
 
   .minecraft__stats {
@@ -398,13 +603,13 @@ body {
 
   .minecraft__character {
     justify-self: center;
-    width: min(85%, 46vh);
-    width: min(85%, 46dvh);
+    width: min(100%, 70vh);
+    width: min(100%, 70dvh);
   }
 
   .roblox {
     grid-template-columns: minmax(0, 1fr);
-    min-height: 0;
+    height: auto;
   }
 
   .roblox__phrase {
@@ -414,7 +619,7 @@ body {
 
   .roblox__character {
     justify-self: center;
-    width: min(85%, 46vh);
-    width: min(85%, 46dvh);
+    width: min(100%, 70vh);
+    width: min(100%, 70dvh);
   }
 }

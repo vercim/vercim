@@ -43,7 +43,7 @@ export async function MinecraftSection() {
 
       <ArtSlot
         className="minecraft__character art-slot--cut reveal__fade"
-        src="/images/minecraft/character.png"
+        src="/char_mc.png"
         alt="My Minecraft character"
         sizes="(max-width: 680px) 85vw, 45vw"
       />

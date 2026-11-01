@@ -6,7 +6,7 @@ export function RobloxSection() {
     <section id="games" className="roblox" data-reveal>
       <ArtSlot
         className="roblox__character art-slot--cut reveal__fade"
-        src="/images/roblox/character.png"
+        src="/char_rbx.png"
         alt="My Roblox character"
         sizes="(max-width: 680px) 85vw, 45vw"
       />
