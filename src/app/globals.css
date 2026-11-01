@@ -9,7 +9,7 @@
   /* The reveal animation fills opacity, so the hover dimming on contacts
      transitions color instead — same effect, and it animates. */
   --c-on-sky-dim:    rgba(255, 255, 255, 0.55);
-  --c-dark:          #000;
+  --c-dark:          #101010;
   --c-on-dark:       #fff;
   --c-on-dark-muted: #8d8d8d;
   /* Same colors as the CloudShader defaults; also the fallback before it draws */
@@ -553,7 +553,8 @@ img {
     z-index: 2;
     overflow: hidden;
     padding: clamp(1rem, 4vh, 3rem) 0 clamp(2rem, 6vh, 5rem);
-    background: var(--c-frame);
+    background: var(--c-dark);
+    color: var(--c-on-dark);
   }
 
   /* Never narrower than 56rem, so the squares stay big on phones; the
