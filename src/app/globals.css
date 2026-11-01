@@ -157,6 +157,8 @@ img {
     padding: clamp(2.5rem, 13vh, 9rem) var(--inset-end) clamp(3rem, 15vh, 10rem) var(--inset-start);
     overflow: hidden;
     border-radius: var(--frame-radius);
+    /* Safari does not clip the composited WebGL canvas to border-radius alone. */
+    clip-path: inset(0 round var(--frame-radius));
   }
 
   /* Intro: the sky fades in, then the text rises line by line from behind a
