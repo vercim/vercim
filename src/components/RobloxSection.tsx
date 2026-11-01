@@ -9,6 +9,8 @@ export function RobloxSection() {
         src="/char_rbx.png"
         alt="My Roblox character"
         sizes="(max-width: 680px) 85vw, 45vw"
+        width={2069}
+        height={1495}
       />
 
       <h2 className="roblox__phrase">

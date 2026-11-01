@@ -34,7 +34,7 @@ export async function MinecraftSection() {
                 className="minecraft__mod reveal__fade"
                 style={{ '--reveal-delay': `${0.25 + index * 0.08}s` } as CSSProperties}
               >
-                <Image className="minecraft__icon" src={iconUrl} alt={title} width={160} height={160} />
+                <Image className="minecraft__icon" src={iconUrl} alt={title} width={100} height={100} />
               </li>
             ))}
           </ul>
@@ -46,6 +46,8 @@ export async function MinecraftSection() {
         src="/char_mc.png"
         alt="My Minecraft character"
         sizes="(max-width: 680px) 85vw, 45vw"
+        width={1175}
+        height={1855}
       />
     </section>
   );

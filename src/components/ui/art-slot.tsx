@@ -7,11 +7,13 @@ interface ArtSlotProps {
   src: string;
   alt: string;
   sizes: string;
+  width: number;
+  height: number;
   className?: string;
 }
 
 // Owner-supplied art from public/. Until the file exists, the slot stays empty.
-export function ArtSlot({ src, alt, sizes, className }: ArtSlotProps) {
+export function ArtSlot({ src, alt, sizes, width, height, className }: ArtSlotProps) {
   const [missing, setMissing] = useState(false);
 
   return (
@@ -22,8 +24,8 @@ export function ArtSlot({ src, alt, sizes, className }: ArtSlotProps) {
           src={src}
           alt={alt}
           sizes={sizes}
-          width={1920}
-          height={1920}
+          width={width}
+          height={height}
           onError={() => setMissing(true)}
         />
       )}
