@@ -28,7 +28,12 @@ export function PathMarquee({ images }: { images: string[] }) {
   }, []);
 
   return (
-    <svg ref={svgRef} className="path-marquee" viewBox="0 0 1000 340" aria-hidden="true">
+    <svg
+      ref={svgRef}
+      className="ml-[50%] block h-auto w-[max(100%,56rem)] -translate-x-1/2"
+      viewBox="0 0 1000 340"
+      aria-hidden="true"
+    >
       {Array.from({ length: SLOTS }, (_, slot) => {
         const src = images.length > 0 ? images[slot % images.length] : null;
 
@@ -52,7 +57,7 @@ export function PathMarquee({ images }: { images: string[] }) {
               />
             ) : (
               <rect
-                className="path-marquee__placeholder"
+                className="fill-current opacity-[0.12]"
                 x={-ITEM / 2}
                 y={-ITEM / 2}
                 width={ITEM}

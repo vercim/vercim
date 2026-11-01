@@ -80,10 +80,10 @@ Secrets live in `.env.local` (all `.env*` files and `.vercel/` are git-ignored).
 
 - Tailwind v4 through PostCSS; `globals.css` starts with `@import "tailwindcss"`.
 - Colors are `--c-*` tokens on `:root`; reuse them instead of hard-coding colors. `--c-sky-*` duplicate the `CloudShader` defaults (the shader takes literal colors). Over the sky the phrase is `--c-ink` with the owner's `mix-blend-mode: overlay`, and the contacts are `--c-on-sky` (white). The white blocks use `--c-ink`, the black ones `--c-dark` with `--c-on-dark`.
-- Layout tokens: `--frame-pad` and `--frame-radius` (the hero card), `--header-h`, `--inset-start` / `--inset-end` (the shared content edges).
-- Component styles are BEM-like classes in `@layer components`, grouped by block: `site-header*`, `site-nav*`, `hero*`, `contact-list*`, `minecraft*`, `roblox*`, `art-slot*`. Extend an existing block before inventing a new one.
-- Sizes scale with `clamp()`; the only breakpoint is 680px, where the Minecraft and Roblox blocks stack into one column.
-- One font: Geist from `next/font` in `layout.tsx` (`--font-sans`), weights 400, 500 and 600. Sizes come from `--text-body` (the header) and `--text-title` (everything else); all text is 600 by default (set on `body`) except the header, which stays 400; headings use tight tracking, and a heading's second part is muted (`--c-muted`). Anchor links scroll smoothly (`scroll-behavior: smooth`, the owner's choice).
+- Component styles use Tailwind utilities directly in `className`. Prefer the standard spacing scale (`w-7`, `h-15`, `gap-6`); use arbitrary values for exact responsive formulas such as `clamp()`, viewport units, and shared content insets. Only colors are registered in `@theme`; do not add custom sizing utilities.
+- The shared content edges are the frame padding plus the start/end insets; keep their `calc()` formulas identical across blocks. Keep the reveal keyframes/masks and global image drag prevention in CSS.
+- The only breakpoint is `max-[680px]`, where the Minecraft and Roblox blocks stack into one column.
+- One font: Geist from `next/font` in `layout.tsx` (`--font-sans`), weights 400, 500 and 600. Responsive font sizes use `text-[clamp(...)]`; all text is 600 by default (set on `body`) except the header, which stays 400. Headings use tight tracking, and their second parts use `--c-ink-soft` or `--c-on-dark-soft`. Anchor links scroll smoothly (`scroll-behavior: smooth`, the owner's choice).
 - Header links have a thin underline (1px, offset 0.3em); the contacts have none. No text shadows.
 
 ## Code style

@@ -6,12 +6,14 @@ import { useEffect, useRef } from 'react';
 import avatarsChatting from '@/assets/lottie/avatars-chatting.json';
 import payment from '@/assets/lottie/payment.json';
 import clock from '@/assets/lottie/clock.json';
+import layers from '@/assets/lottie/layers.json';
 import medalFirstPlace from '@/assets/lottie/medal-first-place.json';
 
 const animations = {
   chat: avatarsChatting,
   speed: clock,
   payment,
+  mods: layers,
   rank: medalFirstPlace,
 };
 
@@ -19,12 +21,12 @@ export type BentoIconName = keyof typeof animations;
 
 /**
  * Marker segments of a multi-part animation: the segment played on load
- * (an entrance segment, when present, is skipped) and two hover segments
- * played in turn.
+ * (an entrance segment, when present, is skipped) and hover segments played
+ * in turn when the icon has more than one.
  */
 interface BentoIconSegments {
   idle: string;
-  hover: readonly [string, string];
+  hover: readonly [string, ...string[]];
 }
 
 interface BentoIconProps {
@@ -67,7 +69,8 @@ export function BentoIcon({ name, className, segments }: BentoIconProps) {
     if (!lottie || reduceMotion.current) return;
     if (segments) {
       hoverAlt.current = !hoverAlt.current;
-      lottie.playSegments({ marker: segments.hover[hoverAlt.current ? 1 : 0] });
+      const marker = segments.hover[hoverAlt.current ? 1 : 0] ?? segments.hover[0];
+      lottie.playSegments({ marker });
       return;
     }
     lottie.stop();
@@ -81,7 +84,7 @@ export function BentoIcon({ name, className, segments }: BentoIconProps) {
 
   // Hovering anywhere on the card replays the icon's animation.
   useEffect(() => {
-    const card = rootRef.current?.closest('.bento__card');
+    const card = rootRef.current?.closest('[data-bento-card]');
     if (!card) return;
     const handler = () => playRef.current();
     card.addEventListener('pointerenter', handler);

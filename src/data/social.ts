@@ -53,5 +53,3 @@ export const modAccounts = {
   modrinth: 'vercim',
   curseforge: 'vercim',
 } as const;
-
-export const githubAccount = 'vercim';

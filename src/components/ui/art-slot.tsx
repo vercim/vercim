@@ -10,17 +10,18 @@ interface ArtSlotProps {
   width: number;
   height: number;
   className?: string;
+  cut?: boolean;
 }
 
 // Owner-supplied art from public/. Until the file exists, the slot stays empty.
-export function ArtSlot({ src, alt, sizes, width, height, className }: ArtSlotProps) {
+export function ArtSlot({ src, alt, sizes, width, height, className, cut = false }: ArtSlotProps) {
   const [missing, setMissing] = useState(false);
 
   return (
-    <div className={['art-slot', className].filter(Boolean).join(' ')}>
+    <div className={className}>
       {missing ? null : (
         <Image
-          className="art-slot__image"
+          className={`h-auto w-full ${cut ? 'object-cover object-top' : 'object-contain object-bottom'}`}
           src={src}
           alt={alt}
           sizes={sizes}
