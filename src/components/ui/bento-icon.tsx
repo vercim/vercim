@@ -47,10 +47,11 @@ export function BentoIcon({ name, className, segments }: BentoIconProps) {
     const lottie = lottieRef.current;
     if (!lottie) return;
     if (segments) {
-      if (reduceMotion.current) {
-        lottie.seek({ marker: segments.idle });
-        return;
-      }
+      // Seek first: it renders synchronously, so the icon shows its idle
+      // pose even if playback stalls (a backgrounded tab freezes rAF before
+      // the first tick, and frame 0 of this file is a blank entrance state).
+      lottie.seek({ marker: segments.idle });
+      if (reduceMotion.current) return;
       lottie.playSegments({ marker: segments.idle });
       return;
     }

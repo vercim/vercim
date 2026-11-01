@@ -471,7 +471,9 @@ img {
 
   .bento__day {
     min-width: 0;
-    border-radius: clamp(2px, 0.3vw, 4px);
+    /* Cells are always square (16x7 grid over a 16/7 box), so a percentage
+       keeps the corner proportion identical on desktop and phone. */
+    border-radius: 16%;
     background: color-mix(in srgb, var(--c-on-dark) 7%, transparent);
   }
 

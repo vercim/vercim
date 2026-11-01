@@ -21,7 +21,7 @@ export async function MinecraftSection() {
               <span className="reveal__line">{formatCount.format(totalDownloads)}</span>
             </span>{' '}
             <span className="reveal" style={{ '--reveal-delay': '0.1s' } as CSSProperties}>
-              <span className="reveal__line">downloads i have in total</span>
+              <span className="reveal__line">downloads</span>
             </span>
           </p>
         ) : null}

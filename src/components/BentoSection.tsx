@@ -21,8 +21,8 @@ export async function BentoSection() {
               name="chat"
               className="bento__lottie bento__lottie--chat"
               segments={{
-                idle: 'default:hover-conversation',
-                hover: ['default:hover-conversation', 'hover-conversation-alt'],
+                idle: 'hover-conversation',
+                hover: ['hover-conversation', 'hover-conversation-alt'],
               }}
             />
           </div>
@@ -64,7 +64,7 @@ export async function BentoSection() {
             <BentoIcon name="rank" className="bento__lottie" />
           </div>
           <div className="bento__content">
-            <h2>Verified rank 1 scripter in Roblox community</h2>
+            <h2>Verified scripter in Roblox community</h2>
           </div>
         </article>
       </div>

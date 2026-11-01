@@ -18,7 +18,7 @@ export function RobloxSection() {
           <span className="reveal__line">i also make games!</span>
         </span>{' '}
         <span className="roblox__note reveal" style={{ '--reveal-delay': '0.1s' } as CSSProperties}>
-          <span className="reveal__line">(roblox, luau lang)</span>
+          <span className="reveal__line">roblox, luau</span>
         </span>
       </h2>
     </section>
