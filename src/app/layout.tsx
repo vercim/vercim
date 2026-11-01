@@ -9,7 +9,7 @@ const geist = Geist({
 });
 
 export const metadata: Metadata = {
-  title: 'Hello, i\'m vercim.',
+  title: 'Hello, i\'m vercim',
   description: 'My personal internet page.',
 };
 
