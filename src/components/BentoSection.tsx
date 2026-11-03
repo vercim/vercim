@@ -79,7 +79,7 @@ export function BentoSection() {
               <BentoIcon
                 name="mods"
                 className="aspect-square w-[clamp(3rem,4vw,4rem)]"
-                segments={{ idle: 'default:hover-pinch', hover: ['default:hover-pinch'] }}
+                segments={{ idle: 'hover-pinch', hover: ['hover-pinch'] }}
               />
             </div>
             <div>
