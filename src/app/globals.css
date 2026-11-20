@@ -334,6 +334,8 @@ img {
 
   @variant desktop {
     .bento-facts {
+      width: 100%;
+      max-width: 42rem;
       container-type: inline-size;
       --bento-strip-width: --spacing(11);
 
