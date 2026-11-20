@@ -14,14 +14,10 @@ export function BentoSection() {
           <RevealText as="h2" id="about-title" className="display-type max-w-[12ch] text-balance">
             Let’s get down to business
           </RevealText>
-          <p className="paragraph-copy">
-            <span className="reveal">
-              <span className="reveal__line">
-                Have a Minecraft mod or a Roblox game in mind? Send me a short note about
-                what you want players to be able to do.
-              </span>
-            </span>
-          </p>
+          <RevealText className="paragraph-copy">
+            Have a Minecraft mod or a Roblox game in mind? Send me a short note about
+            what you want players to be able to do.
+          </RevealText>
         </div>
         <FactAccordion />
       </div>
