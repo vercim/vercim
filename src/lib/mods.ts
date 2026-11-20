@@ -6,10 +6,10 @@ export interface ModProject {
   title: string;
   iconUrl: string | null;
   downloads: number;
+  link?: string;
 }
 
 export interface ModsOverview {
-  totalDownloads: number | null;  // null when no platform answered.
   projects: ModProject[];         // Most downloaded first.
 }
 
@@ -30,11 +30,9 @@ export async function fetchModsOverview(accounts: {
   ]);
 
   const byTitle = new Map<string, ModProject>();
-  let answered = 0;
 
   for (const result of results) {
     if (result.status !== 'success') continue;
-    answered += 1;
 
     for (const project of result.projects) {
       const key = titleKey(project.title);
@@ -46,6 +44,7 @@ export async function fetchModsOverview(accounts: {
       if (known) {
         known.downloads += project.downloads;
         known.iconUrl ??= iconUrl;
+        known.link ??= project.link;
       } else {
         byTitle.set(key, { ...project, iconUrl });
       }
@@ -55,8 +54,6 @@ export async function fetchModsOverview(accounts: {
   const projects = [...byTitle.values()].sort((first, second) => second.downloads - first.downloads);
 
   return {
-    totalDownloads:
-      answered > 0 ? projects.reduce((total, project) => total + project.downloads, 0) : null,
     projects: await Promise.all(projects.map(async (project) => ({
       ...project,
       iconUrl: await staticModIcon(project.iconUrl),

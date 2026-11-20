@@ -27,6 +27,9 @@ function projectIdsOf(author: CurseForgeAuthorResponse): number[] {
 interface CurseForgeProjectResponse {
   title?: string;
   thumbnail?: string;
+  urls?: {
+    curseforge?: string;
+  };
   downloads?: {
     total?: number;
   };
@@ -127,6 +130,9 @@ export async function fetchCurseForgeProjects(author: string): Promise<CurseForg
         title: project.title,
         iconUrl: project.thumbnail || null,
         downloads: project.downloads.total,
+        link: project.urls?.curseforge?.startsWith('https://www.curseforge.com/')
+          ? project.urls.curseforge
+          : undefined,
       })),
     };
   } catch (error) {

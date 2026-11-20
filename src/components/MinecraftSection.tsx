@@ -4,10 +4,8 @@ import { ArtSlot } from '@/components/ui/art-slot';
 import { modAccounts } from '@/data/social';
 import { fetchModsOverview } from '@/lib/mods';
 
-const formatCount = new Intl.NumberFormat('en-US');
-
 export async function MinecraftSection() {
-  const { totalDownloads, projects } = await fetchModsOverview(modAccounts);
+  const { projects } = await fetchModsOverview(modAccounts);
   const iconProjects = projects.filter(
     (project): project is typeof project & { iconUrl: string } => project.iconUrl !== null,
   );
@@ -20,34 +18,29 @@ export async function MinecraftSection() {
       data-reveal
     >
       <div className="relative z-1 mt-[clamp(6rem,14vh,10rem)] flex flex-col self-start justify-self-center gap-[clamp(1rem,3vh,1.5rem)] max-[680px]:mt-0 max-[680px]:w-full max-[680px]:justify-self-start">
-        {totalDownloads !== null ? (
-          <p className="m-0 text-[clamp(1.75rem,4.8vw,4.75rem)] leading-[1.05] tracking-[-0.045em] text-balance text-ink-soft">
-            <span className="reveal block font-semibold text-ink">
-              <span className="reveal__line">{formatCount.format(totalDownloads)}</span>
-            </span>{' '}
-            <span className="reveal" style={{ '--reveal-delay': '0.1s' } as CSSProperties}>
-              <span className="reveal__line">downloads</span>
-            </span>
-          </p>
-        ) : null}
-
         {iconProjects.length > 0 ? (
           <ul className="m-0 flex list-none flex-wrap gap-[clamp(0.75rem,1.5vw,1.25rem)] p-0">
-            {iconProjects.map(({ title, iconUrl }, index) => (
-              <li
-                key={title}
-                className="reveal__fade w-[clamp(3.5rem,7vw,6rem)]"
-                style={{ '--reveal-delay': `${0.25 + index * 0.08}s` } as CSSProperties}
-              >
-                <Image
-                  className="block aspect-square h-auto w-full rounded-xl"
-                  src={iconUrl}
-                  alt={title}
-                  width={100}
-                  height={100}
-                />
-              </li>
-            ))}
+            {iconProjects.map(({ title, iconUrl, link }, index) => {
+              const icon = (
+              <Image
+                className="block aspect-square h-auto w-full rounded-xl"
+                src={iconUrl}
+                alt={title}
+                width={100}
+                height={100}
+              />
+              );
+
+              return (
+                <li
+                  key={title}
+                  className="reveal__fade w-[clamp(3.5rem,7vw,6rem)]"
+                  style={{ '--reveal-delay': `${0.25 + index * 0.08}s` } as CSSProperties}
+                >
+                  {link ? <a className="block rounded-xl" href={link}>{icon}</a> : icon}
+                </li>
+              );
+            })}
           </ul>
         ) : null}
       </div>
