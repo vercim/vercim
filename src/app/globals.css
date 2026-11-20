@@ -23,6 +23,8 @@
 }
 
 @theme inline {
+  --breakpoint-desktop: 42.5rem;
+  --spacing-header: 3.75rem;
   --color-frame: var(--c-frame);
   --color-ink: var(--c-ink);
   --color-ink-soft: var(--c-ink-soft);
@@ -77,6 +79,14 @@ img {
 }
 
 @layer components {
+  .site-nav {
+    @apply flex gap-4 text-base desktop:gap-6 desktop:text-lg xl:text-xl;
+  }
+
+  .site-nav-link {
+    @apply underline decoration-1 underline-offset-4 focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4;
+  }
+
   .hero__sky {
     animation: hero-sky-in 1.4s ease both;
   }

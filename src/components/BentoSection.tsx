@@ -15,7 +15,7 @@ const titleClass =
 export function BentoSection() {
   return (
     <section
-      id="bento"
+      id="info"
       className="relative z-2 flex min-h-svh items-center bg-dark py-[clamp(4rem,8vw,8rem)] pr-[calc(clamp(0.5rem,1.4vw,1.25rem)_+_clamp(1.5rem,7vw,7rem))] pl-[calc(clamp(0.5rem,1.4vw,1.25rem)_+_clamp(1.5rem,9vw,9rem))] text-on-dark max-[680px]:min-h-0 max-[680px]:py-[clamp(3rem,12vw,5rem)]"
       aria-label="More about working with me"
       data-reveal

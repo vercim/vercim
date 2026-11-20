@@ -1,13 +1,9 @@
-const sections = [
-  { id: 'contacts', label: 'contacts' },
-  { id: 'mods', label: 'mods' },
-  { id: 'games', label: 'games' },
-];
+const sections = ['mods', 'games', 'info'];
 
 // The card mark from src/app/icon.svg, drawn in the current text color.
 export function SiteHeader() {
   return (
-    <header className="flex h-15 items-center justify-between gap-6 px-[calc((3.75rem_-_1.75rem*0.75)/2)] font-normal">
+    <header id="top" className="flex h-header items-center justify-between gap-6 px-5 font-normal">
       <svg
         className="block h-auto w-7 shrink-0 text-ink"
         viewBox="0 2 16 12"
@@ -23,15 +19,10 @@ export function SiteHeader() {
       </svg>
 
       <nav aria-label="Sections">
-        <ul className="m-0 flex list-none gap-[clamp(0.875rem,2vw,1.75rem)] p-0 text-[clamp(1rem,1.3vw,1.25rem)]">
-          {sections.map(({ id, label }) => (
+        <ul className="site-nav" role="list">
+          {sections.map((id) => (
             <li key={id}>
-              <a
-                className="text-ink underline decoration-1 underline-offset-[0.3em] focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current"
-                href={`#${id}`}
-              >
-                {label}
-              </a>
+              <a className="site-nav-link" href={`#${id}`}>{id}</a>
             </li>
           ))}
         </ul>
