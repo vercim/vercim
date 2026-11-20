@@ -18,7 +18,7 @@ function titleKey(title: string): string {
 }
 
 // Union of both platforms, matched by title: a project published on only one
-// of them is kept. Modrinth goes first, so its icon wins when a project is on both.
+// of them is kept. Prefer Modrinth when both platforms provide a PNG icon.
 export async function fetchModsOverview(accounts: {
   modrinth: string;
   curseforge: string;
@@ -38,12 +38,15 @@ export async function fetchModsOverview(accounts: {
     for (const project of result.projects) {
       const key = titleKey(project.title);
       const known = byTitle.get(key);
+      const iconUrl = project.iconUrl && /\.png$/i.test(project.iconUrl.split(/[?#]/, 1)[0])
+        ? project.iconUrl
+        : null;
 
       if (known) {
         known.downloads += project.downloads;
-        known.iconUrl ??= project.iconUrl;
+        known.iconUrl ??= iconUrl;
       } else {
-        byTitle.set(key, { ...project });
+        byTitle.set(key, { ...project, iconUrl });
       }
     }
   }
