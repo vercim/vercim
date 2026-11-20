@@ -17,8 +17,8 @@ export default function Home() {
         <RobloxSection />
         <BentoSection />
       </main>
-      <footer className="flex h-header items-center justify-end bg-dark px-5 font-normal text-on-dark">
-        <a className="site-nav site-nav-link" href="#top">Go back</a>
+      <footer className="flex h-header items-center justify-center bg-dark px-5 font-normal text-on-dark">
+        <a className="site-nav site-nav-link" href="#top">go back</a>
       </footer>
       <ScrollReveal />
     </>
