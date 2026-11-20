@@ -1,4 +1,5 @@
 import { FactAccordion } from '@/components/ui/fact-accordion';
+import { RevealText } from '@/components/ui/reveal-text';
 
 export function BentoSection() {
   return (
@@ -10,9 +11,9 @@ export function BentoSection() {
     >
       <div className="bento-layout">
         <div className="flex min-w-0 flex-col items-start gap-5">
-          <h2 id="about-title" className="display-type max-w-[12ch] text-balance">
-            <span className="reveal"><span className="reveal__line">Let’s get down to business</span></span>
-          </h2>
+          <RevealText as="h2" id="about-title" className="display-type max-w-[12ch] text-balance">
+            Let’s get down to business
+          </RevealText>
           <p className="paragraph-copy">
             <span className="reveal">
               <span className="reveal__line">
