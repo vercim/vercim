@@ -70,7 +70,7 @@ Every block has the same entrance. Text lines rise from behind a mask (`.reveal`
 - **Contacts** — edit only `contacts` in `src/data/social.ts`. `account` is the single place a username lives; `profileUrl` builds the link and `showAt` prefixes the shown handle with `@`. An entry without `profileUrl` (Discord) copies its account on click, silently — no toast or icon change. Array order is the on-page order.
 - **Mod platforms** — `modAccounts` in `social.ts` feeds `lib/modrinth.ts` and `lib/curseforge.ts` (public APIs, no credentials; `User-Agent: vercim/portfolio/1.0 (contact@verc.im)`). Both return the account's projects as `ModProject` (`title`, `iconUrl`, `downloads`). cfwidget's author search caches the project list for a long time and misses new projects, so `curseforge.ts` also reads the author by id (`api.cfwidget.com/author/{id}`) and merges both lists.
 - Fetchers never throw: they return `{ status: 'success', ... } | { status: 'error', message }` and log with `console.error('[service] ...')`. The UI must render a sensible state for every failure.
-- Remote images rendered through `next/image` need their host in `images.remotePatterns` in `next.config.ts` (currently `cdn.modrinth.com` and `media.forgecdn.net`). Animated GIF icons are served as they are.
+- Remote images rendered through `next/image` need their host in `images.remotePatterns` in `next.config.ts` (currently `cdn.modrinth.com` and `media.forgecdn.net`). Mod GIF icons are converted on the server to static PNGs from their first frame.
 
 ## Environment
 

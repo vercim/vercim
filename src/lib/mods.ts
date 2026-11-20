@@ -1,4 +1,5 @@
 import { fetchCurseForgeProjects } from '@/lib/curseforge';
+import { staticModIcon } from '@/lib/mod-icon';
 import { fetchModrinthProjects } from '@/lib/modrinth';
 
 export interface ModProject {
@@ -18,7 +19,7 @@ function titleKey(title: string): string {
 }
 
 // Union of both platforms, matched by title: a project published on only one
-// of them is kept. Prefer Modrinth when both platforms provide a PNG icon.
+// of them is kept. Prefer Modrinth when both platforms provide a supported icon.
 export async function fetchModsOverview(accounts: {
   modrinth: string;
   curseforge: string;
@@ -38,7 +39,7 @@ export async function fetchModsOverview(accounts: {
     for (const project of result.projects) {
       const key = titleKey(project.title);
       const known = byTitle.get(key);
-      const iconUrl = project.iconUrl && /\.png$/i.test(project.iconUrl.split(/[?#]/, 1)[0])
+      const iconUrl = project.iconUrl && /\.(?:png|gif)$/i.test(project.iconUrl.split(/[?#]/, 1)[0])
         ? project.iconUrl
         : null;
 
@@ -56,6 +57,9 @@ export async function fetchModsOverview(accounts: {
   return {
     totalDownloads:
       answered > 0 ? projects.reduce((total, project) => total + project.downloads, 0) : null,
-    projects,
+    projects: await Promise.all(projects.map(async (project) => ({
+      ...project,
+      iconUrl: await staticModIcon(project.iconUrl),
+    }))),
   };
 }
