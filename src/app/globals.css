@@ -15,11 +15,30 @@
   --c-on-dark-soft: color-mix(in srgb, var(--c-on-dark) 50%, transparent);
   --c-on-dark-border: color-mix(in srgb, var(--c-on-dark) 8%, transparent);
   --c-on-dark-muted: #8d8d8d;
+  --c-bento-border: color-mix(in srgb, var(--c-on-dark) 10%, transparent);
   --c-bento-card: color-mix(in srgb, var(--c-on-dark) 4%, var(--c-dark));
   --c-roblox-accent: #335fff;
   /* Same colors as the CloudShader defaults; also the fallback before it draws. */
   --c-sky-top: #3876ba;
   --c-sky-bottom: #8cbfe8;
+
+  --frame-pad: 0.5rem;
+  --inset-start: 1.5rem;
+  --inset-end: 1.5rem;
+  --page-start: calc(var(--frame-pad) + var(--inset-start));
+  --page-end: calc(var(--frame-pad) + var(--inset-end));
+
+  @variant desktop {
+    --frame-pad: 0.75rem;
+    --inset-start: 4.5rem;
+    --inset-end: 3.5rem;
+  }
+
+  @variant xl {
+    --frame-pad: 1.25rem;
+    --inset-start: 8rem;
+    --inset-end: 6rem;
+  }
 }
 
 @theme inline {
@@ -34,6 +53,7 @@
   --color-on-dark: var(--c-on-dark);
   --color-on-dark-soft: var(--c-on-dark-soft);
   --color-on-dark-border: var(--c-on-dark-border);
+  --color-bento-border: var(--c-bento-border);
   --color-bento-card: var(--c-bento-card);
   --color-roblox-accent: var(--c-roblox-accent);
   --color-sky-top: var(--c-sky-top);
@@ -89,6 +109,105 @@ img {
 
   .hero__sky {
     animation: hero-sky-in 1.4s ease both;
+  }
+
+  .page-gutters {
+    padding-inline: var(--page-start) var(--page-end);
+  }
+
+  .display-type {
+    @apply text-3xl leading-tight font-semibold desktop:text-4xl lg:text-5xl xl:text-6xl;
+    letter-spacing: -0.035em;
+  }
+
+  .paragraph-copy {
+    @apply text-xl leading-snug font-normal text-pretty desktop:text-2xl xl:text-3xl;
+    max-inline-size: 36ch;
+  }
+
+  .bento-layout {
+    @apply grid w-full items-center gap-10 desktop:gap-6 lg:gap-12;
+    @variant lg {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    }
+  }
+
+  .bento-facts {
+    @apply flex min-w-0 flex-col gap-2 desktop:h-80 desktop:flex-row lg:h-96 xl:h-112;
+  }
+
+  .bento-fact {
+    @apply relative min-w-0 overflow-hidden rounded-2xl border border-bento-border bg-bento-card;
+  }
+
+  .bento-fact:has(:focus-visible) {
+    @apply outline-2 outline-offset-2;
+  }
+
+  .bento-fact-topic {
+    @apply flex h-14 items-center justify-between px-5 text-base font-medium;
+  }
+
+  .bento-fact-topic::after {
+    content: '+' / '';
+    @apply text-xl font-normal;
+  }
+
+  .bento-fact-content {
+    @apply hidden items-end justify-between gap-4 px-5 pb-5;
+  }
+
+  .bento-fact:has(:checked) {
+    background: color-mix(in srgb, var(--c-on-dark) 10%, var(--c-dark));
+
+    .bento-fact-topic::after { content: none; }
+    .bento-fact-content { @apply flex; }
+  }
+
+  .bento-icon {
+    @apply aspect-square w-full;
+  }
+
+  .bento-fact-content .bento-icon {
+    @apply order-last w-12 shrink-0 sm:w-16;
+  }
+
+  @variant desktop {
+    .bento-fact {
+      @apply flex-none;
+      flex-basis: --spacing(11);
+      @media (prefers-reduced-motion: no-preference) {
+        transition: flex-grow 320ms ease;
+      }
+      @variant lg { flex-basis: --spacing(14); }
+    }
+
+    .bento-fact-topic {
+      @apply absolute inset-0 h-auto flex-col-reverse justify-between px-0 py-5;
+    }
+
+    .bento-fact:not(:has(:checked)) .bento-fact-topic {
+      writing-mode: vertical-rl;
+      @apply flex-row-reverse items-center;
+      padding-block: 0;
+      padding-inline: --spacing(5);
+    }
+
+    .bento-fact:has(:checked) {
+      @apply grow;
+
+      .bento-fact-topic {
+        @apply inset-x-5 top-5 bottom-auto flex-row p-0;
+      }
+    }
+
+    .bento-fact-content {
+      @apply h-full min-w-0 flex-col items-start gap-2 px-5 pt-16 pb-5;
+    }
+
+    .bento-fact-content .bento-icon {
+      @apply order-none my-auto w-24 max-w-full self-center lg:w-32 xl:w-40;
+    }
   }
 
   /* Text rises from behind a mask; padding keeps descenders inside it. */

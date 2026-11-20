@@ -29,13 +29,16 @@ interface BentoIconSegments {
   hover: readonly [string, ...string[]];
 }
 
-interface BentoIconProps {
-  name: BentoIconName;
-  className: string;
-  segments?: BentoIconSegments;
-}
+const segmentsByIcon: Partial<Record<BentoIconName, BentoIconSegments>> = {
+  chat: {
+    idle: 'hover-conversation',
+    hover: ['hover-conversation', 'hover-conversation-alt'],
+  },
+  mods: { idle: 'hover-pinch', hover: ['hover-pinch'] },
+};
 
-export function BentoIcon({ name, className, segments }: BentoIconProps) {
+export function BentoIcon({ name }: { name: BentoIconName }) {
+  const segments = segmentsByIcon[name];
   const lottieRef = useRef<LottieHandle>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useRef(false);
@@ -96,7 +99,7 @@ export function BentoIcon({ name, className, segments }: BentoIconProps) {
   }, []);
 
   return (
-    <div ref={rootRef} className={className} aria-hidden="true">
+    <div ref={rootRef} className="bento-icon" aria-hidden="true">
       <Lottie
         lottieRef={lottieRef}
         src={animations[name]}
