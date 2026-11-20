@@ -1,4 +1,4 @@
-const sections = ['mods', 'games', 'info'];
+const sections = ['mods', 'games', 'about'];
 
 export function SiteHeader() {
   return (
