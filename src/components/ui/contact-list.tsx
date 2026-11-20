@@ -1,38 +1,42 @@
 'use client';
 
-import type { CSSProperties } from 'react';
-import type { Contact } from '@/data/social';
+import { revealDelay } from '@/components/ui/reveal-style';
+import type { contacts } from '@/data/social';
 
-export function ContactList({ contacts }: { contacts: Contact[] }) {
+export function ContactList({ usernames }: { usernames: typeof contacts }) {
   return (
-    <ul className="m-0 list-none p-0 text-[clamp(1.75rem,4.8vw,4.75rem)] leading-[1.05] tracking-[-0.045em]">
-      {contacts.map(({ id, label, account, handle, href }, index) => (
-        <li
-          key={id}
-          className="reveal"
-          style={{ '--reveal-delay': `${index * 0.1}s` } as CSSProperties}
-        >
-          {href ? (
-            <a
-              className="reveal__line cursor-pointer border-0 border-none bg-transparent p-0 text-on-sky no-underline transition-colors duration-150 ease-contact [font:inherit] tracking-inherit focus-visible:text-on-sky-dim focus-visible:underline focus-visible:decoration-2 focus-visible:underline-offset-[0.12em] focus-visible:outline-none"
-              href={href}
-              target="_blank"
-              rel="noreferrer"
-            >
-              {label}: {handle}
-            </a>
-          ) : (
-            <button
-              type="button"
-              className="reveal__line cursor-pointer border-0 border-none bg-transparent p-0 text-on-sky no-underline transition-colors duration-150 ease-contact [font:inherit] tracking-inherit focus-visible:text-on-sky-dim focus-visible:underline focus-visible:decoration-2 focus-visible:underline-offset-[0.12em] focus-visible:outline-none"
-              aria-label={`${label}: ${handle} (copy username)`}
-              onClick={() => navigator.clipboard?.writeText(account).catch(() => {})}
-            >
-              {label}: {handle}
-            </button>
-          )}
-        </li>
-      ))}
+    <ul className="display-type flex flex-col items-start" role="list">
+      {Object.entries(usernames).map(([platform, { username, link }], index) => {
+        const label = `${platform}: ${link ? '@' : ''}${username}`;
+
+        return (
+          <li
+            key={platform}
+            className="reveal"
+            style={revealDelay(index * 0.1)}
+          >
+            {link ? (
+              <a
+                className="contact-link reveal__line"
+                href={link}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {label}
+              </a>
+            ) : (
+              <button
+                type="button"
+                className="contact-link reveal__line"
+                aria-label={`${label} (copy username)`}
+                onClick={() => navigator.clipboard?.writeText(username).catch(() => {})}
+              >
+                {label}
+              </button>
+            )}
+          </li>
+        );
+      })}
     </ul>
   );
 }

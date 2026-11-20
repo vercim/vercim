@@ -5,6 +5,7 @@ import { useEffect, useRef, type ReactNode } from 'react';
 export type CloudShaderProps = {
   className?: string;
   children?: ReactNode;
+  maskCanvasIds?: readonly string[];
   /** Animation speed multiplier. 1 = default drift. */
   speed?: number;
   /** Number of clouds (1-6). */
@@ -35,6 +36,8 @@ precision highp float;
 varying vec2 v_uv;
 
 uniform vec2 u_res;
+uniform vec4 u_view;
+uniform bool u_mask;
 uniform float u_time;
 uniform float u_count;
 uniform vec3 u_cloud;
@@ -102,9 +105,16 @@ float cloudDensity(vec2 p, vec2 c, vec2 r, float seed, float t) {
 }
 
 // shades one cloud and blends it over the current color
-vec3 shadeCloud(vec3 color, vec3 sky, vec2 p, vec2 c, vec2 r, float seed, float t, float dist) {
+vec3 shadeCloud(vec3 color, vec3 sky, vec2 p, vec2 c, vec2 r, float seed, float t, float dist,
+                inout float coverage) {
   float d = cloudDensity(p, c, r, seed, t);
   if (d < 0.02) return color;
+
+  float alpha = smoothstep(0.02, 0.38, d);
+  if (u_mask) {
+    coverage = max(coverage, alpha);
+    return color;
+  }
 
   // sample density toward the sun (straight up) for self-shadowing
   float dUp = cloudDensity(p + vec2(0.0, r.y * 0.55), c, r, seed, t);
@@ -113,8 +123,6 @@ vec3 shadeCloud(vec3 color, vec3 sky, vec2 p, vec2 c, vec2 r, float seed, float 
   vec3 lit = u_cloud * 1.04;
   vec3 shadow = mix(u_cloud * 0.60, sky, 0.38);
   vec3 cloudCol = mix(lit, shadow, occl * 0.85);
-
-  float alpha = smoothstep(0.02, 0.38, d);
 
   // silver lining on thin edges
   float rim = smoothstep(0.02, 0.14, d) * (1.0 - smoothstep(0.14, 0.40, d));
@@ -129,22 +137,25 @@ vec3 shadeCloud(vec3 color, vec3 sky, vec2 p, vec2 c, vec2 r, float seed, float 
 
 // one drifting cloud: horizontal wrap + gentle vertical bob
 vec3 cloudPass(vec3 color, vec3 sky, vec2 p, float aspect, float t,
-               float spd, float phase, float y, vec2 r, float seed, float dist) {
+               float spd, float phase, float y, vec2 r, float seed, float dist,
+               inout float coverage) {
   float cx = mix(-r.x - 0.25, aspect + r.x + 0.25, fract(t * spd + phase));
   float cy = y + sin(t * 0.05 + phase * 6.2831) * 0.012;
-  return shadeCloud(color, sky, p, vec2(cx, cy), r, seed, t, dist);
+  return shadeCloud(color, sky, p, vec2(cx, cy), r, seed, t, dist, coverage);
 }
 
 void main() {
   float aspect = u_res.x / u_res.y;
-  vec2 p = vec2(v_uv.x * aspect, v_uv.y);
+  vec2 uv = u_view.xy + v_uv * u_view.zw;
+  vec2 p = vec2(uv.x * aspect, uv.y);
   float t = u_time;
+  float coverage = 0.0;
 
-  vec3 sky = mix(u_skyBottom, u_skyTop, v_uv.y);
+  vec3 sky = mix(u_skyBottom, u_skyTop, uv.y);
   vec3 color = sky;
 
   // faint haze band near the horizon
-  color = mix(color, u_skyBottom * 1.06, smoothstep(0.35, 0.0, v_uv.y) * 0.5);
+  color = mix(color, u_skyBottom * 1.06, smoothstep(0.35, 0.0, uv.y) * 0.5);
 
   // soft sun glow, upper area
   vec2 sunPos = vec2(aspect * 0.78, 0.92);
@@ -152,8 +163,8 @@ void main() {
   color += vec3(1.0, 0.95, 0.82) * exp(-sunDist * sunDist * 5.0) * 0.28;
 
   // thin cirrus streaks, stretched horizontally, high in the sky
-  float cirrusBand = smoothstep(0.55, 0.8, v_uv.y) * (1.0 - smoothstep(0.9, 1.0, v_uv.y));
-  if (cirrusBand > 0.01) {
+  float cirrusBand = smoothstep(0.55, 0.8, uv.y) * (1.0 - smoothstep(0.9, 1.0, uv.y));
+  if (!u_mask && cirrusBand > 0.01) {
     float streak = fbm(vec2(p.x * 1.6 - t * 0.006, p.y * 12.0));
     float wisp = smoothstep(0.52, 0.78, streak) * cirrusBand;
     color = mix(color, u_cloud * 0.98, wisp * 0.35);
@@ -161,27 +172,29 @@ void main() {
 
   // far layer: small, high, slow
   if (u_count > 5.5) {
-    color = cloudPass(color, sky, p, aspect, t, 0.006, 0.10, 0.84, vec2(0.20, 0.10), 43.7, 1.0);
+    color = cloudPass(color, sky, p, aspect, t, 0.006, 0.10, 0.84, vec2(0.20, 0.10), 43.7, 1.0, coverage);
   }
   if (u_count > 4.5) {
-    color = cloudPass(color, sky, p, aspect, t, 0.008, 0.62, 0.73, vec2(0.24, 0.12), 71.3, 0.85);
+    color = cloudPass(color, sky, p, aspect, t, 0.008, 0.62, 0.73, vec2(0.24, 0.12), 71.3, 0.85, coverage);
   }
 
   // middle layer
   if (u_count > 3.5) {
-    color = cloudPass(color, sky, p, aspect, t, 0.011, 0.33, 0.60, vec2(0.34, 0.16), 17.3, 0.55);
+    color = cloudPass(color, sky, p, aspect, t, 0.011, 0.33, 0.60, vec2(0.34, 0.16), 17.3, 0.55, coverage);
   }
   if (u_count > 2.5) {
-    color = cloudPass(color, sky, p, aspect, t, 0.013, 0.80, 0.47, vec2(0.30, 0.15), 29.9, 0.45);
+    color = cloudPass(color, sky, p, aspect, t, 0.013, 0.80, 0.47, vec2(0.30, 0.15), 29.9, 0.45, coverage);
   }
 
   // near layer: big, low, fast
   if (u_count > 1.5) {
-    color = cloudPass(color, sky, p, aspect, t, 0.016, 0.05, 0.35, vec2(0.46, 0.20), 91.1, 0.15);
+    color = cloudPass(color, sky, p, aspect, t, 0.016, 0.05, 0.35, vec2(0.46, 0.20), 91.1, 0.15, coverage);
   }
-  color = cloudPass(color, sky, p, aspect, t, 0.020, 0.48, 0.20, vec2(0.56, 0.24), 57.2, 0.0);
+  color = cloudPass(color, sky, p, aspect, t, 0.020, 0.48, 0.20, vec2(0.56, 0.24), 57.2, 0.0, coverage);
 
-  gl_FragColor = vec4(color, 1.0);
+  gl_FragColor = u_mask
+    ? vec4(0.0, 0.0, 1.0 - smoothstep(0.47, 0.53, coverage), 1.0)
+    : vec4(color, 1.0);
 }
 `;
 
@@ -221,9 +234,81 @@ function compile(gl: WebGLRenderingContext, type: number, source: string) {
   return shader;
 }
 
+function createRenderer(canvas: HTMLCanvasElement, mask = false) {
+  const gl = canvas.getContext('webgl', {
+    alpha: false,
+    antialias: false,
+    premultipliedAlpha: false,
+  });
+  if (!gl) return;
+
+  const vert = compile(gl, gl.VERTEX_SHADER, VERT);
+  const frag = compile(gl, gl.FRAGMENT_SHADER, FRAG);
+  if (!vert || !frag) return;
+
+  const program = gl.createProgram();
+  if (!program) return;
+  gl.attachShader(program, vert);
+  gl.attachShader(program, frag);
+  gl.bindAttribLocation(program, 0, 'a_pos');
+  gl.linkProgram(program);
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return;
+  gl.useProgram(program);
+
+  const buffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0);
+  gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+  const loc = {
+    res: gl.getUniformLocation(program, 'u_res'),
+    view: gl.getUniformLocation(program, 'u_view'),
+    time: gl.getUniformLocation(program, 'u_time'),
+    count: gl.getUniformLocation(program, 'u_count'),
+    cloud: gl.getUniformLocation(program, 'u_cloud'),
+    skyTop: gl.getUniformLocation(program, 'u_skyTop'),
+    skyBottom: gl.getUniformLocation(program, 'u_skyBottom'),
+  };
+
+  gl.uniform1i(gl.getUniformLocation(program, 'u_mask'), Number(mask));
+
+  return {
+    resize(width: number, height: number) {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const w = Math.max(1, Math.round(width * dpr));
+      const h = Math.max(1, Math.round(height * dpr));
+      if (canvas.width !== w || canvas.height !== h) {
+        canvas.width = w;
+        canvas.height = h;
+      }
+      gl.viewport(0, 0, w, h);
+    },
+    setScene(width: number, height: number, view: [number, number, number, number]) {
+      gl.uniform2f(loc.res, width, height);
+      gl.uniform4f(loc.view, ...view);
+    },
+    draw(elapsed: number, count: number, cloud: number[], skyTop: number[], skyBottom: number[]) {
+      gl.uniform1f(loc.time, elapsed);
+      gl.uniform1f(loc.count, count);
+      gl.uniform3fv(loc.cloud, cloud);
+      gl.uniform3fv(loc.skyTop, skyTop);
+      gl.uniform3fv(loc.skyBottom, skyBottom);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    },
+    dispose() {
+      gl.deleteBuffer(buffer);
+      gl.deleteProgram(program);
+      gl.deleteShader(vert);
+      gl.deleteShader(frag);
+    },
+  };
+}
+
 export const CloudShader = ({
   className,
   children,
+  maskCanvasIds,
   speed = 1,
   count = 6,
   cloudColor = '#fbf8f2',
@@ -247,40 +332,27 @@ export const CloudShader = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const gl = canvas.getContext('webgl', {
-      alpha: false,
-      antialias: false,
-      premultipliedAlpha: false,
+    const sky = createRenderer(canvas);
+    if (!sky) return;
+
+    const masks = (maskCanvasIds ?? []).flatMap((id) => {
+      const surface = document.getElementById(id);
+      if (!(surface instanceof HTMLCanvasElement) || !surface.parentElement) return [];
+
+      const renderer = createRenderer(surface, true);
+      if (!renderer) return [];
+
+      return [{ surface, group: surface.parentElement, renderer, available: true, ready: false }];
     });
-    if (!gl) return;
-
-    const vert = compile(gl, gl.VERTEX_SHADER, VERT);
-    const frag = compile(gl, gl.FRAGMENT_SHADER, FRAG);
-    if (!vert || !frag) return;
-
-    const program = gl.createProgram();
-    if (!program) return;
-    gl.attachShader(program, vert);
-    gl.attachShader(program, frag);
-    gl.bindAttribLocation(program, 0, 'a_pos');
-    gl.linkProgram(program);
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return;
-    gl.useProgram(program);
-
-    const buffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-    gl.enableVertexAttribArray(0);
-    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
-
-    const loc = {
-      res: gl.getUniformLocation(program, 'u_res'),
-      time: gl.getUniformLocation(program, 'u_time'),
-      count: gl.getUniformLocation(program, 'u_count'),
-      cloud: gl.getUniformLocation(program, 'u_cloud'),
-      skyTop: gl.getUniformLocation(program, 'u_skyTop'),
-      skyBottom: gl.getUniformLocation(program, 'u_skyBottom'),
+    const disableMasks = (event?: Event) => {
+      for (const mask of masks) {
+        if (event && event.currentTarget !== canvas && event.currentTarget !== mask.surface) continue;
+        mask.available = false;
+        mask.group.removeAttribute('data-cloud-mask-ready');
+      }
     };
+    for (const { surface } of masks) surface.addEventListener('webglcontextlost', disableMasks);
+    canvas.addEventListener('webglcontextlost', disableMasks);
 
     let frame = 0;
     let running = true;
@@ -288,19 +360,25 @@ export const CloudShader = ({
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const w = Math.max(1, Math.floor(canvas.clientWidth * dpr));
-      const h = Math.max(1, Math.floor(canvas.clientHeight * dpr));
-      if (canvas.width !== w || canvas.height !== h) {
-        canvas.width = w;
-        canvas.height = h;
+      const bounds = canvas.getBoundingClientRect();
+      if (!bounds.width || !bounds.height) return;
+      sky.resize(bounds.width, bounds.height);
+      sky.setScene(canvas.width, canvas.height, [0, 0, 1, 1]);
+      for (const { surface, renderer } of masks) {
+        const region = surface.getBoundingClientRect();
+        renderer.resize(region.width, region.height);
+        renderer.setScene(canvas.width, canvas.height, [
+          (region.left - bounds.left) / bounds.width,
+          (bounds.bottom - region.bottom) / bounds.height,
+          region.width / bounds.width,
+          region.height / bounds.height,
+        ]);
       }
-      gl.viewport(0, 0, w, h);
-      gl.uniform2f(loc.res, w, h);
     };
 
     const resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(canvas);
+    for (const { group } of masks) resizeObserver.observe(group);
     resize();
 
     const start = performance.now();
@@ -314,12 +392,16 @@ export const CloudShader = ({
       const skyTop = parseHex(p.skyTopColor);
       const skyBottom = parseHex(p.skyBottomColor);
 
-      gl.uniform1f(loc.time, elapsed);
-      gl.uniform1f(loc.count, Math.min(6, Math.max(1, p.count)));
-      gl.uniform3f(loc.cloud, cloud[0], cloud[1], cloud[2]);
-      gl.uniform3f(loc.skyTop, skyTop[0], skyTop[1], skyTop[2]);
-      gl.uniform3f(loc.skyBottom, skyBottom[0], skyBottom[1], skyBottom[2]);
-      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      const cloudCount = Math.min(6, Math.max(1, p.count));
+      sky.draw(elapsed, cloudCount, cloud, skyTop, skyBottom);
+      for (const mask of masks) {
+        if (!mask.available) continue;
+        mask.renderer.draw(elapsed, cloudCount, cloud, skyTop, skyBottom);
+        if (!mask.ready) {
+          mask.group.setAttribute('data-cloud-mask-ready', '');
+          mask.ready = true;
+        }
+      }
       frame = requestAnimationFrame(draw);
     };
 
@@ -337,12 +419,15 @@ export const CloudShader = ({
       cancelAnimationFrame(frame);
       resizeObserver.disconnect();
       visibilityObserver.disconnect();
-      gl.deleteBuffer(buffer);
-      gl.deleteProgram(program);
-      gl.deleteShader(vert);
-      gl.deleteShader(frag);
+      disableMasks();
+      canvas.removeEventListener('webglcontextlost', disableMasks);
+      for (const { surface, renderer } of masks) {
+        surface.removeEventListener('webglcontextlost', disableMasks);
+        renderer.dispose();
+      }
+      sky.dispose();
     };
-  }, []);
+  }, [maskCanvasIds]);
 
   return (
     <div

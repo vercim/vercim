@@ -4,25 +4,21 @@
 :root {
   --c-frame: #f1f0ec;
   --c-ink: #0f1a2b;
-  --c-ink-soft: color-mix(in srgb, var(--c-ink) 50%, transparent);
   --c-muted: #6b6e74;
   --c-on-sky: #fff;
-  /* The reveal animation fills opacity, so hover/focus dimming transitions
-     color instead — same effect, and it animates. */
-  --c-on-sky-dim: rgba(255, 255, 255, 0.55);
   --c-dark: #101010;
   --c-on-dark: #fff;
-  --c-on-dark-soft: color-mix(in srgb, var(--c-on-dark) 50%, transparent);
   --c-on-dark-border: color-mix(in srgb, var(--c-on-dark) 8%, transparent);
   --c-on-dark-muted: #8d8d8d;
   --c-bento-border: color-mix(in srgb, var(--c-on-dark) 10%, transparent);
-  --c-bento-card: color-mix(in srgb, var(--c-on-dark) 4%, var(--c-dark));
+  --c-bento-card: color-mix(in srgb, var(--c-on-dark) 6%, var(--c-dark));
   --c-roblox-accent: #335fff;
   /* Same colors as the CloudShader defaults; also the fallback before it draws. */
   --c-sky-top: #3876ba;
   --c-sky-bottom: #8cbfe8;
 
   --frame-pad: 0.5rem;
+  --frame-radius: var(--radius-2xl);
   --inset-start: 1.5rem;
   --inset-end: 1.5rem;
   --page-start: calc(var(--frame-pad) + var(--inset-start));
@@ -30,34 +26,67 @@
 
   @variant desktop {
     --frame-pad: 0.75rem;
+    --frame-radius: var(--radius-3xl);
     --inset-start: 4.5rem;
     --inset-end: 3.5rem;
   }
 
   @variant xl {
     --frame-pad: 1.25rem;
+    --frame-radius: var(--radius-4xl);
     --inset-start: 8rem;
     --inset-end: 6rem;
   }
 }
 
-@theme inline {
+@theme {
   --breakpoint-desktop: 42.5rem;
   --spacing-header: 3.75rem;
+}
+
+@theme inline {
+  --font-sans: var(--font-geist), system-ui, sans-serif;
   --color-frame: var(--c-frame);
   --color-ink: var(--c-ink);
-  --color-ink-soft: var(--c-ink-soft);
   --color-on-sky: var(--c-on-sky);
-  --color-on-sky-dim: var(--c-on-sky-dim);
   --color-dark: var(--c-dark);
   --color-on-dark: var(--c-on-dark);
-  --color-on-dark-soft: var(--c-on-dark-soft);
+  --color-on-dark-muted: var(--c-on-dark-muted);
   --color-on-dark-border: var(--c-on-dark-border);
   --color-bento-border: var(--c-bento-border);
   --color-bento-card: var(--c-bento-card);
   --color-roblox-accent: var(--c-roblox-accent);
   --color-sky-top: var(--c-sky-top);
   --color-sky-bottom: var(--c-sky-bottom);
+}
+
+@media not all and (forced-colors: active) {
+  body {
+    --selection-background: var(--c-ink);
+  }
+
+  .text-black {
+    --selection-background: #000;
+  }
+
+  .text-on-dark,
+  .roblox-showcase {
+    --selection-background: var(--c-on-dark);
+  }
+
+  .text-on-sky {
+    --selection-background: var(--c-on-sky);
+  }
+
+  .text-on-dark-muted {
+    --selection-background: var(--c-on-dark-muted);
+  }
+
+  ::selection {
+    background-color: var(--selection-background);
+    color: rgb(from var(--selection-background) calc(255 - r) calc(255 - g) calc(255 - b));
+    text-shadow: none;
+  }
 }
 
 img {
@@ -71,7 +100,7 @@ img {
   from { opacity: 0; }
 }
 
-@keyframes hero-rise {
+@keyframes reveal-rise {
   from {
     opacity: 0;
     transform: translateY(105%);
@@ -98,21 +127,36 @@ img {
   }
 }
 
+@media (any-pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .art-slot__parallax {
+    translate: calc(var(--pointer-x, 0) * var(--parallax-x)) var(--parallax-translate-y);
+    transition: translate var(--parallax-duration) cubic-bezier(0.2, 0.65, 0.3, 1);
+  }
+
+  .art-slot__parallax[data-parallax='minecraft'] {
+    --parallax-x: 14px;
+    --parallax-translate-y: calc(var(--pointer-y, 0) * 12px);
+    --parallax-duration: 280ms;
+  }
+
+  .art-slot__parallax[data-parallax='roblox'] {
+    --parallax-x: 10px;
+    --parallax-translate-y: calc((var(--pointer-y, 0.5) - 0.5) * 12px);
+    --parallax-duration: 560ms;
+  }
+}
+
 @layer components {
-  .site-nav {
-    @apply flex gap-4 text-base desktop:gap-6 desktop:text-lg xl:text-xl;
-  }
-
-  .site-nav-link {
-    @apply underline decoration-1 underline-offset-4 focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4;
-  }
-
-  .hero__sky {
-    animation: hero-sky-in 1.4s ease both;
-  }
-
   .page-gutters {
     padding-inline: var(--page-start) var(--page-end);
+  }
+
+  .framed-section {
+    @apply overflow-hidden;
+    margin-inline: var(--frame-pad);
+    margin-block-end: var(--frame-pad);
+    padding-inline: var(--inset-start) var(--inset-end);
+    border-radius: var(--frame-radius);
   }
 
   .display-type {
@@ -123,6 +167,107 @@ img {
   .paragraph-copy {
     @apply text-xl leading-snug font-normal text-pretty desktop:text-2xl xl:text-3xl;
     max-inline-size: 36ch;
+  }
+
+  .site-nav {
+    @apply flex gap-4 text-base desktop:gap-6 desktop:text-lg xl:text-xl;
+  }
+
+  .site-nav-link {
+    @apply underline decoration-1 underline-offset-4 focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4;
+  }
+
+  .hero-card {
+    @apply relative isolate flex scroll-mt-header flex-col justify-between gap-12 pt-10 pb-12 desktop:pt-24 desktop:pb-28 xl:pt-28 xl:pb-32;
+    min-height: max(--spacing(112), calc(100svh - var(--spacing-header) - var(--frame-pad)));
+    clip-path: inset(0 round var(--frame-radius));
+    --reveal-base: 0.5s;
+  }
+
+  .hero-cloud-text {
+    @apply relative w-fit max-w-full;
+  }
+
+  .hero-cloud-text > canvas {
+    @apply pointer-events-none invisible absolute -inset-3 max-w-none;
+    width: calc(100% + --spacing(6));
+    height: calc(100% + --spacing(6));
+    filter: blur(3px);
+  }
+
+  .hero-copy {
+    @apply leading-tight tracking-tight whitespace-pre-line;
+    max-inline-size: 28em;
+  }
+
+  .contact-link {
+    @apply cursor-pointer no-underline focus-visible:underline focus-visible:decoration-2 focus-visible:underline-offset-4 focus-visible:outline-none;
+  }
+
+  .hero__sky {
+    animation: hero-sky-in 1.4s ease both;
+  }
+
+  .showcase {
+    @apply relative grid min-h-svh gap-8 pt-6 desktop:gap-12 xl:gap-16;
+    grid-template-rows: auto 1fr;
+  }
+
+  .showcase-copy {
+    @apply relative z-1 flex w-full max-w-xl flex-col gap-4 self-start desktop:gap-6;
+  }
+
+  .showcase-art {
+    @apply pointer-events-none self-end justify-self-center;
+  }
+
+  .minecraft-showcase > .showcase-art {
+    width: min(100%, 44dvh);
+  }
+
+  .roblox-showcase {
+    @apply bg-roblox-accent pt-12 text-on-dark desktop:pt-16 xl:pt-20;
+  }
+
+  .roblox-showcase > .showcase-art {
+    width: min(calc(100% + var(--inset-start) + var(--inset-end)), 70dvh);
+  }
+
+  @variant desktop {
+    .minecraft-showcase {
+      grid-template-columns: minmax(0, 1fr) min(60dvh, 34vw);
+      grid-template-rows: 1fr;
+    }
+
+    .minecraft-showcase > .showcase-copy {
+      @apply mt-16 justify-self-center xl:mt-20;
+    }
+
+    .minecraft-showcase > .showcase-art {
+      @apply w-full;
+    }
+
+    .roblox-showcase > .showcase-copy {
+      @apply w-1/2 justify-self-end pb-8;
+    }
+
+    .roblox-showcase > .showcase-art {
+      @apply absolute bottom-0;
+      inset-inline-start: var(--inset-start);
+      width: 50vw;
+    }
+  }
+
+  .section-icons {
+    @apply flex flex-wrap gap-3 desktop:gap-4 xl:gap-5;
+  }
+
+  .section-icon {
+    @apply aspect-square h-auto w-14 desktop:w-18 xl:w-24;
+  }
+
+  .minecraft-showcase .section-icon {
+    @apply rounded-xl;
   }
 
   .bento-layout {
@@ -265,8 +410,8 @@ img {
 
   .reveal__line {
     display: inline-block;
-    animation: hero-rise 1.1s cubic-bezier(0.16, 1, 0.3, 1) both;
-    animation-delay: calc(var(--reveal-base, 0s) + var(--reveal-delay, 0s));
+    animation: reveal-rise 1.1s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: calc(var(--reveal-base, 0s) + var(--reveal-delay, 0s) + var(--reveal-line-index, 0) * 0.1s);
   }
 
   /* Images and icons fade in while sliding up, without a mask. */
@@ -282,4 +427,26 @@ img {
 
 .bento-icon .lottie-stroke {
   stroke: currentColor;
+}
+
+@media not all and (forced-colors: active) {
+  .hero-cloud-text[data-cloud-mask-ready] {
+    isolation: isolate;
+    filter: url(#hero-cloud-text-mask);
+  }
+
+  .hero-cloud-text[data-cloud-mask-ready] > canvas {
+    visibility: visible;
+  }
+
+  /* Screen preserves the blue cloud mask alongside the text and selection channels. */
+  .hero-cloud-text[data-cloud-mask-ready] > :is(ul, p) {
+    color: rgb(255 0 0);
+    mix-blend-mode: screen;
+  }
+
+  .hero-cloud-text[data-cloud-mask-ready] ::selection {
+    background-color: rgb(255 0 0);
+    color: rgb(0 255 0);
+  }
 }

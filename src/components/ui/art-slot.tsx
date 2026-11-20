@@ -9,22 +9,23 @@ interface ArtSlotProps {
   sizes: string;
   width: number;
   height: number;
-  className?: string;
-  cut?: boolean;
+  parallax: 'minecraft' | 'roblox';
 }
 
 // Owner-supplied art from public/. Until the file exists, the slot stays empty.
-export function ArtSlot({ src, alt, sizes, width, height, className, cut = false }: ArtSlotProps) {
+export function ArtSlot({ src, alt, sizes, width, height, parallax }: ArtSlotProps) {
   const [missing, setMissing] = useState(false);
 
   return (
-    <div className={className}>
+    <div className="showcase-art reveal__fade">
       {missing ? null : (
         <Image
-          className={`h-auto w-full ${cut ? 'object-cover object-top' : 'object-contain object-bottom'}`}
+          className="art-slot__parallax h-auto w-full object-cover object-top"
+          data-parallax={parallax}
           src={src}
           alt={alt}
           sizes={sizes}
+          quality={90}
           width={width}
           height={height}
           onError={() => setMissing(true)}

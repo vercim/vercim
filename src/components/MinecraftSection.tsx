@@ -1,66 +1,40 @@
-import Image from 'next/image';
-import type { CSSProperties } from 'react';
 import { ArtSlot } from '@/components/ui/art-slot';
+import { RevealText } from '@/components/ui/reveal-text';
+import { SectionIcons } from '@/components/ui/section-icons';
 import { modAccounts } from '@/data/social';
 import { fetchModsOverview } from '@/lib/mods';
 
 export async function MinecraftSection() {
   const { projects } = await fetchModsOverview(modAccounts);
-  const iconProjects = projects.filter(
-    (project): project is typeof project & { iconUrl: string } => project.iconUrl !== null,
-  );
+  const icons = projects.flatMap(({ title, iconUrl, link }) => (
+    iconUrl ? [{ title, iconUrl, link }] : []
+  ));
 
   return (
     <section
       id="mods"
-      className="relative grid min-h-svh grid-cols-[minmax(0,1fr)_min(60dvh,34vw)] gap-[clamp(2rem,5vw,5rem)] pt-[clamp(1rem,4vh,2rem)] pr-[calc(clamp(0.5rem,1.4vw,1.25rem)_+_clamp(1.5rem,7vw,7rem))] pl-[calc(clamp(0.5rem,1.4vw,1.25rem)_+_clamp(1.5rem,9vw,9rem))] max-[680px]:grid-cols-1 max-[680px]:gap-8 max-[680px]:pr-[calc(clamp(0.5rem,1.4vw,1.25rem)_+_clamp(1.5rem,9vw,9rem))] max-[680px]:pb-[min(158%,70dvh)]"
-      aria-label="Minecraft mods"
+      className="showcase minecraft-showcase page-gutters overflow-hidden max-desktop:gap-12"
+      aria-labelledby="mods-title"
       data-reveal
     >
-      <div className="relative z-1 mt-[clamp(6rem,14vh,10rem)] flex flex-col self-start justify-self-center gap-[clamp(1rem,3vh,1.5rem)] max-[680px]:mt-0 max-[680px]:w-full max-[680px]:justify-self-start">
-        {iconProjects.length > 0 ? (
-          <ul className="m-0 flex list-none flex-wrap gap-[clamp(0.75rem,1.5vw,1.25rem)] p-0">
-            {iconProjects.map(({ title, iconUrl, link }, index) => {
-              const icon = (
-              <Image
-                className="block aspect-square h-auto w-full rounded-xl"
-                src={iconUrl}
-                alt={title}
-                width={100}
-                height={100}
-              />
-              );
+      <div className="showcase-copy text-black">
+        <SectionIcons icons={icons} />
 
-              return (
-                <li
-                  key={title}
-                  className="reveal__fade w-[clamp(3.5rem,7vw,6rem)]"
-                  style={{ '--reveal-delay': `${0.25 + index * 0.08}s` } as CSSProperties}
-                >
-                  {link ? <a className="block rounded-xl" href={link}>{icon}</a> : icon}
-                </li>
-              );
-            })}
-          </ul>
-        ) : null}
+        <RevealText as="h2" id="mods-title" className="display-type text-balance" delay={0.1}>
+          Minecraft modding
+        </RevealText>
+
+        <RevealText className="paragraph-copy" delay={0.25}>
+          I publish my mods on Modrinth and CurseForge. I take care of the whole release workflow,
+          from building the mod to sending update notifications in Discord.
+        </RevealText>
       </div>
 
-      <p
-        className="reveal absolute top-[65%] left-[28%] z-1 m-0 w-[clamp(18rem,28vw,28rem)] text-[clamp(1.25rem,2vw,2rem)] leading-[1.15] tracking-[-0.035em] text-balance text-ink-soft max-[680px]:static max-[680px]:mt-0 max-[680px]:w-auto max-[680px]:max-w-none"
-        style={{ '--reveal-delay': '0.5s' } as CSSProperties}
-      >
-        <span className="reveal__line">
-          high quality mods with a full workflow, <br className="max-[680px]:hidden" /> right down
-          to discord notifications
-        </span>
-      </p>
-
       <ArtSlot
-        className="reveal__fade pointer-events-none absolute right-[calc(clamp(0.5rem,1.4vw,1.25rem)_+_clamp(1.5rem,7vw,7rem))] bottom-0 w-[min(60dvh,34vw)] max-[680px]:right-0 max-[680px]:left-0 max-[680px]:mx-auto max-[680px]:w-[min(100%,44dvh)]"
-        cut
+        parallax="minecraft"
         src="/char_mc.png"
         alt="My Minecraft character"
-        sizes="(max-width: 680px) 85vw, 45vw"
+        sizes="(width < 42.5rem) min(100vw, 44dvh), min(60dvh, 34vw)"
         width={1175}
         height={1855}
       />

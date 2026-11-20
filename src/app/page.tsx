@@ -5,6 +5,7 @@ import { HeroSection } from '@/components/HeroSection';
 import { MinecraftSection } from '@/components/MinecraftSection';
 import { RobloxSection } from '@/components/RobloxSection';
 import { SiteHeader } from '@/components/SiteHeader';
+import { PointerParallax } from '@/components/ui/pointer-parallax';
 import { ScrollReveal } from '@/components/ui/scroll-reveal';
 
 export default function Home() {
@@ -21,6 +22,7 @@ export default function Home() {
         <a className="site-nav site-nav-link" href="#top">go back</a>
       </footer>
       <ScrollReveal />
+      <PointerParallax />
     </>
   );
 }

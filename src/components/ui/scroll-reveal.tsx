@@ -24,7 +24,7 @@ export function ScrollReveal() {
 
   return (
     <noscript>
-      <style>{'[data-reveal] .reveal__line, [data-reveal] .reveal__fade { animation: none; }'}</style>
+      <style>{'.hero__sky, .reveal__line, [data-reveal] .reveal__fade { animation: none; }'}</style>
     </noscript>
   );
 }
