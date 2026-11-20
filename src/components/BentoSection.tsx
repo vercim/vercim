@@ -1,4 +1,3 @@
-import { BentoIcon } from '@/components/ui/bento-icon';
 import { FactAccordion } from '@/components/ui/fact-accordion';
 
 export function BentoSection() {
@@ -10,14 +9,11 @@ export function BentoSection() {
       data-reveal
     >
       <div className="bento-layout">
-        <div className="flex min-w-0 flex-col items-start gap-5" data-bento-card>
-          <div className="reveal__fade w-16 lg:w-20">
-            <BentoIcon name="chat" />
-          </div>
+        <div className="flex min-w-0 flex-col items-start gap-5">
           <h2 id="about-title" className="display-type max-w-[12ch] text-balance">
             <span className="reveal"><span className="reveal__line">Let’s get down to business</span></span>
           </h2>
-          <p className="paragraph-copy text-[var(--c-on-dark-muted)]">
+          <p className="paragraph-copy">
             <span className="reveal">
               <span className="reveal__line">
                 Have a Minecraft mod or a Roblox game in mind? Send me a short note about

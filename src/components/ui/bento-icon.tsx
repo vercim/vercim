@@ -3,14 +3,12 @@
 import { Lottie, type LottieHandle } from 'lottie-react';
 import { useEffect, useRef } from 'react';
 
-import avatarsChatting from '@/assets/lottie/avatars-chatting.json';
 import payment from '@/assets/lottie/payment.json';
 import clock from '@/assets/lottie/clock.json';
 import layers from '@/assets/lottie/layers.json';
 import medalFirstPlace from '@/assets/lottie/medal-first-place.json';
 
 const animations = {
-  chat: avatarsChatting,
   speed: clock,
   payment,
   mods: layers,
@@ -19,30 +17,11 @@ const animations = {
 
 export type BentoIconName = keyof typeof animations;
 
-/**
- * Marker segments of a multi-part animation: the segment played on load
- * (an entrance segment, when present, is skipped) and hover segments played
- * in turn when the icon has more than one.
- */
-interface BentoIconSegments {
-  idle: string;
-  hover: readonly [string, ...string[]];
-}
-
-const segmentsByIcon: Partial<Record<BentoIconName, BentoIconSegments>> = {
-  chat: {
-    idle: 'hover-conversation',
-    hover: ['hover-conversation', 'hover-conversation-alt'],
-  },
-  mods: { idle: 'hover-pinch', hover: ['hover-pinch'] },
-};
-
 export function BentoIcon({ name }: { name: BentoIconName }) {
-  const segments = segmentsByIcon[name];
+  const marker = name === 'mods' ? 'hover-pinch' : undefined;
   const lottieRef = useRef<LottieHandle>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useRef(false);
-  const hoverAlt = useRef(false);
 
   useEffect(() => {
     reduceMotion.current = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -51,13 +30,11 @@ export function BentoIcon({ name }: { name: BentoIconName }) {
   const handleReady = () => {
     const lottie = lottieRef.current;
     if (!lottie) return;
-    if (segments) {
-      // Seek first: it renders synchronously, so the icon shows its idle
-      // pose even if playback stalls (a backgrounded tab freezes rAF before
-      // the first tick, and frame 0 of this file is a blank entrance state).
-      lottie.seek({ marker: segments.idle });
+    if (marker) {
+      // Seek past the blank entrance frame before playback starts.
+      lottie.seek({ marker });
       if (reduceMotion.current) return;
-      lottie.playSegments({ marker: segments.idle });
+      lottie.playSegments({ marker });
       return;
     }
     if (reduceMotion.current) {
@@ -70,9 +47,7 @@ export function BentoIcon({ name }: { name: BentoIconName }) {
   const play = () => {
     const lottie = lottieRef.current;
     if (!lottie || reduceMotion.current) return;
-    if (segments) {
-      hoverAlt.current = !hoverAlt.current;
-      const marker = segments.hover[hoverAlt.current ? 1 : 0] ?? segments.hover[0];
+    if (marker) {
       lottie.playSegments({ marker });
       return;
     }

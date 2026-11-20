@@ -133,7 +133,11 @@ img {
   }
 
   .bento-facts {
-    @apply flex min-w-0 flex-col gap-2 desktop:h-80 desktop:flex-row lg:h-96 xl:h-112;
+    @apply flex min-w-0 flex-col desktop:h-80 desktop:flex-row lg:h-96 xl:h-112;
+    --bento-gap: --spacing(2);
+    --bento-duration: 420ms;
+    --bento-easing: cubic-bezier(0.33, 0, 0.2, 1);
+    gap: var(--bento-gap);
   }
 
   .bento-fact {
@@ -153,15 +157,26 @@ img {
     @apply text-xl font-normal;
   }
 
+  .bento-fact-reveal {
+    @apply invisible grid grid-rows-[0fr];
+
+    @media (prefers-reduced-motion: no-preference) {
+      transition: grid-template-rows var(--bento-duration) var(--bento-easing), visibility var(--bento-duration);
+    }
+  }
+
   .bento-fact-content {
-    @apply hidden items-end justify-between gap-4 px-5 pb-5;
+    @apply flex items-end justify-between gap-4 px-5 pb-5;
   }
 
   .bento-fact:has(:checked) {
     background: color-mix(in srgb, var(--c-on-dark) 10%, var(--c-dark));
 
-    .bento-fact-topic::after { content: none; }
-    .bento-fact-content { @apply flex; }
+    .bento-fact-reveal { @apply visible grid-rows-[1fr]; }
+
+    @variant max-desktop {
+      .bento-fact-topic::after { content: none; }
+    }
   }
 
   .bento-icon {
@@ -173,36 +188,66 @@ img {
   }
 
   @variant desktop {
+    .bento-facts {
+      container-type: inline-size;
+      --bento-strip-width: --spacing(11);
+
+      @variant lg { --bento-strip-width: --spacing(14); }
+    }
+
     .bento-fact {
       @apply flex-none;
-      flex-basis: --spacing(11);
+      flex-basis: var(--bento-strip-width);
       @media (prefers-reduced-motion: no-preference) {
-        transition: flex-grow 320ms ease;
+        transition: flex-grow var(--bento-duration) var(--bento-easing);
       }
-      @variant lg { flex-basis: --spacing(14); }
     }
 
     .bento-fact-topic {
-      @apply absolute inset-0 h-auto flex-col-reverse justify-between px-0 py-5;
-    }
-
-    .bento-fact:not(:has(:checked)) .bento-fact-topic {
+      @apply absolute inset-y-0 start-0 h-auto flex-row-reverse items-center;
       writing-mode: vertical-rl;
-      @apply flex-row-reverse items-center;
+      inline-size: 100%;
+      block-size: calc(var(--bento-strip-width) - 2px);
       padding-block: 0;
       padding-inline: --spacing(5);
+
+      @media (prefers-reduced-motion: no-preference) {
+        transition: opacity 200ms ease-in-out;
+      }
+    }
+
+    .bento-fact-expanded-topic {
+      opacity: 0;
+
+      @media (prefers-reduced-motion: no-preference) {
+        transition: opacity 150ms ease-in-out;
+      }
     }
 
     .bento-fact:has(:checked) {
       @apply grow;
 
-      .bento-fact-topic {
-        @apply inset-x-5 top-5 bottom-auto flex-row p-0;
+      .bento-fact-topic { opacity: 0; }
+      .bento-fact-expanded-topic {
+        opacity: 1;
+        transition-delay: 125ms;
+      }
+      .bento-fact-reveal { clip-path: inset(0); }
+    }
+
+    .bento-fact-reveal {
+      @apply absolute inset-y-0 start-0 block;
+      /* Lay out the content at the expanded width throughout the transition. */
+      width: calc(100cqi - 3 * (var(--bento-strip-width) + var(--bento-gap)) - 2px);
+      clip-path: inset(0 100% 0 0);
+
+      @media (prefers-reduced-motion: no-preference) {
+        transition: clip-path var(--bento-duration) var(--bento-easing), visibility var(--bento-duration);
       }
     }
 
     .bento-fact-content {
-      @apply h-full min-w-0 flex-col items-start gap-2 px-5 pt-16 pb-5;
+      @apply absolute inset-0 flex-col items-start gap-2 px-5 pt-16 pb-5;
     }
 
     .bento-fact-content .bento-icon {

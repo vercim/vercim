@@ -1,17 +1,56 @@
 'use client';
 
+import { useEffect, useRef, type PointerEvent } from 'react';
+
 import { BentoIcon, type BentoIconName } from '@/components/ui/bento-icon';
 
+const hoverDelay = 140;
+
 const facts: { icon: BentoIconName; topic: string; hint: string }[] = [
-  { icon: 'speed', topic: 'Delivery', hint: 'Fast product implementation' },
-  { icon: 'payment', topic: 'Payment', hint: 'Crypto payment accepted' },
-  { icon: 'mods', topic: 'Minecraft', hint: 'Multiloader & multiversion mods' },
-  { icon: 'rank', topic: 'Roblox', hint: 'Verified scripter in community' },
+  {
+    icon: 'speed',
+    topic: 'Delivery',
+    hint: 'I move quickly from idea to implementation so you can try a working version early.',
+  },
+  {
+    icon: 'payment',
+    topic: 'Payment',
+    hint: 'I accept crypto payments for project work. We can discuss payment details when we agree on the scope.',
+  },
+  {
+    icon: 'mods',
+    topic: 'Minecraft',
+    hint: 'I build mods for multiple Minecraft versions and loaders so players can use them with their existing setups.',
+  },
+  {
+    icon: 'rank',
+    topic: 'Roblox',
+    hint: 'I’m a verified scripter in the Roblox community and use Luau to build gameplay systems and player interfaces.',
+  },
 ];
 
 export function FactAccordion() {
+  const hoverTimer = useRef<number | undefined>(undefined);
+
+  function cancelHover() {
+    window.clearTimeout(hoverTimer.current);
+    hoverTimer.current = undefined;
+  }
+
+  useEffect(() => () => window.clearTimeout(hoverTimer.current), []);
+
+  function scheduleHover(event: PointerEvent<HTMLInputElement>) {
+    const input = event.currentTarget;
+    if (event.pointerType !== 'mouse' || input.checked || hoverTimer.current !== undefined) return;
+
+    hoverTimer.current = window.setTimeout(() => {
+      hoverTimer.current = undefined;
+      input.checked = true;
+    }, hoverDelay);
+  }
+
   return (
-    <fieldset className="bento-facts reveal__fade">
+    <fieldset className="bento-facts reveal__fade" onChange={cancelHover}>
       <legend className="sr-only">Facts about working with me</legend>
       {facts.map(({ icon, topic, hint }, index) => (
         <div key={icon} className="bento-fact" data-bento-card>
@@ -22,16 +61,26 @@ export function FactAccordion() {
             className="absolute inset-0 z-10 size-full cursor-pointer opacity-0"
             aria-describedby={`hint-${icon}`}
             defaultChecked={index === 0}
-            onPointerEnter={(event) => {
-              if (event.pointerType === 'mouse') event.currentTarget.checked = true;
-            }}
+            onPointerMove={scheduleHover}
+            onPointerLeave={cancelHover}
+            onPointerDown={cancelHover}
           />
           <label className="bento-fact-topic" htmlFor={`fact-${icon}`}>{topic}</label>
-          <div className="bento-fact-content">
-            <BentoIcon name={icon} />
-            <p id={`hint-${icon}`} className="max-w-[18ch] text-xl leading-tight tracking-tight text-balance wrap-anywhere lg:text-2xl">
-              {hint}
-            </p>
+          <div className="bento-fact-reveal">
+            <div className="min-h-0 overflow-hidden">
+              <div className="bento-fact-content">
+                <span
+                  className="bento-fact-expanded-topic absolute inset-s-5 top-5 hidden text-base font-medium desktop:block"
+                  aria-hidden="true"
+                >
+                  {topic}
+                </span>
+                <BentoIcon name={icon} />
+                <p id={`hint-${icon}`} className="max-w-[32ch] text-base leading-snug font-normal text-pretty wrap-anywhere lg:text-lg xl:text-xl">
+                  {hint}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       ))}
