@@ -60,17 +60,12 @@ export function BentoIcon({ name }: { name: BentoIconName }) {
     playRef.current = play;
   });
 
-  // Hovering anywhere on the card replays the icon's animation.
   useEffect(() => {
     const card = rootRef.current?.closest('[data-bento-card]');
     if (!card) return;
     const handler = () => playRef.current();
-    card.addEventListener('pointerenter', handler);
-    card.addEventListener('pointerdown', handler);
-    return () => {
-      card.removeEventListener('pointerenter', handler);
-      card.removeEventListener('pointerdown', handler);
-    };
+    card.addEventListener('click', handler);
+    return () => card.removeEventListener('click', handler);
   }, []);
 
   return (

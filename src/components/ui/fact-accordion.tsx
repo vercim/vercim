@@ -1,10 +1,4 @@
-'use client';
-
-import { useEffect, useRef, type PointerEvent } from 'react';
-
 import { BentoIcon, type BentoIconName } from '@/components/ui/bento-icon';
-
-const hoverDelay = 140;
 
 const facts: { icon: BentoIconName; topic: string; hint: string }[] = [
   {
@@ -19,38 +13,19 @@ const facts: { icon: BentoIconName; topic: string; hint: string }[] = [
   },
   {
     icon: 'mods',
-    topic: 'Minecraft',
-    hint: 'I build mods for multiple Minecraft versions and loaders so players can use them with their existing setups.',
+    topic: 'Tech Stack',
+    hint: 'I build Minecraft mods for Fabric, Forge, and NeoForge, script gameplay and UI in Luau, and animate in Blender.',
   },
   {
     icon: 'rank',
-    topic: 'Roblox',
-    hint: 'I’m a verified scripter in the Roblox community and use Luau to build gameplay systems and player interfaces.',
+    topic: 'Certification',
+    hint: 'I hold Verified Scripter status in the Roblox developer community.',
   },
 ];
 
 export function FactAccordion() {
-  const hoverTimer = useRef<number | undefined>(undefined);
-
-  function cancelHover() {
-    window.clearTimeout(hoverTimer.current);
-    hoverTimer.current = undefined;
-  }
-
-  useEffect(() => () => window.clearTimeout(hoverTimer.current), []);
-
-  function scheduleHover(event: PointerEvent<HTMLInputElement>) {
-    const input = event.currentTarget;
-    if (event.pointerType !== 'mouse' || input.checked || hoverTimer.current !== undefined) return;
-
-    hoverTimer.current = window.setTimeout(() => {
-      hoverTimer.current = undefined;
-      input.checked = true;
-    }, hoverDelay);
-  }
-
   return (
-    <fieldset className="bento-facts reveal__fade" onChange={cancelHover}>
+    <fieldset className="bento-facts reveal__fade">
       <legend className="sr-only">Facts about working with me</legend>
       {facts.map(({ icon, topic, hint }, index) => (
         <div key={icon} className="bento-fact" data-bento-card>
@@ -61,9 +36,6 @@ export function FactAccordion() {
             className="absolute inset-0 z-10 size-full cursor-pointer opacity-0"
             aria-describedby={`hint-${icon}`}
             defaultChecked={index === 0}
-            onPointerMove={scheduleHover}
-            onPointerLeave={cancelHover}
-            onPointerDown={cancelHover}
           />
           <label className="bento-fact-topic" htmlFor={`fact-${icon}`}>{topic}</label>
           <div className="bento-fact-reveal">
