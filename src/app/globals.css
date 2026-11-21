@@ -119,6 +119,10 @@ img {
   animation-play-state: paused;
 }
 
+.hero-card:not(.is-sky-ready) :is(.hero__sky, .reveal__line) {
+  animation-play-state: paused;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero__sky,
   .reveal__line,

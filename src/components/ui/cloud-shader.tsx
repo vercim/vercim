@@ -338,8 +338,12 @@ export const CloudShader = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    const hero = canvas.closest('.hero-card');
     const sky = createRenderer(canvas.getContext('webgl', webGLAttributes), 'sky');
-    if (!sky) return;
+    if (!sky) {
+      hero?.classList.add('is-sky-ready');
+      return;
+    }
 
     // WebKit can bypass SVG filters on composited WebGL layers.
     const cssCanvasDocument = document as CSSCanvasDocument;
@@ -361,6 +365,7 @@ export const CloudShader = ({
       return [{ surface, group, renderer, available: true, ready: false }];
     });
     const disableMasks = (event?: Event) => {
+      if (event?.currentTarget === canvas) hero?.classList.add('is-sky-ready');
       for (const mask of masks) {
         if (event && event.currentTarget !== canvas && event.currentTarget !== mask.renderer.canvas) continue;
         mask.available = false;
@@ -374,6 +379,7 @@ export const CloudShader = ({
     let frame = 0;
     let running = true;
     let visible = true;
+    let skyReady = false;
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const resize = () => {
@@ -418,6 +424,10 @@ export const CloudShader = ({
           mask.group.setAttribute('data-cloud-mask-ready', maskMode);
           mask.ready = true;
         }
+      }
+      if (!skyReady) {
+        hero?.classList.add('is-sky-ready');
+        skyReady = true;
       }
       frame = requestAnimationFrame(draw);
     };
