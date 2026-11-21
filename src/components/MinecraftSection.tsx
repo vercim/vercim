@@ -25,8 +25,9 @@ export async function MinecraftSection() {
         </RevealText>
 
         <RevealText className="paragraph-copy" delay={0.25}>
-          I publish my mods on Modrinth and CurseForge. I take care of the whole release workflow,
-          from building the mod to sending update notifications in Discord.
+          My release workflow automatically builds, publishes, and notifies users. 
+          I use modern tools for multiloader and muliversional development, and i 
+          also provide full documentation, which makes it easier to release future updates.
         </RevealText>
       </div>
 

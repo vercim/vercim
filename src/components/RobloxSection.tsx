@@ -24,9 +24,9 @@ export function RobloxSection() {
           </RevealText>
 
           <RevealText className="paragraph-copy" delay={0.25}>
-            I build games in Roblox Studio with Luau. I make animations in Blender, design the
-            interfaces players use, and work on the systems that keep the game running when
-            something goes wrong.
+           I develop stable systems and modules, complete with error-handling 
+           mechanisms and comprehensive documentation. I also design and implement 
+           dynamic user interfaces. I have experience working with Blender character animation.
           </RevealText>
         </div>
 

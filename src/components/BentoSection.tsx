@@ -15,8 +15,8 @@ export function BentoSection() {
             Let’s get down to business
           </RevealText>
           <RevealText className="paragraph-copy">
-            Have a Minecraft mod or a Roblox game in mind? Send me a short note about
-            what you want players to be able to do.
+            Would you like to work with me? Here are a few facts about 
+            me that might help you get to know me better and make a decision :)
           </RevealText>
         </div>
         <FactAccordion />

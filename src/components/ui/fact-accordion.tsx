@@ -2,24 +2,24 @@ import { BentoIcon, type BentoIconName } from '@/components/ui/bento-icon';
 
 const facts: { icon: BentoIconName; topic: string; hint: string }[] = [
   {
+    icon: 'mods',
+    topic: 'Tech Stack',
+    hint: "Two+ years as a Luau developer, experienced with backend and web development. I mainly work with Java. I've been working in video editing and motion design for many years.",
+  },
+  {
     icon: 'speed',
     topic: 'Delivery',
-    hint: 'I move quickly from idea to implementation so you can try a working version early.',
+    hint: 'Rapid implementation from concept to the first MVP, idea validation, and testing.',
   },
   {
     icon: 'payment',
     topic: 'Payment',
-    hint: 'I accept crypto payments for project work. We can discuss payment details when we agree on the scope.',
-  },
-  {
-    icon: 'mods',
-    topic: 'Tech Stack',
-    hint: 'I build Minecraft mods for Fabric, Forge, and NeoForge, script gameplay and UI in Luau, and animate in Blender.',
+    hint: 'I accept payment in cryptocurrency (which is the most convenient option) other options can be discussed on a case-by-case basis.',
   },
   {
     icon: 'rank',
     topic: 'Certification',
-    hint: 'I hold Verified Scripter status in the Roblox developer community.',
+    hint: 'I have verified developer status in the Roblox Community and over 100,000 downloads of my Minecraft mods.',
   },
 ];
 

@@ -195,7 +195,7 @@ img {
     @apply pointer-events-none invisible absolute -inset-3 max-w-none;
     width: calc(100% + --spacing(6));
     height: calc(100% + --spacing(6));
-    filter: blur(2px);
+    /* filter: blur(3px); */
   }
 
   .hero-cloud-text__overlay {
