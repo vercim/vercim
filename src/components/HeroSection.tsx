@@ -48,10 +48,7 @@ export function HeroSection() {
         <ContactList usernames={contacts} />
       </HeroCloudText>
       <HeroCloudText maskId={paragraphMaskId} alignEnd>
-        <RevealText
-          className="paragraph-copy hero-copy text-right"
-          delay={Object.keys(contacts).length * 0.1 + 0.15}
-        >
+        <RevealText className="paragraph-copy hero-copy text-right">
           {'I love to make inspiring and astonishing things.\nSend me a message if u want but please be concise :)'}
         </RevealText>
       </HeroCloudText>

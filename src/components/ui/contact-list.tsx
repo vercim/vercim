@@ -1,20 +1,15 @@
 'use client';
 
-import { revealDelay } from '@/components/ui/reveal-style';
 import type { contacts } from '@/data/social';
 
 export function ContactList({ usernames }: { usernames: typeof contacts }) {
   return (
     <ul className="display-type flex flex-col items-start" role="list">
-      {Object.entries(usernames).map(([platform, { username, link }], index) => {
+      {Object.entries(usernames).map(([platform, { username, link }]) => {
         const label = `${platform}: ${link ? '@' : ''}${username}`;
 
         return (
-          <li
-            key={platform}
-            className="reveal"
-            style={revealDelay(index * 0.1)}
-          >
+          <li key={platform} className="reveal">
             {link ? (
               <a
                 className="contact-link reveal__line"

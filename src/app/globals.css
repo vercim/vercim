@@ -185,7 +185,6 @@ img {
     @apply relative isolate flex scroll-mt-header flex-col justify-between gap-12 pt-10 pb-12 desktop:pt-24 desktop:pb-28 xl:pt-28 xl:pb-32;
     min-height: max(--spacing(112), calc(100svh - var(--spacing-header) - var(--frame-pad)));
     clip-path: inset(0 round var(--frame-radius));
-    --reveal-base: 0.5s;
   }
 
   .hero-cloud-text {
@@ -423,6 +422,10 @@ img {
     display: inline-block;
     animation: reveal-rise 1.1s cubic-bezier(0.16, 1, 0.3, 1) both;
     animation-delay: calc(var(--reveal-base, 0s) + var(--reveal-delay, 0s) + var(--reveal-line-index, 0) * 0.1s);
+  }
+
+  .hero-card .reveal__line {
+    animation-delay: 0s;
   }
 
   /* Images and icons fade in while sliding up, without a mask. */

@@ -47,7 +47,7 @@ public/             owner-supplied art: char_mc.png, char_rbx.png
 
 ## Hero
 
-Sky only, with no game-style decoration; the card fills the viewport below the header. The section uses `id="hero"`. Social links sit top left in a vertical list, showing platform names and usernames at the Minecraft and Roblox headline size, with the same weight, line height, and tracking as the hero paragraph, without underlines. Discord silently copies the username. `CloudShader` renders synchronized cloud masks over the social list and the owner's paragraph. The glyphs stay white over the sky and turn black where a cloud crosses them. WebKit uses a CSS canvas mask on an inert text overlay, and other browsers apply an SVG filter to the glyphs. The paragraph sits bottom right, without rotation. On load the sky fades in and then each text line rises from behind a mask, Apple-style; the header has no intro. Contacts show keyboard focus with an underline, since the mask would clip an outline. The phrase is the owner's own wording in `HeroSection.tsx`; change it only on request.
+Sky only, with no game-style decoration; the card fills the viewport below the header. The section uses `id="hero"`. Social links sit top left in a vertical list, showing platform names and usernames at the Minecraft and Roblox headline size, with the same weight, line height, and tracking as the hero paragraph, without underlines. Discord silently copies the username. `CloudShader` renders synchronized cloud masks over the social list and the owner's paragraph. The glyphs stay white over the sky and turn black where a cloud crosses them. WebKit uses a CSS canvas mask on an inert text overlay, and other browsers apply an SVG filter to the glyphs. The paragraph sits bottom right, without rotation. Once the sky is ready, it fades in while all text lines rise from behind their masks; the header has no intro. Contacts show keyboard focus with an underline, since the mask would clip an outline. The phrase is the owner's own wording in `HeroSection.tsx`; change it only on request.
 
 ## Minecraft
 
@@ -76,7 +76,7 @@ Renderer reference: [Lottie SVG shape styles](https://github.com/airbnb/lottie-w
 
 ## Reveal animation
 
-Every block has the same entrance. Text lines rise from behind a mask (`.reveal` wraps `.reveal__line`); images and icons fade in while sliding up (`.reveal__fade`). `--reveal-delay` on an element staggers it, `--reveal-base` delays a whole block (0.5s on the hero, after the sky fades in). The hero plays on load; blocks with `data-reveal` stay paused until `ScrollReveal` (`ui/scroll-reveal.tsx`, an IntersectionObserver) adds `.is-visible` the first time they scroll into view. `prefers-reduced-motion` and disabled JavaScript show everything without animation.
+Every block has the same entrance. Text lines rise from behind a mask (`.reveal` wraps `.reveal__line`); images and icons fade in while sliding up (`.reveal__fade`). `--reveal-delay` on an element staggers it, and `--reveal-base` delays a whole block. The hero starts its sky and text animations together once the shader draws; blocks with `data-reveal` stay paused until `ScrollReveal` (`ui/scroll-reveal.tsx`, an IntersectionObserver) adds `.is-visible` the first time they scroll into view. `prefers-reduced-motion` and disabled JavaScript show everything without animation.
 
 ## Data
 
