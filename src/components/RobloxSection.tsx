@@ -24,7 +24,7 @@ export function RobloxSection() {
           </RevealText>
 
           <RevealText className="paragraph-copy" delay={0.25}>
-           I develop stable systems and modules, complete with error-handling 
+           I develop stable systems and modules, complete with error handling 
            mechanisms and comprehensive documentation. I also design and implement 
            dynamic user interfaces. I have experience working with Blender character animation.
           </RevealText>
