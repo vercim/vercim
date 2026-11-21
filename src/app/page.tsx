@@ -4,6 +4,7 @@ import { BentoSection } from '@/components/BentoSection';
 import { HeroSection } from '@/components/HeroSection';
 import { MinecraftSection } from '@/components/MinecraftSection';
 import { RobloxSection } from '@/components/RobloxSection';
+import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
 import { PointerParallax } from '@/components/ui/pointer-parallax';
 import { ScrollReveal } from '@/components/ui/scroll-reveal';
@@ -13,14 +14,14 @@ export default function Home() {
     <>
       <SiteHeader />
       <main>
-        <HeroSection />
-        <MinecraftSection />
+        <div className="flow-root bg-frame">
+          <HeroSection />
+          <MinecraftSection />
+        </div>
         <RobloxSection />
         <BentoSection />
       </main>
-      <footer className="flex h-header items-center justify-center bg-dark px-5 font-normal text-on-dark">
-        <a className="site-nav site-nav-link" href="#top">go back</a>
-      </footer>
+      <SiteFooter />
       <ScrollReveal />
       <PointerParallax />
     </>

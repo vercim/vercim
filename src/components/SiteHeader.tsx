@@ -3,7 +3,7 @@ const sections = ['mods', 'games', 'about'];
 // The card mark from src/app/icon.svg, drawn in the current text color.
 export function SiteHeader() {
   return (
-    <header id="top" className="flex h-header items-center justify-between gap-6 px-5 font-normal">
+    <header id="top" className="flex h-header items-center justify-between gap-6 bg-frame px-5 font-normal">
       <svg
         className="block h-auto w-7 shrink-0 text-ink"
         viewBox="0 2 16 12"

@@ -60,6 +60,14 @@
   --color-sky-bottom: var(--c-sky-bottom);
 }
 
+html {
+  background-color: var(--c-frame);
+}
+
+html[data-near-page-end] {
+  background-color: var(--c-dark);
+}
+
 @media not all and (forced-colors: active) {
   body {
     --selection-background: var(--c-ink);

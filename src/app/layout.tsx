@@ -24,7 +24,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body className={`${geist.variable} bg-frame font-sans font-semibold text-ink antialiased`}>
+      <body className={`${geist.variable} font-sans font-semibold text-ink antialiased`}>
         {children}
       </body>
     </html>
