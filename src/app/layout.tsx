@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Geist } from 'next/font/google';
+import { siteUrl } from '@/data/site';
 import './globals.css';
 
 const geist = Geist({
@@ -10,7 +11,8 @@ const geist = Geist({
 
 export const metadata: Metadata = {
   title: 'Hello, i\'m vercim',
-  description: 'My personal internet page.',
+  description: 'Explore my Minecraft mods and Roblox development work. Have a mod or game in mind? Send me a short note about what you want players to do.',
+  alternates: { canonical: siteUrl },
 };
 
 export const viewport: Viewport = {
