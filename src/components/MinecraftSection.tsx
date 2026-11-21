@@ -35,7 +35,7 @@ export async function MinecraftSection() {
         parallax="minecraft"
         src="/char_mc.png"
         alt="My Minecraft character"
-        sizes="(width < 42.5rem) min(100vw, 44dvh), min(60dvh, 34vw)"
+        sizes="(width < 42.5rem) min(100vw, 44svh), min(60svh, 34vw)"
         width={1175}
         height={1855}
       />

@@ -34,7 +34,7 @@ export function RobloxSection() {
           parallax="roblox"
           src="/char_rbx.png"
           alt="My Roblox character"
-          sizes="(width < 42.5rem) min(calc(100vw - 1rem), 70dvh), 50vw"
+          sizes="(width < 42.5rem) min(calc(100vw - 1rem), 70svh), 50vw"
           width={2069}
           height={1495}
         />
