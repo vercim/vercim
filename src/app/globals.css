@@ -342,19 +342,18 @@ img {
   @variant desktop {
     .bento-facts {
       width: 100%;
+      max-width: 42rem;
       container-type: inline-size;
       --bento-strip-width: --spacing(11);
-      --bento-open-width: min(30rem, calc(100cqi - 3 * (var(--bento-strip-width) + var(--bento-gap))));
-      --bento-closed-width: calc((100cqi - var(--bento-open-width) - 3 * var(--bento-gap)) / 3);
 
       @variant lg { --bento-strip-width: --spacing(14); }
     }
 
     .bento-fact {
       @apply flex-none;
-      flex-basis: var(--bento-closed-width);
+      flex-basis: var(--bento-strip-width);
       @media (prefers-reduced-motion: no-preference) {
-        transition: flex-basis var(--bento-duration) var(--bento-easing);
+        transition: flex-grow var(--bento-duration) var(--bento-easing);
       }
     }
 
@@ -362,7 +361,7 @@ img {
       @apply absolute inset-y-0 start-0 h-auto flex-row-reverse items-center;
       writing-mode: vertical-rl;
       inline-size: 100%;
-      block-size: 100%;
+      block-size: calc(var(--bento-strip-width) - 2px);
       padding-block: 0;
       padding-inline: --spacing(5);
 
@@ -380,7 +379,7 @@ img {
     }
 
     .bento-fact:has(:checked) {
-      flex-basis: var(--bento-open-width);
+      @apply grow;
 
       .bento-fact-topic { opacity: 0; }
       .bento-fact-expanded-topic {
@@ -393,7 +392,7 @@ img {
     .bento-fact-reveal {
       @apply absolute inset-y-0 start-0 block;
       /* Lay out the content at the expanded width throughout the transition. */
-      width: calc(var(--bento-open-width) - 2px);
+      width: calc(100cqi - 3 * (var(--bento-strip-width) + var(--bento-gap)) - 2px);
       clip-path: inset(0 100% 0 0);
 
       @media (prefers-reduced-motion: no-preference) {
@@ -407,6 +406,30 @@ img {
 
     .bento-fact-content .bento-icon {
       @apply order-none my-auto w-24 max-w-full self-center lg:w-32 xl:w-40;
+    }
+
+    @variant max-lg {
+      .bento-facts {
+        max-width: none;
+        --bento-open-width: min(32.25rem, calc(100cqi - 3 * (var(--bento-strip-width) + var(--bento-gap))));
+        --bento-closed-width: calc((100cqi - var(--bento-open-width) - 3 * var(--bento-gap)) / 3);
+      }
+
+      .bento-fact {
+        flex-basis: var(--bento-closed-width);
+
+        @media (prefers-reduced-motion: no-preference) {
+          transition: flex-basis var(--bento-duration) var(--bento-easing);
+        }
+      }
+
+      .bento-fact:has(:checked) {
+        flex-basis: var(--bento-open-width);
+        flex-grow: 0;
+      }
+
+      .bento-fact-topic { block-size: 100%; }
+      .bento-fact-reveal { width: calc(var(--bento-open-width) - 2px); }
     }
   }
 
