@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 import { CloudShader } from '@/components/ui/cloud-shader';
 import { ContactList } from '@/components/ui/contact-list';
 import { RevealText } from '@/components/ui/reveal-text';
@@ -6,6 +8,22 @@ import { contacts } from '@/data/social';
 const contactMaskId = 'hero-contact-clouds';
 const paragraphMaskId = 'hero-paragraph-clouds';
 const maskCanvasIds = [contactMaskId, paragraphMaskId];
+
+function HeroCloudText({ maskId, alignEnd, children }: {
+  maskId: string;
+  alignEnd?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <div className={alignEnd ? 'hero-cloud-text self-end' : 'hero-cloud-text'}>
+      <canvas id={maskId} aria-hidden="true" />
+      {children}
+      <div className="hero-cloud-text__overlay" aria-hidden="true" inert>
+        {children}
+      </div>
+    </div>
+  );
+}
 
 export function HeroSection() {
   return (
@@ -26,19 +44,17 @@ export function HeroSection() {
         </filter>
       </svg>
 
-      <div className="hero-cloud-text">
-        <canvas id={contactMaskId} aria-hidden="true" />
+      <HeroCloudText maskId={contactMaskId}>
         <ContactList usernames={contacts} />
-      </div>
-      <div className="hero-cloud-text self-end">
-        <canvas id={paragraphMaskId} aria-hidden="true" />
+      </HeroCloudText>
+      <HeroCloudText maskId={paragraphMaskId} alignEnd>
         <RevealText
           className="paragraph-copy hero-copy text-right"
           delay={Object.keys(contacts).length * 0.1 + 0.15}
         >
           {'I love to make inspiring and astonishing things.\nSend me a message if u want but please be concise :)'}
         </RevealText>
-      </div>
+      </HeroCloudText>
     </section>
   );
 }

@@ -192,7 +192,11 @@ img {
     @apply pointer-events-none invisible absolute -inset-3 max-w-none;
     width: calc(100% + --spacing(6));
     height: calc(100% + --spacing(6));
-    /* filter: blur(3px); */
+    filter: blur(2px);
+  }
+
+  .hero-cloud-text__overlay {
+    @apply pointer-events-none invisible absolute inset-0 text-black select-none;
   }
 
   .hero-copy {
@@ -433,23 +437,35 @@ img {
 }
 
 @media not all and (forced-colors: active) {
-  .hero-cloud-text[data-cloud-mask-ready] {
+  .hero-cloud-text[data-cloud-mask-ready='filter'] {
     isolation: isolate;
     filter: url(#hero-cloud-text-mask);
   }
 
-  .hero-cloud-text[data-cloud-mask-ready] > canvas {
+  .hero-cloud-text[data-cloud-mask-ready='filter'] > canvas {
     visibility: visible;
   }
 
   /* Screen preserves the blue cloud mask alongside the text and selection channels. */
-  .hero-cloud-text[data-cloud-mask-ready] > :is(ul, p) {
+  .hero-cloud-text[data-cloud-mask-ready='filter'] > :is(ul, p) {
     color: rgb(255 0 0);
     mix-blend-mode: screen;
   }
 
-  .hero-cloud-text[data-cloud-mask-ready] ::selection {
+  .hero-cloud-text[data-cloud-mask-ready='filter'] ::selection {
     background-color: rgb(255 0 0);
     color: rgb(0 255 0);
+  }
+
+  .hero-cloud-text[data-cloud-mask-ready='overlay'] > .hero-cloud-text__overlay {
+    visibility: visible;
+    mask-image: var(--hero-cloud-mask);
+    mask-position: center;
+    mask-size: calc(100% + --spacing(6)) calc(100% + --spacing(6));
+    mask-repeat: no-repeat;
+  }
+
+  .hero-cloud-text[data-cloud-mask-ready='overlay'] .contact-link:focus-visible {
+    text-decoration-color: var(--c-ink);
   }
 }

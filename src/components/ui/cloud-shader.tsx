@@ -18,6 +18,12 @@ export type CloudShaderProps = {
   skyBottomColor?: string;
 };
 
+type CSSCanvasDocument = Document & {
+  getCSSCanvasContext?: (type: 'webgl', name: string, width: number, height: number) => WebGLRenderingContext | null;
+};
+
+const webGLAttributes = { alpha: false, antialias: false, premultipliedAlpha: false };
+
 const VERT = `
 attribute vec2 a_pos;
 varying vec2 v_uv;
@@ -37,7 +43,7 @@ varying vec2 v_uv;
 
 uniform vec2 u_res;
 uniform vec4 u_view;
-uniform bool u_mask;
+uniform int u_mask;
 uniform float u_time;
 uniform float u_count;
 uniform vec3 u_cloud;
@@ -111,7 +117,7 @@ vec3 shadeCloud(vec3 color, vec3 sky, vec2 p, vec2 c, vec2 r, float seed, float 
   if (d < 0.02) return color;
 
   float alpha = smoothstep(0.02, 0.38, d);
-  if (u_mask) {
+  if (u_mask != 0) {
     coverage = max(coverage, alpha);
     return color;
   }
@@ -164,7 +170,7 @@ void main() {
 
   // thin cirrus streaks, stretched horizontally, high in the sky
   float cirrusBand = smoothstep(0.55, 0.8, uv.y) * (1.0 - smoothstep(0.9, 1.0, uv.y));
-  if (!u_mask && cirrusBand > 0.01) {
+  if (u_mask == 0 && cirrusBand > 0.01) {
     float streak = fbm(vec2(p.x * 1.6 - t * 0.006, p.y * 12.0));
     float wisp = smoothstep(0.52, 0.78, streak) * cirrusBand;
     color = mix(color, u_cloud * 0.98, wisp * 0.35);
@@ -192,9 +198,12 @@ void main() {
   }
   color = cloudPass(color, sky, p, aspect, t, 0.020, 0.48, 0.20, vec2(0.56, 0.24), 57.2, 0.0, coverage);
 
-  gl_FragColor = u_mask
-    ? vec4(0.0, 0.0, 1.0 - smoothstep(0.47, 0.53, coverage), 1.0)
-    : vec4(color, 1.0);
+  if (u_mask != 0) {
+    float light = 1.0 - smoothstep(0.47, 0.53, coverage);
+    gl_FragColor = u_mask == 1 ? vec4(0.0, 0.0, light, 1.0) : vec4(0.0, 0.0, 0.0, 1.0 - light);
+  } else {
+    gl_FragColor = vec4(color, 1.0);
+  }
 }
 `;
 
@@ -234,13 +243,9 @@ function compile(gl: WebGLRenderingContext, type: number, source: string) {
   return shader;
 }
 
-function createRenderer(canvas: HTMLCanvasElement, mask = false) {
-  const gl = canvas.getContext('webgl', {
-    alpha: false,
-    antialias: false,
-    premultipliedAlpha: false,
-  });
-  if (!gl) return;
+function createRenderer(gl: RenderingContext | null, mode: 'sky' | 'filter' | 'overlay') {
+  if (!gl || !(gl instanceof WebGLRenderingContext)) return;
+  const { canvas } = gl;
 
   const vert = compile(gl, gl.VERTEX_SHADER, VERT);
   const frag = compile(gl, gl.FRAGMENT_SHADER, FRAG);
@@ -271,9 +276,10 @@ function createRenderer(canvas: HTMLCanvasElement, mask = false) {
     skyBottom: gl.getUniformLocation(program, 'u_skyBottom'),
   };
 
-  gl.uniform1i(gl.getUniformLocation(program, 'u_mask'), Number(mask));
+  gl.uniform1i(gl.getUniformLocation(program, 'u_mask'), { sky: 0, filter: 1, overlay: 2 }[mode]);
 
   return {
+    canvas,
     resize(width: number, height: number) {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const w = Math.max(1, Math.round(width * dpr));
@@ -332,26 +338,37 @@ export const CloudShader = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const sky = createRenderer(canvas);
+    const sky = createRenderer(canvas.getContext('webgl', webGLAttributes), 'sky');
     if (!sky) return;
 
+    // WebKit can bypass SVG filters on composited WebGL layers.
+    const cssCanvasDocument = document as CSSCanvasDocument;
+    const useCSSCanvas = cssCanvasDocument.getCSSCanvasContext
+      && CSS.supports('mask-image', '-webkit-canvas(clouds)');
+    const maskMode = useCSSCanvas ? 'overlay' : 'filter';
     const masks = (maskCanvasIds ?? []).flatMap((id) => {
       const surface = document.getElementById(id);
       if (!(surface instanceof HTMLCanvasElement) || !surface.parentElement) return [];
 
-      const renderer = createRenderer(surface, true);
+      const gl = useCSSCanvas
+        ? cssCanvasDocument.getCSSCanvasContext?.('webgl', id, 1, 1) ?? null
+        : surface.getContext('webgl', webGLAttributes);
+      const renderer = createRenderer(gl, maskMode);
       if (!renderer) return [];
 
-      return [{ surface, group: surface.parentElement, renderer, available: true, ready: false }];
+      const group = surface.parentElement;
+      if (useCSSCanvas) group.style.setProperty('--hero-cloud-mask', `-webkit-canvas(${id})`);
+      return [{ surface, group, renderer, available: true, ready: false }];
     });
     const disableMasks = (event?: Event) => {
       for (const mask of masks) {
-        if (event && event.currentTarget !== canvas && event.currentTarget !== mask.surface) continue;
+        if (event && event.currentTarget !== canvas && event.currentTarget !== mask.renderer.canvas) continue;
         mask.available = false;
         mask.group.removeAttribute('data-cloud-mask-ready');
+        if (useCSSCanvas) mask.group.style.removeProperty('--hero-cloud-mask');
       }
     };
-    for (const { surface } of masks) surface.addEventListener('webglcontextlost', disableMasks);
+    for (const { renderer } of masks) renderer.canvas.addEventListener('webglcontextlost', disableMasks);
     canvas.addEventListener('webglcontextlost', disableMasks);
 
     let frame = 0;
@@ -398,7 +415,7 @@ export const CloudShader = ({
         if (!mask.available) continue;
         mask.renderer.draw(elapsed, cloudCount, cloud, skyTop, skyBottom);
         if (!mask.ready) {
-          mask.group.setAttribute('data-cloud-mask-ready', '');
+          mask.group.setAttribute('data-cloud-mask-ready', maskMode);
           mask.ready = true;
         }
       }
@@ -421,8 +438,8 @@ export const CloudShader = ({
       visibilityObserver.disconnect();
       disableMasks();
       canvas.removeEventListener('webglcontextlost', disableMasks);
-      for (const { surface, renderer } of masks) {
-        surface.removeEventListener('webglcontextlost', disableMasks);
+      for (const { renderer } of masks) {
+        renderer.canvas.removeEventListener('webglcontextlost', disableMasks);
         renderer.dispose();
       }
       sky.dispose();
