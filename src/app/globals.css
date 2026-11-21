@@ -192,7 +192,7 @@ img {
     @apply pointer-events-none invisible absolute -inset-3 max-w-none;
     width: calc(100% + --spacing(6));
     height: calc(100% + --spacing(6));
-    filter: blur(3px);
+    /* filter: blur(3px); */
   }
 
   .hero-copy {
@@ -335,18 +335,19 @@ img {
   @variant desktop {
     .bento-facts {
       width: 100%;
-      max-width: 42rem;
       container-type: inline-size;
       --bento-strip-width: --spacing(11);
+      --bento-open-width: min(30rem, calc(100cqi - 3 * (var(--bento-strip-width) + var(--bento-gap))));
+      --bento-closed-width: calc((100cqi - var(--bento-open-width) - 3 * var(--bento-gap)) / 3);
 
       @variant lg { --bento-strip-width: --spacing(14); }
     }
 
     .bento-fact {
       @apply flex-none;
-      flex-basis: var(--bento-strip-width);
+      flex-basis: var(--bento-closed-width);
       @media (prefers-reduced-motion: no-preference) {
-        transition: flex-grow var(--bento-duration) var(--bento-easing);
+        transition: flex-basis var(--bento-duration) var(--bento-easing);
       }
     }
 
@@ -354,7 +355,7 @@ img {
       @apply absolute inset-y-0 start-0 h-auto flex-row-reverse items-center;
       writing-mode: vertical-rl;
       inline-size: 100%;
-      block-size: calc(var(--bento-strip-width) - 2px);
+      block-size: 100%;
       padding-block: 0;
       padding-inline: --spacing(5);
 
@@ -372,7 +373,7 @@ img {
     }
 
     .bento-fact:has(:checked) {
-      @apply grow;
+      flex-basis: var(--bento-open-width);
 
       .bento-fact-topic { opacity: 0; }
       .bento-fact-expanded-topic {
@@ -385,7 +386,7 @@ img {
     .bento-fact-reveal {
       @apply absolute inset-y-0 start-0 block;
       /* Lay out the content at the expanded width throughout the transition. */
-      width: calc(100cqi - 3 * (var(--bento-strip-width) + var(--bento-gap)) - 2px);
+      width: calc(var(--bento-open-width) - 2px);
       clip-path: inset(0 100% 0 0);
 
       @media (prefers-reduced-motion: no-preference) {
